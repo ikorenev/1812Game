@@ -22,32 +22,47 @@ protected:
 	class APlayerPawn* PlayerPawn;
 
 	UPROPERTY(VisibleAnywhere)
-	EPlayerCameraState CurrentState;
+	EPlayerCameraState MapState;
 
 	UPROPERTY(VisibleAnywhere)
-	EPlayerCameraState TargetState;
+	TArray<class APlayerCameraSpot*> CameraSpots;
 
-	UPROPERTY(EditAnywhere)
-	float HalfWidthMapBorder;
+	UPROPERTY(VisibleAnywhere)
+	int CurrentSpot;
 
-	UPROPERTY(EditAnywhere)
-	float HalfHeightMapBorder;
+	UPROPERTY(EditAnywhere, Category = "Camera Spots Movement")
+	float LocationInterpSpeed;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Camera Spots Movement")
+	float RotationInterpSpeed;
+
+	UPROPERTY(EditAnywhere, Category = "Map Movement")
 	float Speed;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Map Movement")
 	float Friction;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, Category = "Map Movement")
 	FVector2D Velocity;
+
+	UPROPERTY(EditAnywhere, Category="Map Movement")
+	float HalfWidthMapBorder;
+
+	UPROPERTY(EditAnywhere, Category = "Map Movement")
+	float HalfHeightMapBorder;
+
+
 
 
 	virtual void BeginPlay() override;
 
-	void UpdateTargetState();
+	void UpdateCameraSpot();
 
-	void MoveToTarget(float DeltaTime);
+	void MoveCameraToCurrentSpot(float deltaTime);
+
+	void MoveCameraToMap(float deltaTime);
+
+	void UpdateMovementOnMap(float deltaTime);
 
 	FVector2D GetInputDirection();
 
@@ -55,5 +70,5 @@ public:
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-
+	void ChangeCameraSpot(int deltaIndex);
 };

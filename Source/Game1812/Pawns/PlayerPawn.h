@@ -10,6 +10,8 @@
 
 struct FPlayerInput
 {
+	float MouseScroll;
+
 	bool MoveForward;
 	bool MoveBack;
 	bool MoveLeft;
@@ -34,14 +36,11 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	class UCameraComponent* CameraComponent;
 
-	UPROPERTY(VisibleAnywhere)
-	TMap<EPlayerCameraState, class UArrowComponent*> CameraSpots;
-
 	UPROPERTY(EditDefaultsOnly)
 	class UCameraArmComponent* CameraArmComponent;
 
 	UPROPERTY(EditDefaultsOnly)
-	USceneComponent* CameraArmPoint;
+	class USceneComponent* CameraArmPoint;
 
 	UPROPERTY(EditAnywhere)
 	class UPlayerMovementComponent* MovementComponent;
@@ -53,10 +52,9 @@ protected:
 	class UInputMappingConfig* InputConfig;
 
 
-
-
 	virtual void BeginPlay() override;
 
+	void MouseScroll(const struct FInputActionValue& Value);
 	void MoveForward(const struct FInputActionValue& Value);
 	void MoveBack(const struct FInputActionValue& Value);
 	void MoveLeft(const struct FInputActionValue& Value);
@@ -72,8 +70,6 @@ public:
 	USceneComponent* GetCameraArmPoint() { return CameraArmPoint; }
 
 	FPlayerInput* GetPlayerInput() { return &PlayerInput; }
-
-	FTransform GetCameraSpot(EPlayerCameraState state);
 
 	virtual void Tick(float DeltaTime) override;
 

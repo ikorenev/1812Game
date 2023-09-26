@@ -6,8 +6,7 @@
 UENUM(BlueprintType)
 enum class EPlayerCameraState : uint8
 {
-	Default = 0,
-	LookingAtMap = 1,
-	LookingLeft = 2,
-	LookingRight = 3
+	OutOfMap = 0,
+	MovingToMap = 1,
+	LookingAtMap = 2
 };

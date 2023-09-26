@@ -20,42 +20,25 @@ APlayerPawn::APlayerPawn()
 
 	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
 
-	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
-	CameraComponent->SetupAttachment(RootComponent);
-
 	CameraArmComponent = CreateDefaultSubobject<UCameraArmComponent>(TEXT("Camera Arm"));
 	CameraArmComponent->SetupAttachment(RootComponent);
 
 	CameraArmPoint = CreateDefaultSubobject<USceneComponent>(TEXT("Camera Point"));
 	CameraArmPoint->SetupAttachment(CameraArmComponent);
 
-
-	TTuple<EPlayerCameraState, FName> arrows[3] = {
-		MakeTuple(EPlayerCameraState::Default, "Default Spot"),
-		MakeTuple(EPlayerCameraState::LookingLeft, "Left Spot"),
-		MakeTuple(EPlayerCameraState::LookingRight, "Right Spot")
-	};
-
-	for (auto arrow : arrows)
-	{
-		UArrowComponent* arrowComponent = CreateDefaultSubobject<UArrowComponent>(arrow.Get<1>());
-		arrowComponent->SetupAttachment(RootComponent);
-		CameraSpots.Add(arrow.Get<0>(), arrowComponent);
-	}
+	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
+	CameraComponent->SetupAttachment(CameraArmPoint);
 
 	MovementComponent = CreateDefaultSubobject<UPlayerMovementComponent>(TEXT("Movement Component"));
 }
 
+
+void APlayerPawn::MouseScroll(const FInputActionValue& Value) { PlayerInput.MouseScroll = Value.Get<float>(); };
 void APlayerPawn::MoveForward(const FInputActionValue& Value) { PlayerInput.MoveForward = Value.Get<bool>(); };
 void APlayerPawn::MoveBack(const FInputActionValue& Value) { PlayerInput.MoveBack = Value.Get<bool>(); };
 void APlayerPawn::MoveLeft(const FInputActionValue& Value) { PlayerInput.MoveLeft = Value.Get<bool>(); };
 void APlayerPawn::MoveRight(const FInputActionValue& Value) { PlayerInput.MoveRight = Value.Get<bool>(); };
 void APlayerPawn::LookAtMap(const FInputActionValue& Value) { PlayerInput.LookAtMap = Value.Get<bool>(); };
-
-FTransform APlayerPawn::GetCameraSpot(EPlayerCameraState state)
-{
-	return CameraSpots.Contains(state) ? CameraSpots[state]->GetComponentTransform() : FTransform();
-}
 
 void APlayerPawn::BeginPlay()
 {
@@ -88,6 +71,8 @@ void APlayerPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 
 	UEnhancedInputComponent* PlayerEnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent);
+
+	PlayerEnhancedInputComponent->BindAction(InputConfig->MouseScroll, ETriggerEvent::Triggered, this, &APlayerPawn::MouseScroll);
 
 	PlayerEnhancedInputComponent->BindAction(InputConfig->MoveForward, ETriggerEvent::Triggered, this, &APlayerPawn::MoveForward);
 	PlayerEnhancedInputComponent->BindAction(InputConfig->MoveBack, ETriggerEvent::Triggered, this, &APlayerPawn::MoveBack);

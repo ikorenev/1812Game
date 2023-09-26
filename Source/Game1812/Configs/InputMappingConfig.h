@@ -13,6 +13,9 @@ class GAME1812_API UInputMappingConfig : public UDataAsset
 public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	class UInputAction* MouseScroll;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	class UInputAction* MoveForward;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)

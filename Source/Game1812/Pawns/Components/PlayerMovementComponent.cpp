@@ -2,7 +2,9 @@
 
 #include "../PlayerPawn.h"
 #include "CameraArmComponent.h"
+#include "../PlayerCameraSpot.h"
 
+#include <Kismet/GameplayStatics.h>
 #include <Camera/CameraComponent.h>
 
 
@@ -10,14 +12,16 @@ UPlayerMovementComponent::UPlayerMovementComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 
-	CurrentState = EPlayerCameraState::Default;
-	TargetState = EPlayerCameraState::Default;
+	MapState = EPlayerCameraState::OutOfMap;
 
 	HalfWidthMapBorder = 100;
 	HalfHeightMapBorder = 75;
 	Speed = 150;
 	Friction = 350;
 	Velocity = FVector2D(0);
+
+	LocationInterpSpeed = 15;
+	RotationInterpSpeed = 20;
 }
 
 void UPlayerMovementComponent::BeginPlay()
@@ -31,114 +35,162 @@ void UPlayerMovementComponent::BeginPlay()
 		PlayerPawn = Cast<APlayerPawn>(owner);
 	}
 
-	PlayerPawn->GetCameraComponent()->SetWorldTransform(PlayerPawn->GetCameraSpot(EPlayerCameraState::Default));
+	//Find all camera spots in scene
+
+	TArray<AActor*> spotActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerCameraSpot::StaticClass(), spotActors);
+
+	TArray<APlayerCameraSpot*> spots;
+
+	for (auto spot : spotActors)
+	{
+		APlayerCameraSpot* cameraSpot = Cast<APlayerCameraSpot>(spot);
+
+		if (!cameraSpot) continue;
+
+		spots.Add(cameraSpot);
+	}
+
+	spots.Sort();
+
+	for (auto spot : spots) 
+	{
+		CameraSpots.Add(spot);
+
+		if (spot->GetPriority() == 0) CurrentSpot = CameraSpots.Num() - 1;
+	}
+
+	if (CameraSpots.Num() != 0) PlayerPawn->GetCameraComponent()->SetWorldTransform(CameraSpots[CurrentSpot]->GetActorTransform());
 }
 
 void UPlayerMovementComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (CurrentState == TargetState) UpdateTargetState();
-
-	if (CurrentState != TargetState)
-	{
-		MoveToTarget(DeltaTime);
-	}
-	else
-	{
-		if (CurrentState == EPlayerCameraState::LookingAtMap)
-		{
-			FVector2D inputDirection = GetInputDirection();
-
-			if (inputDirection.IsNearlyZero())
-			{
-				Velocity -= Velocity.GetSafeNormal() * Friction * DeltaTime;
-			}
-			else
-			{
-				Velocity = inputDirection * Speed;
-			}
-
-			PlayerPawn->GetCameraArmComponent()->AddRelativeLocation(FVector(Velocity * DeltaTime, 0));
-		}
-	}
-
-}
-
-void UPlayerMovementComponent::UpdateTargetState()
-{
-	if (CurrentState == EPlayerCameraState::LookingAtMap)
+	if (MapState != EPlayerCameraState::OutOfMap) 
 	{
 		if (PlayerPawn->GetPlayerInput()->LookAtMap)
 		{
-			TargetState = EPlayerCameraState::Default;
-
+			MapState = EPlayerCameraState::OutOfMap;
 			PlayerPawn->GetPlayerInput()->LookAtMap = false;
-		}
-	}
-	else
-	{
-		if (PlayerPawn->GetPlayerInput()->LookAtMap)
-		{
-			TargetState = EPlayerCameraState::LookingAtMap;
-
-			PlayerPawn->GetPlayerInput()->LookAtMap = false;
-		}
-
-		if (PlayerPawn->GetPlayerInput()->MoveLeft)
-		{
-			TargetState = EPlayerCameraState::LookingLeft;
 
 			PlayerPawn->GetPlayerInput()->MoveLeft = false;
-		}
-
-		if (PlayerPawn->GetPlayerInput()->MoveRight)
-		{
-			TargetState = EPlayerCameraState::LookingRight;
-
 			PlayerPawn->GetPlayerInput()->MoveRight = false;
+
+			Velocity = FVector2D(0);
 		}
-
-		if (PlayerPawn->GetPlayerInput()->MoveBack)
+		else 
 		{
-			TargetState = EPlayerCameraState::Default;
+			if (MapState == EPlayerCameraState::LookingAtMap) 
+			{
+				UpdateMovementOnMap(DeltaTime);
+			}
+			else 
+			{
+				MoveCameraToMap(DeltaTime);
+			}
+		}
+	}
+	else 
+	{
+		if (PlayerPawn->GetPlayerInput()->LookAtMap)
+		{
+			MapState = EPlayerCameraState::MovingToMap;
+			PlayerPawn->GetPlayerInput()->LookAtMap = false;
+		}
+		else
+		{
+			UpdateCameraSpot();
 
-			PlayerPawn->GetPlayerInput()->MoveBack = false;
+			MoveCameraToCurrentSpot(DeltaTime);
 		}
 	}
 }
 
-void UPlayerMovementComponent::MoveToTarget(float DeltaTime)
+void UPlayerMovementComponent::UpdateCameraSpot() 
 {
-	FTransform spot;
-
-	if (TargetState == EPlayerCameraState::LookingAtMap)
+	if (PlayerPawn->GetPlayerInput()->MoveLeft)
 	{
-		spot = PlayerPawn->GetCameraArmPoint()->GetComponentTransform();
+		ChangeCameraSpot(-1);
+
+		PlayerPawn->GetPlayerInput()->MoveLeft = false;
+	}
+
+	if (PlayerPawn->GetPlayerInput()->MoveRight)
+	{
+		ChangeCameraSpot(1);
+
+		PlayerPawn->GetPlayerInput()->MoveRight = false;
+	}
+}
+
+void UPlayerMovementComponent::UpdateMovementOnMap(float deltaTime)
+{
+	FVector2D inputDirection = GetInputDirection();
+
+	if (inputDirection.IsNearlyZero())
+	{
+		FVector2D frictionVector = Velocity.GetSafeNormal() * Friction * deltaTime;
+
+		if (Velocity.SizeSquared() > frictionVector.SizeSquared()) 
+		{
+			Velocity -= frictionVector;
+		}
+		else 
+		{
+			Velocity = FVector2D(0);
+		}
 	}
 	else
 	{
-		spot = PlayerPawn->GetCameraSpot(TargetState);
+		Velocity = inputDirection * Speed;
 	}
 
-	FVector moveDelta = FMath::VInterpTo(PlayerPawn->GetCameraComponent()->GetComponentLocation(), spot.GetLocation(), DeltaTime, 15);
-	FRotator rotationDelta = FMath::RInterpTo(PlayerPawn->GetCameraComponent()->GetComponentRotation(), spot.GetRotation().Rotator(), DeltaTime, 20);
+	PlayerPawn->GetCameraArmComponent()->AddRelativeLocation(FVector(Velocity * deltaTime, 0));
+
+	PlayerPawn->GetCameraArmComponent()->AddTargetLength(-PlayerPawn->GetPlayerInput()->MouseScroll * 2.5);
+
+	PlayerPawn->GetPlayerInput()->MouseScroll = 0;
+
+	FVector location = PlayerPawn->GetCameraArmComponent()->GetRelativeLocation();
+
+	PlayerPawn->GetCameraArmComponent()->SetRelativeLocation(FVector(FMath::Clamp(location.X, -HalfHeightMapBorder, HalfHeightMapBorder), FMath::Clamp(location.Y, -HalfWidthMapBorder, HalfWidthMapBorder), location.Z));
+}
+
+void UPlayerMovementComponent::MoveCameraToCurrentSpot(float deltaTime) 
+{
+	APlayerCameraSpot* spot = CameraSpots[CurrentSpot];
+
+	float lip = LocationInterpSpeed;
+	float rip = RotationInterpSpeed;
+
+	if (spot->HaveCustomLocationInterpSpeed()) lip = spot->GetLocationInterpSpeed();
+	if (spot->HaveCustomRotationInterpSpeed()) rip = spot->GetRotationInterpSpeed();
+
+	FVector moveDelta = FMath::VInterpTo(PlayerPawn->GetCameraComponent()->GetComponentLocation(), spot->GetActorLocation(), deltaTime, lip);
+	FRotator rotationDelta = FMath::RInterpTo(PlayerPawn->GetCameraComponent()->GetComponentRotation(), spot->GetActorRotation(), deltaTime, rip);
+
+	PlayerPawn->GetCameraComponent()->SetWorldLocation(moveDelta);
+	PlayerPawn->GetCameraComponent()->SetWorldRotation(rotationDelta);
+}
+
+void UPlayerMovementComponent::MoveCameraToMap(float deltaTime) 
+{
+	USceneComponent* cameraPoint = PlayerPawn->GetCameraArmPoint();
+
+	FVector moveDelta = FMath::VInterpTo(PlayerPawn->GetCameraComponent()->GetComponentLocation(), cameraPoint->GetComponentLocation(), deltaTime, LocationInterpSpeed);
+	FRotator rotationDelta = FMath::RInterpTo(PlayerPawn->GetCameraComponent()->GetComponentRotation(), cameraPoint->GetComponentRotation(), deltaTime, RotationInterpSpeed);
 
 	PlayerPawn->GetCameraComponent()->SetWorldLocation(moveDelta);
 	PlayerPawn->GetCameraComponent()->SetWorldRotation(rotationDelta);
 
-	if ((PlayerPawn->GetCameraComponent()->GetComponentLocation() - spot.GetLocation()).IsNearlyZero(1) &&
-		(PlayerPawn->GetCameraComponent()->GetComponentRotation() - spot.GetRotation().Rotator()).IsNearlyZero(0.05))
+	if ((PlayerPawn->GetCameraComponent()->GetComponentLocation() - cameraPoint->GetComponentLocation()).IsNearlyZero(1) &&
+		(PlayerPawn->GetCameraComponent()->GetComponentRotation() - cameraPoint->GetComponentRotation()).IsNearlyZero(0.05))
 	{
-		CurrentState = TargetState;
+		MapState = EPlayerCameraState::LookingAtMap;
 
-		PlayerPawn->GetCameraComponent()->SetWorldLocation(spot.GetLocation());
-		PlayerPawn->GetCameraComponent()->SetWorldRotation(spot.GetRotation().Rotator());
-
-		if (CurrentState == EPlayerCameraState::LookingAtMap)
-		{
-			PlayerPawn->GetCameraComponent()->AttachToComponent(PlayerPawn->GetCameraArmPoint(), FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-		}
+		PlayerPawn->GetCameraComponent()->SetWorldLocation(cameraPoint->GetComponentLocation());
+		PlayerPawn->GetCameraComponent()->SetWorldRotation(cameraPoint->GetComponentRotation());
 	}
 }
 
@@ -152,4 +204,9 @@ FVector2D UPlayerMovementComponent::GetInputDirection()
 	if (PlayerPawn->GetPlayerInput()->MoveLeft) direction -= PlayerPawn->GetActorRightVector();
 
 	return FVector2D(direction).GetSafeNormal();
+}
+
+void UPlayerMovementComponent::ChangeCameraSpot(int deltaIndex)
+{
+	CurrentSpot = FMath::Clamp(CurrentSpot + deltaIndex, 0, CameraSpots.Num() - 1);
 }

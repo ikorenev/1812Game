@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -12,15 +10,33 @@ class GAME1812_API APlayerCameraSpot : public AActor
 	GENERATED_BODY()
 	
 public:	
-	// Sets default values for this actor's properties
+
 	APlayerCameraSpot();
 
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+	bool operator<(const APlayerCameraSpot& other) const { return Priority < other.Priority; }
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+protected:
+
+	UPROPERTY(EditAnywhere, Category = "Spot Settings")
+	int Priority;
+
+	UPROPERTY(EditAnywhere, Category = "Spot Settings")
+	float LocationInterpSpeed;
+
+	UPROPERTY(EditAnywhere, Category = "Spot Settings")
+	float RotationInterpSpeed;
+
+	UPROPERTY(VisibleAnywhere)
+	class UCameraComponent* CameraComponent;
+
+public: 
+
+	int GetPriority() { return Priority; }
+
+	bool HaveCustomLocationInterpSpeed() { return LocationInterpSpeed != 0; }
+	bool HaveCustomRotationInterpSpeed() { return RotationInterpSpeed != 0; }
+
+	float GetLocationInterpSpeed() { return LocationInterpSpeed; }
+	float GetRotationInterpSpeed() { return RotationInterpSpeed; }
 
 };

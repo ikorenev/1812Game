@@ -34,11 +34,10 @@ protected:
 
 	virtual void BeginPlay() override;
 
-
-
 public:
 
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	void AddTargetLength(float deltaLength) { TargetLength = FMath::Clamp(TargetLength + deltaLength, MinLength, MaxLength); }
 
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 };
