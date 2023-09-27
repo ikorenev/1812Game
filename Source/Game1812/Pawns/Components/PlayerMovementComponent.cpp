@@ -148,7 +148,7 @@ void UPlayerMovementComponent::UpdateMovementOnMap(float deltaTime)
 
 	PlayerPawn->GetCameraArmComponent()->AddRelativeLocation(FVector(Velocity * deltaTime, 0));
 
-	PlayerPawn->GetCameraArmComponent()->AddTargetLength(-PlayerPawn->GetPlayerInput()->MouseScroll * 2.5);
+	PlayerPawn->GetCameraArmComponent()->AddTargetLength(-PlayerPawn->GetPlayerInput()->MouseScroll * 10);
 
 	PlayerPawn->GetPlayerInput()->MouseScroll = 0;
 

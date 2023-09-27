@@ -29,7 +29,7 @@ void UCameraArmComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	CurrentLength = TargetLength;
+	CurrentLength = FMath::FInterpTo(CurrentLength, TargetLength, DeltaTime, 5);
 
 	PlayerPawn->GetCameraArmPoint()->SetRelativeLocation(FVector(-CurrentLength, 0, 0));
 }
