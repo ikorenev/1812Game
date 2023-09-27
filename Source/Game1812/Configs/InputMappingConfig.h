@@ -16,6 +16,9 @@ public:
 	class UInputAction* MouseScroll;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	class UInputAction* MouseLeftClick;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	class UInputAction* MoveForward;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)

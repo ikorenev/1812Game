@@ -18,6 +18,9 @@ struct FPlayerInput
 	bool MoveRight;
 
 	bool LookAtMap;
+
+	bool MouseLeftClick;
+	bool MouseLeftHold;
 };
 
 UCLASS()
@@ -42,8 +45,11 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	class USceneComponent* CameraArmPoint;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(VisibleAnywhere)
 	class UPlayerMovementComponent* MovementComponent;
+
+	UPROPERTY(VisibleAnywhere)
+	class UPlayerInteractionComponent* InteractionComponent;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Enhanced Input")
 	class UInputMappingContext* InputMapping;
@@ -55,6 +61,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	void MouseScroll(const struct FInputActionValue& Value);
+	void MouseLeftClick(const struct FInputActionValue& Value);
 	void MoveForward(const struct FInputActionValue& Value);
 	void MoveBack(const struct FInputActionValue& Value);
 	void MoveLeft(const struct FInputActionValue& Value);
@@ -66,6 +73,8 @@ public:
 	class UCameraComponent* GetCameraComponent() { return CameraComponent; }
 
 	class UCameraArmComponent* GetCameraArmComponent() { return CameraArmComponent; }
+
+	class  UPlayerMovementComponent* GetMovementComponent() { return MovementComponent; }
 
 	USceneComponent* GetCameraArmPoint() { return CameraArmPoint; }
 

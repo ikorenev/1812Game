@@ -68,6 +68,8 @@ protected:
 
 public:
 
+	EPlayerCameraState GetMapState() { return MapState; }
+
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	void ChangeCameraSpot(int deltaIndex);

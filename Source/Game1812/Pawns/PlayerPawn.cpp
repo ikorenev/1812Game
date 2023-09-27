@@ -4,6 +4,7 @@
 #include <Components/ArrowComponent.h>
 
 #include "Components/PlayerMovementComponent.h"
+#include "Components/PlayerInteractionComponent.h"
 #include "Components/CameraArmComponent.h"
 #include "../Configs/InputMappingConfig.h"
 
@@ -30,10 +31,12 @@ APlayerPawn::APlayerPawn()
 	CameraComponent->SetupAttachment(CameraArmPoint);
 
 	MovementComponent = CreateDefaultSubobject<UPlayerMovementComponent>(TEXT("Movement Component"));
+	InteractionComponent = CreateDefaultSubobject<UPlayerInteractionComponent>(TEXT("Interaction Component"));
 }
 
 
 void APlayerPawn::MouseScroll(const FInputActionValue& Value) { PlayerInput.MouseScroll = Value.Get<float>(); };
+void APlayerPawn::MouseLeftClick(const FInputActionValue& Value) { PlayerInput.MouseLeftClick = PlayerInput.MouseLeftHold = Value.Get<bool>(); };
 void APlayerPawn::MoveForward(const FInputActionValue& Value) { PlayerInput.MoveForward = Value.Get<bool>(); };
 void APlayerPawn::MoveBack(const FInputActionValue& Value) { PlayerInput.MoveBack = Value.Get<bool>(); };
 void APlayerPawn::MoveLeft(const FInputActionValue& Value) { PlayerInput.MoveLeft = Value.Get<bool>(); };
@@ -44,6 +47,7 @@ void APlayerPawn::BeginPlay()
 {
 	Super::BeginPlay();
 
+	GetLocalViewingPlayerController()->SetShowMouseCursor(true);
 }
 
 void APlayerPawn::Tick(float DeltaTime)
@@ -73,6 +77,7 @@ void APlayerPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	UEnhancedInputComponent* PlayerEnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent);
 
 	PlayerEnhancedInputComponent->BindAction(InputConfig->MouseScroll, ETriggerEvent::Triggered, this, &APlayerPawn::MouseScroll);
+	PlayerEnhancedInputComponent->BindAction(InputConfig->MouseLeftClick, ETriggerEvent::Triggered, this, &APlayerPawn::MouseLeftClick);
 
 	PlayerEnhancedInputComponent->BindAction(InputConfig->MoveForward, ETriggerEvent::Triggered, this, &APlayerPawn::MoveForward);
 	PlayerEnhancedInputComponent->BindAction(InputConfig->MoveBack, ETriggerEvent::Triggered, this, &APlayerPawn::MoveBack);
