@@ -15,8 +15,13 @@ public:
 
 protected:
 
-	UPROPERTY(VisibleAnywhere)
-	class UCharacterMovementComponent* MovementComponent;
+	UPROPERTY(EditAnywhere)
+	class UBoxComponent* BoxComponent;
+
+	UPROPERTY(EditAnywhere)
+	float MovementSpeed;
+
+	FVector TargetLocation;
 
 	virtual void BeginPlay() override;
 
