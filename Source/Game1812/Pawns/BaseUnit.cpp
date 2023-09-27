@@ -14,10 +14,9 @@ ABaseUnit::ABaseUnit()
 	BoxComponent = CreateDefaultSubobject<UBoxComponent>(FName("Collision"));
 	BoxComponent->InitBoxExtent(FVector(10, 10, 5));
 	BoxComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-	BoxComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Block);
+	BoxComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel2, ECollisionResponse::ECR_Block);
+	BoxComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	RootComponent = BoxComponent;
-
-
 
 	MovementSpeed = 10;
 }
@@ -27,8 +26,6 @@ void ABaseUnit::BeginPlay()
 	Super::BeginPlay();
 
 	SpawnDefaultController();
-	
-	
 }
 
 void ABaseUnit::Tick(float DeltaTime)
