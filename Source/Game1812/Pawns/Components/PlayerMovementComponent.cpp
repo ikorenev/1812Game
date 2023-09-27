@@ -16,8 +16,8 @@ UPlayerMovementComponent::UPlayerMovementComponent()
 
 	HalfWidthMapBorder = 100;
 	HalfHeightMapBorder = 75;
-	Speed = 150;
-	Friction = 350;
+	Speed = 250;
+	Friction = 1000;
 	Velocity = FVector2D(0);
 
 	LocationInterpSpeed = 15;
@@ -148,7 +148,7 @@ void UPlayerMovementComponent::UpdateMovementOnMap(float deltaTime)
 
 	PlayerPawn->GetCameraArmComponent()->AddRelativeLocation(FVector(Velocity * deltaTime, 0));
 
-	PlayerPawn->GetCameraArmComponent()->AddTargetLength(-PlayerPawn->GetPlayerInput()->MouseScroll * 10);
+	PlayerPawn->GetCameraArmComponent()->AddTargetLength(-PlayerPawn->GetPlayerInput()->MouseScroll * 30);
 
 	PlayerPawn->GetPlayerInput()->MouseScroll = 0;
 

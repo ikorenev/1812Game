@@ -47,7 +47,7 @@ void APlayerPawn::BeginPlay()
 {
 	Super::BeginPlay();
 
-	GetLocalViewingPlayerController()->SetShowMouseCursor(true);
+	if (GetLocalViewingPlayerController()) GetLocalViewingPlayerController()->SetShowMouseCursor(true);
 }
 
 void APlayerPawn::Tick(float DeltaTime)

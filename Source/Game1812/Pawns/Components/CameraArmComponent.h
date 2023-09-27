@@ -36,6 +36,8 @@ protected:
 
 public:
 
+	float GetCurrentLength() { return CurrentLength; }
+
 	void AddTargetLength(float deltaLength) { TargetLength = FMath::Clamp(TargetLength + deltaLength, MinLength, MaxLength); }
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;

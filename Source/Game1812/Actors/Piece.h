@@ -25,10 +25,21 @@ protected:
 	UPROPERTY(EditAnywhere)
 	float SweepCastHeight;
 
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<class ABaseUnit> UnitClass;
+
+	UPROPERTY(VisibleAnywhere)
+	class ABaseUnit* Unit;
+
 	UPROPERTY(VisibleAnywhere)
 	class UStaticMeshComponent* PieceMesh;
 
 	virtual void BeginPlay() override;
+
+	FVector FindPointOnMap();
+
+	UFUNCTION()
+	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
 public:	
 
