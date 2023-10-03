@@ -30,6 +30,8 @@ void APaperMap::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	/*
+
 	APawn* pawn = GetWorld()->GetFirstPlayerController()->GetPawn();
 
 	if (!pawn) return;
@@ -46,6 +48,6 @@ void APaperMap::Tick(float DeltaTime)
 	else 
 	{
 		MapMesh->SetVisibility(true);
-	}
+	}*/
 }
 
