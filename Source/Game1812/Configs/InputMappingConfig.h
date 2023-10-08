@@ -4,7 +4,6 @@
 #include "Engine/DataAsset.h"
 #include "InputMappingConfig.generated.h"
 
-
 UCLASS()
 class GAME1812_API UInputMappingConfig : public UDataAsset
 {
@@ -17,6 +16,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	class UInputAction* MouseLeftClick;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	class UInputAction* MouseRightClick;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	class UInputAction* MoveForward;
@@ -32,4 +34,10 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	class UInputAction* LookAtMap;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	class UInputAction* RotateLeft;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	class UInputAction* RotateRight;
 };

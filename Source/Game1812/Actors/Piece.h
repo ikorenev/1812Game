@@ -16,9 +16,6 @@ public:
 
 protected:
 
-	FVector TargetLocation;
-	bool IsBeingDragged;
-
 	UPROPERTY(EditAnywhere)
 	float HoverHeight;
 
@@ -49,5 +46,7 @@ public:
 
 	void OnDragEnd() override;
 
-	void OnMouseMove(FVector location) override;
+	void OnMouseMove(FVector location, bool hover) override;
+
+	void OnRotate(float yawRotation) override;
 };

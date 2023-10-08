@@ -37,11 +37,14 @@ APlayerPawn::APlayerPawn()
 
 void APlayerPawn::MouseScroll(const FInputActionValue& Value) { PlayerInput.MouseScroll = Value.Get<float>(); };
 void APlayerPawn::MouseLeftClick(const FInputActionValue& Value) { PlayerInput.MouseLeftClick = PlayerInput.MouseLeftHold = Value.Get<bool>(); };
+void APlayerPawn::MouseRightClick(const FInputActionValue& Value) { PlayerInput.MouseRightHold = Value.Get<bool>(); };
 void APlayerPawn::MoveForward(const FInputActionValue& Value) { PlayerInput.MoveForward = Value.Get<bool>(); };
 void APlayerPawn::MoveBack(const FInputActionValue& Value) { PlayerInput.MoveBack = Value.Get<bool>(); };
 void APlayerPawn::MoveLeft(const FInputActionValue& Value) { PlayerInput.MoveLeft = Value.Get<bool>(); };
 void APlayerPawn::MoveRight(const FInputActionValue& Value) { PlayerInput.MoveRight = Value.Get<bool>(); };
 void APlayerPawn::LookAtMap(const FInputActionValue& Value) { PlayerInput.LookAtMap = Value.Get<bool>(); };
+void APlayerPawn::RotateLeft(const FInputActionValue& Value) { PlayerInput.RotateLeft = Value.Get<bool>(); };
+void APlayerPawn::RotateRight(const FInputActionValue& Value) { PlayerInput.RotateRight = Value.Get<bool>(); };
 
 void APlayerPawn::BeginPlay()
 {
@@ -78,6 +81,7 @@ void APlayerPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 	PlayerEnhancedInputComponent->BindAction(InputConfig->MouseScroll, ETriggerEvent::Triggered, this, &APlayerPawn::MouseScroll);
 	PlayerEnhancedInputComponent->BindAction(InputConfig->MouseLeftClick, ETriggerEvent::Triggered, this, &APlayerPawn::MouseLeftClick);
+	PlayerEnhancedInputComponent->BindAction(InputConfig->MouseRightClick, ETriggerEvent::Triggered, this, &APlayerPawn::MouseRightClick);
 
 	PlayerEnhancedInputComponent->BindAction(InputConfig->MoveForward, ETriggerEvent::Triggered, this, &APlayerPawn::MoveForward);
 	PlayerEnhancedInputComponent->BindAction(InputConfig->MoveBack, ETriggerEvent::Triggered, this, &APlayerPawn::MoveBack);
@@ -85,4 +89,7 @@ void APlayerPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerEnhancedInputComponent->BindAction(InputConfig->MoveRight, ETriggerEvent::Triggered, this, &APlayerPawn::MoveRight);
 
 	PlayerEnhancedInputComponent->BindAction(InputConfig->LookAtMap, ETriggerEvent::Triggered, this, &APlayerPawn::LookAtMap);
+
+	PlayerEnhancedInputComponent->BindAction(InputConfig->RotateLeft, ETriggerEvent::Triggered, this, &APlayerPawn::RotateLeft);
+	PlayerEnhancedInputComponent->BindAction(InputConfig->RotateRight, ETriggerEvent::Triggered, this, &APlayerPawn::RotateRight);
 }

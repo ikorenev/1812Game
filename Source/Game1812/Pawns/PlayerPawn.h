@@ -21,6 +21,11 @@ struct FPlayerInput
 
 	bool MouseLeftClick;
 	bool MouseLeftHold;
+
+	bool MouseRightHold;
+
+	bool RotateLeft;
+	bool RotateRight;
 };
 
 UCLASS()
@@ -62,11 +67,14 @@ protected:
 
 	void MouseScroll(const struct FInputActionValue& Value);
 	void MouseLeftClick(const struct FInputActionValue& Value);
+	void MouseRightClick(const struct FInputActionValue& Value);
 	void MoveForward(const struct FInputActionValue& Value);
 	void MoveBack(const struct FInputActionValue& Value);
 	void MoveLeft(const struct FInputActionValue& Value);
 	void MoveRight(const struct FInputActionValue& Value);
 	void LookAtMap(const struct FInputActionValue& Value);
+	void RotateLeft(const struct FInputActionValue& Value);
+	void RotateRight(const struct FInputActionValue& Value);
 
 public:
 

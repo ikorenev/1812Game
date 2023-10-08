@@ -18,5 +18,7 @@ public:
 
     virtual void OnDragEnd() {}
 
-    virtual void OnMouseMove(FVector location) {}
+    virtual void OnMouseMove(FVector location, bool hover = true) {}
+
+    virtual void OnRotate(float yawRotation) {}
 };

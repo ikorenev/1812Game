@@ -10,6 +10,7 @@ UPlayerInteractionComponent::UPlayerInteractionComponent()
 
 	InteractionDistance = 500;
 	CurrentDraggable = nullptr;
+	RotateSpeed = 100;
 }
 
 void UPlayerInteractionComponent::BeginPlay()
@@ -37,7 +38,9 @@ void UPlayerInteractionComponent::TickComponent(float DeltaTime, ELevelTick Tick
 			{
 				FHitResult hit = SingleCursorTrace();
 
-				CurrentDraggable->OnMouseMove(hit.Location);
+				CurrentDraggable->OnMouseMove(hit.Location, !PlayerPawn->GetPlayerInput()->MouseRightHold);
+
+				CurrentDraggable->OnRotate((-(float)PlayerPawn->GetPlayerInput()->RotateLeft + (float)PlayerPawn->GetPlayerInput()->RotateRight) * RotateSpeed * DeltaTime);
 			}
 			else 
 			{

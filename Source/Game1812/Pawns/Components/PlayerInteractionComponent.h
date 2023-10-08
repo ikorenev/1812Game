@@ -22,7 +22,8 @@ protected:
 	UPROPERTY(EditAnywhere)
 	float InteractionDistance;
 
-	
+	UPROPERTY(EditAnywhere)
+	float RotateSpeed;
 
 	virtual void BeginPlay() override;
 
