@@ -4,7 +4,7 @@
 #include "GameFramework/Pawn.h"
 #include "BaseUnit.generated.h"
 
-UCLASS()
+UCLASS(Blueprintable, BlueprintType)
 class GAME1812_API ABaseUnit : public APawn
 {
 	GENERATED_BODY()
@@ -17,6 +17,9 @@ protected:
 
 	UPROPERTY(EditAnywhere)
 	class UBoxComponent* BoxComponent;
+
+	UPROPERTY(EditAnywhere)
+	class UUnitMovementComponent* MovementComponent;
 
 	UPROPERTY(EditAnywhere)
 	float MovementSpeed;

@@ -1,11 +1,8 @@
 #include "BaseUnit.h"
 
 #include <Components/BoxComponent.h>
-#include <GameFramework/CharacterMovementComponent.h>
-#include <NavigationPath.h>
-#include <NavigationSystem.h>
-#include <AITypes.h>
-#include <AIController.h>
+
+#include "Components/UnitMovementComponent.h"
 
 ABaseUnit::ABaseUnit()
 {
@@ -18,6 +15,8 @@ ABaseUnit::ABaseUnit()
 	BoxComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	RootComponent = BoxComponent;
 
+	MovementComponent = CreateDefaultSubobject<UUnitMovementComponent>(FName("Movement Component"));
+
 	MovementSpeed = 10;
 }
 
@@ -25,13 +24,15 @@ void ABaseUnit::BeginPlay()
 {
 	Super::BeginPlay();
 
-	SpawnDefaultController();
+	AddActorWorldOffset(FVector(0, 0, 10));
+
+	AddActorWorldOffset(FVector(0, 0, -20), true);
 }
 
 void ABaseUnit::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	return;
 	FRotator targetRotation = FRotator(0);
 
 	if (!((GetActorLocation() - TargetLocation) * FVector(1, 1, 0)).IsNearlyZero(5))
@@ -63,20 +64,5 @@ void ABaseUnit::Tick(float DeltaTime)
 
 void ABaseUnit::MoveToLocation(FVector location)
 {
-	TargetLocation = location;
-	/*UNavigationPath* path = UNavigationSystemV1::FindPathToLocationSynchronously(this, GetActorLocation(), location, this);
-	
-	if (path && path->IsValid())
-	{
-		FAIMoveRequest req;
-		req.SetAcceptanceRadius(1);
-		req.SetUsePathfinding(true);
-
-		AAIController* ai = Cast<AAIController>(GetController());
-
-		if (ai)
-		{
-			ai->RequestMove(req, path->GetPath());
-		}
-	}*/
+	MovementComponent->SetTargetLocation(location);
 }
