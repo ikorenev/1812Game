@@ -28,7 +28,7 @@ protected:
 
 	void UpdateMovement(float DeltaTime);
 
-	void RotateTo(float DeltaTime, FQuat Rotation);
+	void RotateTo(float DeltaTime, float RotationYaw);
 	void MoveTo(float DeltaTime, FVector Location);
 
 	FVector GetNextPathPoint();

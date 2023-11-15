@@ -49,43 +49,42 @@ void UUnitMovementComponent::UpdateMovement(float DeltaTime)
 
 	if (movementDirection.IsNearlyZero()) 
 	{
-		//return;
-	}
-
-	GEngine->AddOnScreenDebugMessage(2, 10, FColor::Blue, *targetPoint.ToString());
-
-	GEngine->AddOnScreenDebugMessage(1, 10, FColor::Yellow, *(targetPoint - UnitPawn->GetActorLocation()).ToString());
-
-	GEngine->AddOnScreenDebugMessage(5, 10, FColor::Red, FString::SanitizeFloat(movementDirection.Dot(UnitPawn->GetActorForwardVector())));
-
-	if (FVector::DotProduct(movementDirection, UnitPawn->GetActorForwardVector()) != 1.0f) 
-	{
-		RotateTo(DeltaTime, FQuat::FindBetween(UnitPawn->GetActorForwardVector(), movementDirection));
 		return;
 	}
 
-	MoveTo(DeltaTime, targetPoint);
+	const float rotationYaw = FQuat::FindBetween(UnitPawn->GetActorForwardVector(), movementDirection).Rotator().Yaw;
+
+	RotateTo(DeltaTime, rotationYaw);
+
+	if (FMath::Abs(rotationYaw) < 5.0f)
+		MoveTo(DeltaTime, targetPoint);
 }
 
-void UUnitMovementComponent::RotateTo(float DeltaTime, FQuat Rotation)
+void UUnitMovementComponent::RotateTo(float DeltaTime, float RotationYaw)
 {
-	GEngine->AddOnScreenDebugMessage(0, 10, FColor::Red, *Rotation.ToString());
-	
-	GetOwner()->AddActorLocalRotation(Rotation);
+	const float rotationDelta = FMath::Sign(RotationYaw) * DeltaTime * UnitPawn->GetRotationSpeed();
+	const float limitedRotation = FMath::Clamp(rotationDelta, -FMath::Abs(RotationYaw), FMath::Abs(RotationYaw));
 
-
-	//GEngine->AddOnScreenDebugMessage(0, 10, FColor::Red, FString::SanitizeFloat(Yaw));
-	//
-	//float currentYaw = GetOwner()->GetActorRotation().Yaw;
-	//
-	//FQuat rotation(FVector::UpVector, currentYaw - Yaw);
-	//
-	//GetOwner()->SetActorRotation(rotation);
+	UnitPawn->AddActorLocalRotation(FRotator(0, limitedRotation, 0));
 }
 
 void UUnitMovementComponent::MoveTo(float DeltaTime, FVector Location)
 {
+	const FVector delta = (Location - UnitPawn->GetActorLocation()) * FVector(1, 1, 0);
+	const FVector direction = delta.GetSafeNormal();
+	const FVector distance = direction * UnitPawn->GetMovementSpeed() * DeltaTime;
 
+	if (distance.SizeSquared() > delta.SizeSquared())
+	{
+		UnitPawn->SetActorLocation(Location);
+	}
+	else
+	{
+		UnitPawn->AddActorWorldOffset(distance);
+	}
+
+	UnitPawn->AddActorWorldOffset(FVector(0, 0, 10));
+	UnitPawn->AddActorWorldOffset(FVector(0, 0, -20), true);
 }
 
 void UUnitMovementComponent::SetTargetLocation(FVector NewTargetLocation)

@@ -24,6 +24,9 @@ protected:
 	UPROPERTY(EditAnywhere)
 	float MovementSpeed;
 
+	UPROPERTY(EditAnywhere)
+	float RotationSpeed;
+
 	FVector TargetLocation;
 
 	virtual void BeginPlay() override;
@@ -34,4 +37,6 @@ public:
 
 	void MoveToLocation(FVector location);
 
+	float GetMovementSpeed();
+	float GetRotationSpeed();
 };
