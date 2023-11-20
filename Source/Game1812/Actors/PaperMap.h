@@ -18,7 +18,7 @@ protected:
 	UPROPERTY(EditAnywhere)
 	float HideDistance;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UStaticMeshComponent* MapMesh;
 
 	virtual void BeginPlay() override;
