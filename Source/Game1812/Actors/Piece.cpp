@@ -3,6 +3,7 @@
 #include "../Pawns/BaseUnit.h"
 #include "PaperMap.h"
 #include <Components/StaticMeshComponent.h>
+#include <Components/WidgetComponent.h>
 
 APiece::APiece()
 {
@@ -10,6 +11,12 @@ APiece::APiece()
 
 	PieceMesh = CreateDefaultSubobject<UStaticMeshComponent>(FName("Piece Mesh"));
 	RootComponent = PieceMesh;
+
+	OrderWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(FName("Order Widget"));
+	OrderWidgetComponent->SetupAttachment(RootComponent);
+	OrderWidgetComponent->SetRelativeLocation(FVector(0, 0, 600));
+	OrderWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
+	OrderWidgetComponent->SetDrawSize(FVector2D(200, 200));
 
 	PieceMesh->SetSimulatePhysics(true);
 	PieceMesh->SetNotifyRigidBodyCollision(true);
@@ -23,6 +30,8 @@ void APiece::BeginPlay()
 	Super::BeginPlay();
 	
 	PieceMesh->OnComponentHit.AddDynamic(this, &APiece::OnHit);
+
+	OrderWidgetComponent->SetVisibility(false);
 }
 
 void APiece::Tick(float DeltaTime)
