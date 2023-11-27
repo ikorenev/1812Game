@@ -35,9 +35,10 @@ void ABaseUnit::Tick(float DeltaTime)
 
 }
 
-void ABaseUnit::MoveToLocation(FVector location)
+void ABaseUnit::AssignOrder(FUnitOrder NewOrder) 
 {
-	MovementComponent->SetTargetLocation(location);
+	MovementComponent->SetTargetLocation(NewOrder.Location);
+	CurrentOrder = NewOrder;
 }
 
 float ABaseUnit::GetMovementSpeed() { return MovementSpeed; }

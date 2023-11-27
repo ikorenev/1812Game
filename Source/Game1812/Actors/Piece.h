@@ -3,6 +3,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "../Pawns/Components/Draggable.h"
+#include "../Pawns/UnitOrder.h"
+
 #include <Blueprint/UserWidget.h>
 #include "Piece.generated.h"
 
@@ -38,12 +40,18 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	class ABaseUnit* Unit;
 
+	UPROPERTY(VisibleAnywhere)
+	bool bWasDragged;
+
 	virtual void BeginPlay() override;
 
 	FVector FindPointOnMap();
 
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+
+	void RequestOrder();
+	void RemoveOrder();
 
 public:
 
@@ -55,4 +63,7 @@ public:
 	void OnMouseMove(FVector location, bool hover) override;
 
 	void OnRotate(float yawRotation) override;
+
+	UFUNCTION(BlueprintCallable)
+	void AssignOrder(FUnitOrder UnitOrder);
 };

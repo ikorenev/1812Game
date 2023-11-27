@@ -1,6 +1,7 @@
 #include "Piece.h"
 
 #include "../Pawns/BaseUnit.h"
+#include "../UI/BaseOrderWidget.h"
 #include "PaperMap.h"
 #include <Components/StaticMeshComponent.h>
 #include <Components/WidgetComponent.h>
@@ -28,10 +29,20 @@ APiece::APiece()
 void APiece::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	PieceMesh->OnComponentHit.AddDynamic(this, &APiece::OnHit);
 
 	OrderWidgetComponent->SetVisibility(false);
+
+	UBaseOrderWidget* orderWidget = Cast<UBaseOrderWidget>(OrderWidgetComponent->GetWidget());
+
+	if (!orderWidget) 
+	{
+		Destroy();
+		return;
+	}
+		
+	orderWidget->Init(this);
 }
 
 void APiece::Tick(float DeltaTime)
@@ -58,11 +69,9 @@ void APiece::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimi
 
 	if (!map) return;
 
-	if (Unit) 
-	{
-		Unit->MoveToLocation(FindPointOnMap());
-	}
-	else 
+	if (bWasDragged) RequestOrder();
+
+	if (!Unit)
 	{
 		FVector point = FindPointOnMap();
 
@@ -72,20 +81,48 @@ void APiece::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimi
 		spawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 		Unit = GetWorld()->SpawnActor<ABaseUnit>(UnitClass.Get(), point, FRotator(0, GetActorRotation().Yaw, 0), spawnParams);
-		
+
+		FUnitOrder unitOrder;
+		unitOrder.Location = GetActorLocation();
+		unitOrder.YawRotation = GetActorRotation().Yaw;
+
+		Unit->AssignOrder(unitOrder);
 	}
+}
+
+void APiece::RequestOrder() 
+{
+	OrderWidgetComponent->SetVisibility(true);
+
+	bWasDragged = false;
+}
+
+void APiece::RemoveOrder() 
+{
+	OrderWidgetComponent->SetVisibility(false);
+}
+
+void APiece::AssignOrder(FUnitOrder UnitOrder) 
+{
+	if (Unit) Unit->AssignOrder(UnitOrder);
+
+	RemoveOrder();
 }
 
 void APiece::OnDragStart() 
 {
 	PieceMesh->SetSimulatePhysics(false);
 	SetActorEnableCollision(false);
+
+	RemoveOrder();
 }
 
 void APiece::OnDragEnd() 
 {
 	PieceMesh->SetSimulatePhysics(true);
 	SetActorEnableCollision(true);
+
+	bWasDragged = true;
 }
 
 void APiece::OnMouseMove(FVector location, bool hover)

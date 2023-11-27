@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
+#include "../Pawns/UnitOrder.h"
 #include "BaseUnit.generated.h"
 
 UCLASS(Blueprintable, BlueprintType)
@@ -27,7 +28,7 @@ protected:
 	UPROPERTY(EditAnywhere)
 	float RotationSpeed;
 
-	FVector TargetLocation;
+	FUnitOrder CurrentOrder;
 
 	virtual void BeginPlay() override;
 
@@ -35,7 +36,7 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 
-	void MoveToLocation(FVector location);
+	virtual void AssignOrder(FUnitOrder NewOrder);
 
 	float GetMovementSpeed();
 	float GetRotationSpeed();

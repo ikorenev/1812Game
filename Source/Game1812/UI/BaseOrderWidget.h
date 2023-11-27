@@ -11,5 +11,8 @@ class GAME1812_API UBaseOrderWidget : public UUserWidget
 	
 public: 
 
-	void InitWidget(class APiece* PieceOwner);
+	UFUNCTION(BlueprintNativeEvent)
+	void Init(class APiece* PieceOwner);
+
+	
 };

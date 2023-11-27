@@ -6,8 +6,8 @@
 
 UENUM(BlueprintType)
 enum class EUnitEnemyReaction : uint8 {
-	ATTACK = 0	UMETA(DisplayName = "DOWN"),
-	DEFEND = 1	UMETA(DisplayName = "LEFT"),
+	ATTACK = 0	UMETA(DisplayName = "ATTACK"),
+	DEFEND = 1	UMETA(DisplayName = "DEFEND"),
 };
 
 USTRUCT(BlueprintType)
@@ -19,8 +19,16 @@ public:
 
 	FUnitOrder();
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	EUnitEnemyReaction UnitEnemyReaction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bForcedMarch;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bConcentratedFire;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FVector Location;
-	FRotator Rotation;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float YawRotation;
 };
