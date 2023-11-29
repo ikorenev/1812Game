@@ -19,6 +19,8 @@ void UUnitMovementComponent::BeginPlay()
 	UnitPawn = Cast<ABaseUnit>(GetOwner());
 
 	if (!UnitPawn) DestroyComponent();
+
+	TargetLocation = UnitPawn->GetActorLocation();
 }
 
 void UUnitMovementComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -44,13 +46,15 @@ void UUnitMovementComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 
 void UUnitMovementComponent::UpdateMovement(float DeltaTime) 
 {
+
 	FVector targetPoint = GetNextPathPoint();
 	FVector movementDirection = (targetPoint - UnitPawn->GetActorLocation()).GetSafeNormal2D();
 
-	if (movementDirection.IsNearlyZero()) 
-	{
+	if ((GetLastPathPoint() - UnitPawn->GetActorLocation()).SizeSquared2D() < 0.1f)
 		return;
-	}
+
+	if (movementDirection.IsNearlyZero()) 
+		return;
 
 	const float rotationYaw = FQuat::FindBetween(UnitPawn->GetActorForwardVector(), movementDirection).Rotator().Yaw;
 
@@ -58,6 +62,11 @@ void UUnitMovementComponent::UpdateMovement(float DeltaTime)
 
 	if (FMath::Abs(rotationYaw) < 5.0f)
 		MoveTo(DeltaTime, targetPoint);
+
+	if ((GetLastPathPoint() - UnitPawn->GetActorLocation()).SizeSquared2D() < 0.1f)
+		if (OnMovementComplete.IsBound())
+			OnMovementComplete.Execute();
+		
 }
 
 void UUnitMovementComponent::RotateTo(float DeltaTime, float RotationYaw)
@@ -111,4 +120,14 @@ FVector UUnitMovementComponent::GetNextPathPoint()
 	}
 
 	return UnitPawn->GetActorLocation();
+}
+
+FVector UUnitMovementComponent::GetLastPathPoint() 
+{
+	if (!Path)
+	{
+		return UnitPawn->GetActorLocation();
+	}
+	
+	return Path->PathPoints.Last();
 }

@@ -1,8 +1,10 @@
 #include "Piece.h"
 
-#include "../Pawns/BaseUnit.h"
+#include "../Pawns/UnitOrder.h"
+
 #include "../UI/BaseOrderWidget.h"
 #include "PaperMap.h"
+#include "../Actors/HeadQuarters.h"
 #include <Components/StaticMeshComponent.h>
 #include <Components/WidgetComponent.h>
 
@@ -50,17 +52,6 @@ void APiece::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-FVector APiece::FindPointOnMap()
-{
-	FHitResult hit;
-
-	GetWorld()->LineTraceSingleByChannel(hit, GetActorLocation(), GetActorLocation() - FVector(0, 0, 1000), ECollisionChannel::ECC_GameTraceChannel1);
-
-	if (!hit.bBlockingHit) return FVector(0);
-
-	return hit.Location;
-}
-
 void APiece::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	if (!OtherActor) return;
@@ -73,20 +64,10 @@ void APiece::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimi
 
 	if (!Unit)
 	{
-		FVector point = FindPointOnMap();
-
-		if (point.IsNearlyZero()) return;
-
-		FActorSpawnParameters spawnParams;
-		spawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-
-		Unit = GetWorld()->SpawnActor<ABaseUnit>(UnitClass.Get(), point, FRotator(0, GetActorRotation().Yaw, 0), spawnParams);
-
-		FUnitOrder unitOrder;
-		unitOrder.Location = GetActorLocation();
-		unitOrder.YawRotation = GetActorRotation().Yaw;
-
-		Unit->AssignOrder(unitOrder);
+		if (AHeadQuarters::GetSingleton()) 
+		{
+			Unit = AHeadQuarters::GetSingleton()->SpawnUnit(UnitClass);
+		}
 	}
 }
 

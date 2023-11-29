@@ -16,9 +16,12 @@ struct GAME1812_API FUnitOrder
 	GENERATED_BODY()
 
 public:
-
+	
 	FUnitOrder();
+	FUnitOrder(FVector Location, float YawRotation);
 
+
+	//Для обычного юнита
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	EUnitEnemyReaction UnitEnemyReaction;
 
@@ -31,4 +34,8 @@ public:
 	FVector Location;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float YawRotation;
+
+	//Для разведчика
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<FVector> ExplorationLocations;
 };

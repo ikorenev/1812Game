@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
-#include "../Pawns/UnitOrder.h"
+#include "UnitOrder.h"
 #include "BaseUnit.generated.h"
 
 UCLASS(Blueprintable, BlueprintType)

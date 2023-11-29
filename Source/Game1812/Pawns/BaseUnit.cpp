@@ -3,6 +3,7 @@
 #include <Components/BoxComponent.h>
 
 #include "Components/UnitMovementComponent.h"
+#include "../Actors/HeadQuarters.h"
 
 ABaseUnit::ABaseUnit()
 {
@@ -19,6 +20,8 @@ ABaseUnit::ABaseUnit()
 
 	MovementSpeed = 10;
 	RotationSpeed = 40;
+
+	
 }
 
 void ABaseUnit::BeginPlay()
@@ -27,6 +30,8 @@ void ABaseUnit::BeginPlay()
 
 	AddActorWorldOffset(FVector(0, 0, 10));
 	AddActorWorldOffset(FVector(0, 0, -20), true);
+
+	CurrentOrder = FUnitOrder(GetActorLocation(), GetActorRotation().Yaw);
 }
 
 void ABaseUnit::Tick(float DeltaTime)
@@ -35,9 +40,8 @@ void ABaseUnit::Tick(float DeltaTime)
 
 }
 
-void ABaseUnit::AssignOrder(FUnitOrder NewOrder) 
+void ABaseUnit::AssignOrder(FUnitOrder NewOrder)
 {
-	MovementComponent->SetTargetLocation(NewOrder.Location);
 	CurrentOrder = NewOrder;
 }
 

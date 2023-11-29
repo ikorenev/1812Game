@@ -3,7 +3,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "../Pawns/Components/Draggable.h"
-#include "../Pawns/UnitOrder.h"
+#include "../Pawns/BaseUnit.h"
 
 #include <Blueprint/UserWidget.h>
 #include "Piece.generated.h"
@@ -26,9 +26,6 @@ protected:
 	class UWidgetComponent* OrderWidgetComponent;
 
 	UPROPERTY(EditAnywhere)
-	TSubclassOf<UUserWidget> OrderWidget;
-
-	UPROPERTY(EditAnywhere)
 	float HoverHeight;
 
 	UPROPERTY(EditAnywhere)
@@ -44,8 +41,6 @@ protected:
 	bool bWasDragged;
 
 	virtual void BeginPlay() override;
-
-	FVector FindPointOnMap();
 
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);

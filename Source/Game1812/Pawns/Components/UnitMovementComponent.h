@@ -4,6 +4,7 @@
 #include "Components/ActorComponent.h"
 #include "UnitMovementComponent.generated.h"
 
+DECLARE_DELEGATE(FOnMovementComplete)
 
 UCLASS(Blueprintable, BlueprintType)
 class GAME1812_API UUnitMovementComponent : public UActorComponent
@@ -32,10 +33,13 @@ protected:
 	void MoveTo(float DeltaTime, FVector Location);
 
 	FVector GetNextPathPoint();
+	FVector GetLastPathPoint();
 
 	void UpdatePath();
 
 public:	
+
+	FOnMovementComplete OnMovementComplete;
 
 	void SetTargetLocation(FVector NewTargetLocation);
 

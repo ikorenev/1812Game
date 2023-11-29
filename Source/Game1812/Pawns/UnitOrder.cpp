@@ -1,6 +1,6 @@
 #include "UnitOrder.h"
 
-FUnitOrder::FUnitOrder() 
+FUnitOrder::FUnitOrder()
 {
 	UnitEnemyReaction = EUnitEnemyReaction::ATTACK;
 
@@ -9,4 +9,10 @@ FUnitOrder::FUnitOrder()
 
 	Location = FVector::ZeroVector;
 	YawRotation = 0.f;
+}
+
+FUnitOrder::FUnitOrder(FVector Location, float YawRotation) : FUnitOrder()
+{
+	this->Location = Location;
+	this->YawRotation = YawRotation;
 }
