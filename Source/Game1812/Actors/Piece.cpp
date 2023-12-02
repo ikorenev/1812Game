@@ -2,6 +2,7 @@
 
 #include "../Pawns/UnitOrder.h"
 
+#include "Kismet/GameplayStatics.h"
 #include "../UI/BaseOrderWidget.h"
 #include "PaperMap.h"
 #include "../Actors/HeadQuarters.h"
@@ -26,6 +27,7 @@ APiece::APiece()
 
 	HoverHeight = 10;
 	SweepCastHeight = 200;
+	bForceOrder = false;
 }
 
 void APiece::BeginPlay()
@@ -85,9 +87,18 @@ void APiece::RemoveOrder()
 
 void APiece::AssignOrder(FUnitOrder UnitOrder) 
 {
-	if (Unit) Unit->AssignOrder(UnitOrder);
-
 	RemoveOrder();
+
+	if (!Unit) return;
+
+	if (bForceOrder) 
+	{
+		Unit->AssignOrder(UnitOrder);
+	}
+	else 
+	{
+		AHeadQuarters::GetSingleton()->AddOrderToAssign(UnitOrder, Unit);
+	}
 }
 
 void APiece::OnDragStart() 

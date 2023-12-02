@@ -40,6 +40,9 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	bool bWasDragged;
 
+	UPROPERTY(EditAnywhere)
+	bool bForceOrder;
+
 	virtual void BeginPlay() override;
 
 	UFUNCTION()
