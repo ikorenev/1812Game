@@ -16,7 +16,7 @@ public:
 
 protected:
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	class UCombatComponent* CombatComponent;
 
 	virtual void BeginPlay() override;
@@ -28,7 +28,7 @@ public:
 	void AssignOrder(FUnitOrder NewOrder) override;
 
 
-	void ApplyDamage(float Amount) override;
+	void ApplyDamage(class UCombatComponent* Attacker, float Amount) override;
 
 	ETeam GetTeam() override;
 

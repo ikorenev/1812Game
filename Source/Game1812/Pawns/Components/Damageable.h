@@ -18,7 +18,7 @@ class GAME1812_API IDamageable
 
 public:
 
-    virtual void ApplyDamage(float Amount) {}
+    virtual void ApplyDamage(class UCombatComponent* Attacker, float DamageAmount) {}
 
     virtual ETeam GetTeam() { return ETeam::RUSSIA; }
     virtual bool IsEnemy(ETeam Team) { return GetTeam() != Team; }

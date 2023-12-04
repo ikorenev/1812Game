@@ -28,9 +28,9 @@ void ACombatUnit::AssignOrder(FUnitOrder NewOrder)
 	MovementComponent->SetTargetLocation(CurrentOrder.Location);
 }
 
-void ACombatUnit::ApplyDamage(float Amount)
+void ACombatUnit::ApplyDamage(UCombatComponent* Attacker, float Amount)
 {
-
+	CombatComponent->ApplyDamage(Attacker, Amount);
 }
 
 ETeam ACombatUnit::GetTeam()
@@ -40,7 +40,7 @@ ETeam ACombatUnit::GetTeam()
 
 bool ACombatUnit::IsDead()
 {
-	return false;
+	return CombatComponent->IsDead();
 }
 
 FVector ACombatUnit::GetLocation()

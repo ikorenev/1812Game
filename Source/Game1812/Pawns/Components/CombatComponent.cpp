@@ -13,6 +13,7 @@ UCombatComponent::UCombatComponent()
 	TargetedEnemy = nullptr;
 
 	HealthPoints = 1000.0f;
+	Dead = false;
 }
 
 void UCombatComponent::BeginPlay()
@@ -29,6 +30,9 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	if (Dead)
+		return;
+
 	FUnitOrder order = UnitPawn->GetCurrentOrder();
 
 	UUnitMovementComponent* MovementComponent = UnitPawn->GetMovementComponent();
@@ -37,18 +41,25 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 	{
 		if (TargetedEnemy)
 		{
-			if (FVector::DistSquared2D(TargetedEnemy->GetLocation(), UnitPawn->GetActorLocation()) < FMath::Pow(GetAttackRange(), 2)) 
+			if (TargetedEnemy->IsDead()) 
 			{
-				MovementComponent->SetTargetLocation(UnitPawn->GetActorLocation());
-
-				if (!MovementComponent->IsMoving()) 
-				{
-					GEngine->AddOnScreenDebugMessage(1, 1, FColor::Red, "ATTACK!");
-				}
+				SetTargetedEnemy(nullptr);
 			}
-			else 
+			else
 			{
-				MovementComponent->SetTargetLocation(TargetedEnemy->GetLocation());
+				if (FVector::DistSquared2D(TargetedEnemy->GetLocation(), UnitPawn->GetActorLocation()) < FMath::Pow(GetAttackRange(), 2))
+				{
+					MovementComponent->SetTargetLocation(UnitPawn->GetActorLocation());
+
+					if (!MovementComponent->IsMoving())
+					{
+						Attack(TargetedEnemy, DeltaTime);
+					}
+				}
+				else
+				{
+					MovementComponent->SetTargetLocation(TargetedEnemy->GetLocation());
+				}
 			}
 		}
 		else 
@@ -62,6 +73,38 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 		}
 	}
 
+}
+
+void UCombatComponent::TryAttack(IDamageable* Target, float DeltaTime)
+{
+	if (CanAttack(Target))
+	{
+		Attack(Target, DeltaTime);
+	}
+}
+
+void UCombatComponent::Attack(IDamageable* Target, float DeltaTime)
+{
+	//TODO: Боевой дух
+	Target->ApplyDamage(this, FMath::Pow(1, 2) * GetBaseDamage() * HealthPoints * DeltaTime);
+}
+
+bool UCombatComponent::CanAttack(IDamageable* Target)
+{
+	const bool CloseEnoughToEnemy = FVector::DistSquared2D(TargetedEnemy->GetLocation(), UnitPawn->GetActorLocation()) < FMath::Pow(GetAttackRange(), 2);
+	const bool Standing = !UnitPawn->GetMovementComponent()->IsMoving();
+
+	return CloseEnoughToEnemy && Standing;
+}
+
+void UCombatComponent::ApplyDamage(UCombatComponent* Attacker, float DamageAmount)
+{
+	HealthPoints -= DamageAmount;
+
+	if (HealthPoints < 0) 
+	{
+		Dead = true;
+	}
 }
 
 void UCombatComponent::FindEnemiesInRange(TArray<IDamageable*>& OutArray)

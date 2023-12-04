@@ -29,7 +29,7 @@ protected:
 	UPROPERTY(EditAnywhere)
 	float RotationSpeed;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	ETeam Team;
 
 	FUnitOrder CurrentOrder;
