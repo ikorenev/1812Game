@@ -16,3 +16,14 @@ FUnitOrder::FUnitOrder(FVector Location, float YawRotation) : FUnitOrder()
 	this->Location = Location;
 	this->YawRotation = YawRotation;
 }
+
+bool FUnitOrder::IsSetToAttack()
+{
+	return UnitEnemyReaction == EUnitEnemyReaction::ATTACK;
+}
+
+bool FUnitOrder::IsSetToDefend()
+{
+	return UnitEnemyReaction == EUnitEnemyReaction::DEFEND;
+}
+

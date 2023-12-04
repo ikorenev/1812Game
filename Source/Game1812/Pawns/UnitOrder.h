@@ -38,4 +38,7 @@ public:
 	//Для разведчика
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<FVector> ExplorationLocations;
+
+	bool IsSetToAttack();
+	bool IsSetToDefend();
 };

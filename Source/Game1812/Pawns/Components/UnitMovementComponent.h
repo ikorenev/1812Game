@@ -25,6 +25,9 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	class UNavigationPath* Path;
 
+	UPROPERTY(VisibleAnywhere)
+	bool Moving;
+
 	virtual void BeginPlay() override;
 
 	void UpdateMovement(float DeltaTime);
@@ -37,11 +40,15 @@ protected:
 
 	void UpdatePath();
 
+	void CheckMovementComplete();
+
 public:	
 
 	FOnMovementComplete OnMovementComplete;
 
 	void SetTargetLocation(FVector NewTargetLocation);
+
+	bool IsMoving() { return Moving; };
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 

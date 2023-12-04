@@ -21,7 +21,7 @@ ABaseUnit::ABaseUnit()
 	MovementSpeed = 10;
 	RotationSpeed = 40;
 
-	
+	Team = ETeam::RUSSIA;
 }
 
 void ABaseUnit::BeginPlay()

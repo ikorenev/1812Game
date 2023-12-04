@@ -10,6 +10,7 @@ UUnitMovementComponent::UUnitMovementComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 
 	TargetLocation = FVector::ZeroVector;
+	Moving = false;
 }
 
 void UUnitMovementComponent::BeginPlay()
@@ -27,18 +28,13 @@ void UUnitMovementComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (!Path)
+	if (Moving)
 	{
-		if ((TargetLocation - UnitPawn->GetActorLocation()).SizeSquared2D() < 1.0f) 
-			return;
-
-		UpdatePath();
-	}
-
-	if (Path) 
-	{
-		if (Path->IsValid()) 
-			UpdateMovement(DeltaTime);
+		if (Path)
+		{
+			if (Path->IsValid())
+				UpdateMovement(DeltaTime);
+		}
 
 		UpdatePath();
 	}
@@ -46,15 +42,8 @@ void UUnitMovementComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 
 void UUnitMovementComponent::UpdateMovement(float DeltaTime) 
 {
-
 	FVector targetPoint = GetNextPathPoint();
 	FVector movementDirection = (targetPoint - UnitPawn->GetActorLocation()).GetSafeNormal2D();
-
-	if ((GetLastPathPoint() - UnitPawn->GetActorLocation()).SizeSquared2D() < 0.1f)
-		return;
-
-	if (movementDirection.IsNearlyZero()) 
-		return;
 
 	const float rotationYaw = FQuat::FindBetween(UnitPawn->GetActorForwardVector(), movementDirection).Rotator().Yaw;
 
@@ -63,10 +52,7 @@ void UUnitMovementComponent::UpdateMovement(float DeltaTime)
 	if (FMath::Abs(rotationYaw) < 5.0f)
 		MoveTo(DeltaTime, targetPoint);
 
-	if ((GetLastPathPoint() - UnitPawn->GetActorLocation()).SizeSquared2D() < 0.1f)
-		if (OnMovementComplete.IsBound())
-			OnMovementComplete.Execute();
-		
+	CheckMovementComplete();
 }
 
 void UUnitMovementComponent::RotateTo(float DeltaTime, float RotationYaw)
@@ -99,11 +85,26 @@ void UUnitMovementComponent::MoveTo(float DeltaTime, FVector Location)
 void UUnitMovementComponent::SetTargetLocation(FVector NewTargetLocation)
 { 
 	TargetLocation = NewTargetLocation;
+	Moving = true;
+	UpdatePath();
+
+	CheckMovementComplete();
 }
 
 void UUnitMovementComponent::UpdatePath()
 {
 	Path = UNavigationSystemV1::FindPathToLocationSynchronously(UnitPawn, UnitPawn->GetActorLocation(), TargetLocation, UnitPawn);
+}
+
+void UUnitMovementComponent::CheckMovementComplete()
+{
+	if (FVector::DistSquared2D(GetLastPathPoint(), UnitPawn->GetActorLocation()) < 0.1f)
+	{
+		Moving = false;
+
+		if (OnMovementComplete.IsBound())
+			OnMovementComplete.Execute();
+	}
 }
 
 FVector UUnitMovementComponent::GetNextPathPoint()
