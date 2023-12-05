@@ -37,13 +37,13 @@ protected:
 	float RotationInterpSpeed;
 
 	UPROPERTY(EditAnywhere, Category = "Map Movement")
-	float Speed;
+	float MovementInterpSpeed;
 
 	UPROPERTY(EditAnywhere, Category = "Map Movement")
-	float Friction;
+	FVector2D TargetLocation;
 
-	UPROPERTY(VisibleAnywhere, Category = "Map Movement")
-	FVector2D Velocity;
+	UPROPERTY(EditAnywhere, Category = "Map Movement")
+	float Speed;
 
 	UPROPERTY(EditAnywhere, Category="Map Movement")
 	float HalfWidthMapBorder;

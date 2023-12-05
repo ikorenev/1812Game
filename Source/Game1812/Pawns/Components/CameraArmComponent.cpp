@@ -6,10 +6,9 @@ UCameraArmComponent::UCameraArmComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 
-	
-
-	MaxLength = 400;
-	MinLength = 20;
+	MaxLength = 400.0f;
+	MinLength = 20.0f;
+	Interpolation = 5.0f;
 }
 
 void UCameraArmComponent::BeginPlay()
@@ -28,11 +27,18 @@ void UCameraArmComponent::BeginPlay()
 }
 
 
+float UCameraArmComponent::AddTargetLength(float deltaLength)
+{
+	float savedLength = TargetLength;
+	TargetLength = FMath::Clamp(TargetLength + deltaLength, MinLength, MaxLength);
+	return savedLength - TargetLength;
+}
+
 void UCameraArmComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	CurrentLength = FMath::FInterpTo(CurrentLength, TargetLength, DeltaTime, 5);
+	CurrentLength = FMath::FInterpTo(CurrentLength, TargetLength, DeltaTime, Interpolation);
 
 	PlayerPawn->GetCameraArmPoint()->SetRelativeLocation(FVector(-CurrentLength, 0, 0));
 }

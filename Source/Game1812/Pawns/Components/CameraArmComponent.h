@@ -37,8 +37,9 @@ protected:
 public:
 
 	float GetCurrentLength() { return CurrentLength; }
+	float GetHeight() { return FMath::Abs(CurrentLength * FMath::Sin(FMath::DegreesToRadians(GetRelativeRotation().Pitch))); }
 
-	void AddTargetLength(float deltaLength) { TargetLength = FMath::Clamp(TargetLength + deltaLength, MinLength, MaxLength); }
+	float AddTargetLength(float deltaLength);
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 

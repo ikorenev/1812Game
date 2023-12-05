@@ -14,14 +14,14 @@ UPlayerMovementComponent::UPlayerMovementComponent()
 
 	MapState = EPlayerCameraState::OutOfMap;
 
-	HalfWidthMapBorder = 100;
-	HalfHeightMapBorder = 75;
+	HalfWidthMapBorder = 400.0f;
+	HalfHeightMapBorder = 400.0f;
 	Speed = 250;
-	Friction = 1000;
-	Velocity = FVector2D(0);
 
 	LocationInterpSpeed = 15;
 	RotationInterpSpeed = 20;
+
+	MovementInterpSpeed = 5.0f;
 }
 
 void UPlayerMovementComponent::BeginPlay()
@@ -76,8 +76,6 @@ void UPlayerMovementComponent::TickComponent(float DeltaTime, ELevelTick TickTyp
 
 			PlayerPawn->GetPlayerInput()->MoveLeft = false;
 			PlayerPawn->GetPlayerInput()->MoveRight = false;
-
-			Velocity = FVector2D(0);
 		}
 		else 
 		{
@@ -93,10 +91,11 @@ void UPlayerMovementComponent::TickComponent(float DeltaTime, ELevelTick TickTyp
 	}
 	else 
 	{
-		if (PlayerPawn->GetPlayerInput()->LookAtMap)
+		if (PlayerPawn->GetPlayerInput()->LookAtMap || PlayerPawn->GetPlayerInput()->MoveForward)
 		{
 			MapState = EPlayerCameraState::MovingToMap;
 			PlayerPawn->GetPlayerInput()->LookAtMap = false;
+			PlayerPawn->GetPlayerInput()->MoveForward = false;
 		}
 		else
 		{
@@ -128,33 +127,28 @@ void UPlayerMovementComponent::UpdateMovementOnMap(float deltaTime)
 {
 	FVector2D inputDirection = GetInputDirection();
 
-	if (inputDirection.IsNearlyZero())
+	TargetLocation += inputDirection * Speed * deltaTime;
+	TargetLocation = FVector2D(FMath::Clamp(TargetLocation.X, -HalfHeightMapBorder, HalfHeightMapBorder), FMath::Clamp(TargetLocation.Y, -HalfWidthMapBorder, HalfWidthMapBorder));
+
+	const float ScrollDelta = PlayerPawn->GetCameraArmComponent()->AddTargetLength(-PlayerPawn->GetPlayerInput()->MouseScroll * 30);
+
+	if (ScrollDelta != 0)
 	{
-		FVector2D frictionVector = Velocity.GetSafeNormal() * Friction * deltaTime;
+		FVector cursorLocation, cursorDirection;
+		PlayerPawn->GetLocalViewingPlayerController()->DeprojectMousePositionToWorld(cursorLocation, cursorDirection);
 
-		if (Velocity.SizeSquared() > frictionVector.SizeSquared()) 
-		{
-			Velocity -= frictionVector;
-		}
-		else 
-		{
-			Velocity = FVector2D(0);
-		}
+		const float Height = PlayerPawn->GetCameraArmComponent()->GetHeight();
+		const float HeightRatio = cursorDirection.Z / Height * -ScrollDelta;
+		const FVector LookingPoint = FMath::RayPlaneIntersection(PlayerPawn->GetCameraComponent()->GetComponentLocation(), cursorDirection, FPlane(PlayerPawn->GetCameraArmComponent()->GetComponentLocation(), FVector::UpVector));
+		FVector delta = LookingPoint - PlayerPawn->GetCameraArmComponent()->GetComponentLocation();
+		delta *= HeightRatio;
+		TargetLocation += FVector2D(delta);
 	}
-	else
-	{
-		Velocity = inputDirection * Speed;
-	}
-
-	PlayerPawn->GetCameraArmComponent()->AddRelativeLocation(FVector(Velocity * deltaTime, 0));
-
-	PlayerPawn->GetCameraArmComponent()->AddTargetLength(-PlayerPawn->GetPlayerInput()->MouseScroll * 30);
 
 	PlayerPawn->GetPlayerInput()->MouseScroll = 0;
 
-	FVector location = PlayerPawn->GetCameraArmComponent()->GetRelativeLocation();
-
-	PlayerPawn->GetCameraArmComponent()->SetRelativeLocation(FVector(FMath::Clamp(location.X, -HalfHeightMapBorder, HalfHeightMapBorder), FMath::Clamp(location.Y, -HalfWidthMapBorder, HalfWidthMapBorder), location.Z));
+	const FVector2D NewLocation = FMath::Vector2DInterpTo(FVector2D(PlayerPawn->GetCameraArmComponent()->GetRelativeLocation()), TargetLocation, deltaTime, MovementInterpSpeed);
+	PlayerPawn->GetCameraArmComponent()->SetRelativeLocation(FVector(NewLocation, PlayerPawn->GetCameraArmComponent()->GetRelativeLocation().Z));
 }
 
 void UPlayerMovementComponent::MoveCameraToCurrentSpot(float deltaTime) 
