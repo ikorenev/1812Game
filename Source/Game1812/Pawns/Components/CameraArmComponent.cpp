@@ -6,16 +6,19 @@ UCameraArmComponent::UCameraArmComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 
-	CurrentLength = 200;
+	
+
+	MaxLength = 400;
+	MinLength = 20;
 }
 
 void UCameraArmComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	CurrentLength = MaxLength;
 	TargetLength = CurrentLength;
-	MaxLength = 400;
-	MinLength = 20;
+
 
 	if (!GetOwner()) return;
 
