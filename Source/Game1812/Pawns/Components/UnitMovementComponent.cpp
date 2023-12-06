@@ -49,7 +49,7 @@ void UUnitMovementComponent::UpdateMovement(float DeltaTime)
 
 	RotateTo(DeltaTime, rotationYaw);
 
-	if (FMath::Abs(rotationYaw) < 5.0f)
+	//if (FMath::Abs(rotationYaw) < 5.0f)
 		MoveTo(DeltaTime, targetPoint);
 
 	CheckMovementComplete();
@@ -84,7 +84,15 @@ void UUnitMovementComponent::MoveTo(float DeltaTime, FVector Location)
 
 void UUnitMovementComponent::SetTargetLocation(FVector NewTargetLocation)
 { 
-	TargetLocation = NewTargetLocation;
+	FHitResult hit;
+
+	GetWorld()->LineTraceSingleByChannel(hit, NewTargetLocation, NewTargetLocation - FVector(0, 0, 1000.0f), ECollisionChannel::ECC_GameTraceChannel1);
+
+	if (!hit.bBlockingHit) 
+		return;
+	
+	TargetLocation = hit.Location;
+
 	Moving = true;
 	UpdatePath();
 
@@ -93,12 +101,22 @@ void UUnitMovementComponent::SetTargetLocation(FVector NewTargetLocation)
 
 void UUnitMovementComponent::UpdatePath()
 {
+	if (Path)
+	{
+		Path->EnableDebugDrawing(false);
+	}
+
 	Path = UNavigationSystemV1::FindPathToLocationSynchronously(UnitPawn, UnitPawn->GetActorLocation(), TargetLocation, UnitPawn);
+
+	if (Path) 
+	{
+		Path->EnableDebugDrawing(true);
+	}
 }
 
 void UUnitMovementComponent::CheckMovementComplete()
 {
-	if (FVector::DistSquared2D(GetLastPathPoint(), UnitPawn->GetActorLocation()) < 0.1f)
+	if (FVector::DistSquared2D(GetLastPathPoint(), UnitPawn->GetActorLocation()) < 1.0f)
 	{
 		Moving = false;
 
@@ -116,11 +134,11 @@ FVector UUnitMovementComponent::GetNextPathPoint()
 
 	for (FVector point : Path->PathPoints) 
 	{
-		if (!FVector2D(UnitPawn->GetActorLocation() - point).IsNearlyZero())
+		if (!(FVector::DistSquaredXY(UnitPawn->GetActorLocation(), point) < 25.0f)) 
 			return point;
 	}
 
-	return UnitPawn->GetActorLocation();
+	return TargetLocation;
 }
 
 FVector UUnitMovementComponent::GetLastPathPoint() 
