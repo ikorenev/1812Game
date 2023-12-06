@@ -197,6 +197,25 @@ FVector2D UPlayerMovementComponent::GetInputDirection()
 	if (PlayerPawn->GetPlayerInput()->MoveRight) direction += PlayerPawn->GetActorRightVector();
 	if (PlayerPawn->GetPlayerInput()->MoveLeft) direction -= PlayerPawn->GetActorRightVector();
 
+	APlayerController* playerController = PlayerPawn->GetController<APlayerController>();
+
+	if (playerController) 
+	{
+		float cursorX, cursorY;
+		if (playerController->GetMousePosition(cursorX, cursorY))
+		{
+			const FVector2D ViewportSize = GEngine->GameViewport->Viewport->GetSizeXY();
+			const FVector2D	CursorRelativeLocation = FVector2D(cursorX, cursorY) / ViewportSize;
+
+			const float MoveMargin = 0.01;
+
+			if (CursorRelativeLocation.Y < MoveMargin) direction += PlayerPawn->GetActorForwardVector();
+			if (CursorRelativeLocation.Y > 1 - MoveMargin) direction -= PlayerPawn->GetActorForwardVector();
+			if (CursorRelativeLocation.X > 1 - MoveMargin) direction += PlayerPawn->GetActorRightVector();
+			if (CursorRelativeLocation.X < MoveMargin) direction -= PlayerPawn->GetActorRightVector();
+		}
+	}
+
 	return FVector2D(direction).GetSafeNormal();
 }
 
