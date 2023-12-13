@@ -49,6 +49,8 @@ AFogOfWar::AFogOfWar()
 	Resolution = FIntPoint(20, 20);
 	 
 	RevealTime = 15.f;
+
+	HideAffectedActors = true;
 }
 
 void AFogOfWar::BeginPlay()
@@ -66,13 +68,15 @@ void AFogOfWar::BeginPlay()
 		FogComponentsTable[x].SetNum(Resolution.Y, true);
 	}
 	
+	
+	const FVector FogBoxExtent = FogArea->GetScaledBoxExtent() * 2;
 	const FVector SystemSize = GetChunkSize();
 
 	for (int x = 0; x < Resolution.X; x++)
 	{
 		for (int y = 0; y < Resolution.Y; y++)
 		{
-			UNiagaraComponent* component = UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), FogNiagaraSystem, RootComponent->GetComponentLocation() + FVector(x * 800 / Resolution.X, y * 800 / Resolution.Y, 0) - FVector(FogArea->GetScaledBoxExtent().X, FogArea->GetScaledBoxExtent().Y, 0));
+			UNiagaraComponent* component = UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), FogNiagaraSystem, RootComponent->GetComponentLocation() + FVector(x * FogBoxExtent.X / Resolution.X, y * FogBoxExtent.Y / Resolution.Y, 0) - FVector(FogArea->GetScaledBoxExtent().X, FogArea->GetScaledBoxExtent().Y, 0));
 
 			component->SetVectorParameter("Size", SystemSize);
 
@@ -88,7 +92,11 @@ void AFogOfWar::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	UpdateFogTimers(DeltaTime);
-	CheckActorsInFog();
+
+	if (HideAffectedActors)
+	{
+		CheckActorsInFog();
+	}
 }
 
 void AFogOfWar::CheckActorsInFog()

@@ -78,15 +78,15 @@ void UUnitMovementComponent::MoveTo(float DeltaTime, FVector Location)
 		UnitPawn->AddActorWorldOffset(distance);
 	}
 
-	UnitPawn->AddActorWorldOffset(FVector(0, 0, 10));
-	UnitPawn->AddActorWorldOffset(FVector(0, 0, -20), true);
+	UnitPawn->AddActorWorldOffset(FVector(0, 0, 50));
+	UnitPawn->AddActorWorldOffset(FVector(0, 0, -100), true);
 }
 
 void UUnitMovementComponent::SetTargetLocation(FVector NewTargetLocation)
 { 
 	FHitResult hit;
 
-	GetWorld()->LineTraceSingleByChannel(hit, NewTargetLocation, NewTargetLocation - FVector(0, 0, 1000.0f), ECollisionChannel::ECC_GameTraceChannel1);
+	GetWorld()->LineTraceSingleByChannel(hit, NewTargetLocation, NewTargetLocation - FVector(0, 0, 2000.0f), ECollisionChannel::ECC_GameTraceChannel1);
 
 	if (!hit.bBlockingHit) 
 		return;
@@ -134,7 +134,7 @@ FVector UUnitMovementComponent::GetNextPathPoint()
 
 	for (FVector point : Path->PathPoints) 
 	{
-		if (!(FVector::DistSquaredXY(UnitPawn->GetActorLocation(), point) < 50.0f)) 
+		if (!(FVector::DistSquared2D(UnitPawn->GetActorLocation(), point) < FMath::Pow(100.f, 2.f))) 
 			return point;
 	}
 

@@ -21,6 +21,9 @@ void AScoutUnit::OnMovementComplete()
 {
 	if (ExplorationLocations.IsEmpty())
 	{
+		if (OnMovementEnd.IsBound())
+			OnMovementEnd.Broadcast();
+
 		AFogOfWar* fogOfWarActor = AFogOfWar::GetSingleton();
 
 		if (!fogOfWarActor)
@@ -59,9 +62,45 @@ void AScoutUnit::Tick(float DeltaTime)
 	}
 }
 
+float AScoutUnit::PredictMovementTime()
+{
+	if (ExplorationLocations.IsEmpty())
+		return 0.0f;
+
+	float totalDistance = 0.0f;
+
+	TArray<FVector> savedLocations;
+
+	do
+	{
+		FVector location;
+
+		ExplorationLocations.Dequeue(location);
+
+		if (savedLocations.IsEmpty()) 
+		{
+			totalDistance += FVector::Dist2D(GetActorLocation(), location);
+		}
+		else 
+		{
+			totalDistance += FVector::Dist2D(savedLocations.Last(), location);
+		}
+
+		savedLocations.Add(location);
+	} 
+	while (!ExplorationLocations.IsEmpty());
+
+	for (FVector el : savedLocations) 
+	{
+		ExplorationLocations.Enqueue(el);
+	}
+
+	return totalDistance / GetMovementSpeed();
+}
+
 void AScoutUnit::AssignOrder(FUnitOrder NewOrder)
 {
-	if (!ExplorationLocations.IsEmpty())
+	if (MovementComponent->IsMoving())
 		return;
 
 	Super::AssignOrder(NewOrder);
@@ -72,6 +111,9 @@ void AScoutUnit::AssignOrder(FUnitOrder NewOrder)
 	}
 
 	ExplorationLocations.Enqueue(AHeadQuarters::GetSingleton()->GetActorLocation());
+
+	if (OnMovementStart.IsBound())
+		OnMovementStart.Broadcast();
 
 	FVector firstLocation;
 	ExplorationLocations.Dequeue(firstLocation);

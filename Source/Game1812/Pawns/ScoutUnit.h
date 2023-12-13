@@ -4,6 +4,8 @@
 #include "BaseUnit.h"
 #include "ScoutUnit.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FScoutMovementStateDelegate);
+
 UCLASS()
 class GAME1812_API AScoutUnit : public ABaseUnit
 {
@@ -26,7 +28,16 @@ protected:
 
 public:
 
+	UPROPERTY(BlueprintAssignable)
+	FScoutMovementStateDelegate OnMovementStart;
+
+	UPROPERTY(BlueprintAssignable)
+	FScoutMovementStateDelegate OnMovementEnd;
+
 	virtual void Tick(float DeltaTime) override;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	float PredictMovementTime();
 
 	void AssignOrder(FUnitOrder NewOrder) override;
 };

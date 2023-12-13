@@ -18,8 +18,8 @@ ABaseUnit::ABaseUnit()
 
 	MovementComponent = CreateDefaultSubobject<UUnitMovementComponent>(FName("Movement Component"));
 
-	MovementSpeed = 10;
-	RotationSpeed = 40;
+	MovementSpeed = 40;
+	RotationSpeed = 160;
 
 	Team = ETeam::RUSSIA;
 
