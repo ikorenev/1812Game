@@ -18,9 +18,6 @@ ABaseUnit::ABaseUnit()
 
 	MovementComponent = CreateDefaultSubobject<UUnitMovementComponent>(FName("Movement Component"));
 
-	MovementSpeed = 40;
-	RotationSpeed = 160;
-
 	Team = ETeam::RUSSIA;
 
 	Tags.Add("AffectedByFog");
@@ -46,6 +43,3 @@ void ABaseUnit::AssignOrder(FUnitOrder NewOrder)
 {
 	CurrentOrder = NewOrder;
 }
-
-float ABaseUnit::GetMovementSpeed() { return MovementSpeed; }
-float ABaseUnit::GetRotationSpeed() { return RotationSpeed; }

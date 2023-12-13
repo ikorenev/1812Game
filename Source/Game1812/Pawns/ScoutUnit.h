@@ -21,6 +21,13 @@ public:
 
 protected:
 
+	UPROPERTY(EditAnywhere)
+	float MovementSpeed;
+
+	UPROPERTY(EditAnywhere)
+	float RotationSpeed;
+
+
 	virtual void BeginPlay() override;
 
 	UPROPERTY(VisibleAnywhere)
@@ -34,10 +41,16 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FScoutMovementStateDelegate OnMovementEnd;
 
+
+	float GetMovementSpeed() override;
+	float GetRotationSpeed() override;
+
 	virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	float PredictMovementTime();
 
 	void AssignOrder(FUnitOrder NewOrder) override;
+
+
 };

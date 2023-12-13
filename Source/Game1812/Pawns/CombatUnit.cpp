@@ -14,7 +14,17 @@ void ACombatUnit::BeginPlay()
 	Super::BeginPlay();
 }
 
-void ACombatUnit::Tick(float DeltaTime) 
+float ACombatUnit::GetMovementSpeed()
+{
+	return UnitStats.MovementSpeed;
+}
+
+float ACombatUnit::GetRotationSpeed()
+{
+	return UnitStats.RotationSpeed;
+}
+
+void ACombatUnit::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 

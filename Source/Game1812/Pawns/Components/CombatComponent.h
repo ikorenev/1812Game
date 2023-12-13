@@ -40,7 +40,7 @@ public:
 
 	float GetBaseDamage() { return 0.5f; };
 	float GetAttackRange() { return 15; };
-	float GetDetectionRange() { return 75; };
+	float GetDetectionRange() { return 1000; };
 
 	bool IsDead() { return Dead; };
 

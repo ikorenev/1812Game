@@ -8,6 +8,9 @@
 AScoutUnit::AScoutUnit() 
 {
 	PrimaryActorTick.bCanEverTick = true;
+
+	MovementSpeed = 100;
+	RotationSpeed = 160;
 }
 
 void AScoutUnit::BeginPlay() 
@@ -36,6 +39,16 @@ void AScoutUnit::OnMovementComplete()
 	FVector location;
 	ExplorationLocations.Dequeue(location);
 	MovementComponent->SetTargetLocation(location);
+}
+
+float AScoutUnit::GetMovementSpeed()
+{
+	return MovementSpeed;
+}
+
+float AScoutUnit::GetRotationSpeed()
+{
+	return RotationSpeed;
 }
 
 void AScoutUnit::Tick(float DeltaTime)

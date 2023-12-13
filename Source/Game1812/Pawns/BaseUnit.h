@@ -6,7 +6,7 @@
 #include "TeamEnum.h"
 #include "BaseUnit.generated.h"
 
-UCLASS(Blueprintable, BlueprintType)
+UCLASS(Blueprintable)
 class GAME1812_API ABaseUnit : public APawn
 {
 	GENERATED_BODY()
@@ -22,12 +22,6 @@ protected:
 
 	UPROPERTY(EditAnywhere)
 	class UUnitMovementComponent* MovementComponent;
-
-	UPROPERTY(EditAnywhere)
-	float MovementSpeed;
-
-	UPROPERTY(EditAnywhere)
-	float RotationSpeed;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	ETeam Team;
@@ -47,6 +41,6 @@ public:
 
 	class UUnitMovementComponent* GetMovementComponent() { return MovementComponent; };
 
-	float GetMovementSpeed();
-	float GetRotationSpeed();
+	virtual float GetMovementSpeed() { return 0; };
+	virtual float GetRotationSpeed() { return 0; };
 };

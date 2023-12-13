@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "BaseUnit.h"
+#include "CombatUnitStats.h"
 #include "Components/Damageable.h"
 #include "CombatUnit.generated.h"
 
@@ -17,16 +18,21 @@ public:
 protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FCombatUnitStats UnitStats;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	class UCombatComponent* CombatComponent;
 
 	virtual void BeginPlay() override;
 
 public:
 
+	float GetMovementSpeed() override;
+	float GetRotationSpeed() override;
+
 	virtual void Tick(float DeltaTime) override;
 
 	void AssignOrder(FUnitOrder NewOrder) override;
-
 
 	void ApplyDamage(class UCombatComponent* Attacker, float Amount) override;
 
