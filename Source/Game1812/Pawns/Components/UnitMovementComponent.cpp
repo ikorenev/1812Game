@@ -116,7 +116,7 @@ void UUnitMovementComponent::UpdatePath()
 
 void UUnitMovementComponent::CheckMovementComplete()
 {
-	if (FVector::DistSquared2D(GetLastPathPoint(), UnitPawn->GetActorLocation()) < 1.0f)
+	if (FVector::DistSquaredXY(GetLastPathPoint(), UnitPawn->GetActorLocation()) < 10.0f)
 	{
 		Moving = false;
 
@@ -134,7 +134,7 @@ FVector UUnitMovementComponent::GetNextPathPoint()
 
 	for (FVector point : Path->PathPoints) 
 	{
-		if (!(FVector::DistSquaredXY(UnitPawn->GetActorLocation(), point) < 25.0f)) 
+		if (!(FVector::DistSquaredXY(UnitPawn->GetActorLocation(), point) < 50.0f)) 
 			return point;
 	}
 
