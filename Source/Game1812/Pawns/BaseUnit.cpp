@@ -22,6 +22,8 @@ ABaseUnit::ABaseUnit()
 	RotationSpeed = 40;
 
 	Team = ETeam::RUSSIA;
+
+	Tags.Add("AffectedByFog");
 }
 
 void ABaseUnit::BeginPlay()

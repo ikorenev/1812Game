@@ -17,9 +17,16 @@ public:
 
 	void OnMovementComplete();
 
-public:
+protected:
 
 	virtual void BeginPlay() override;
+
+	UPROPERTY(VisibleAnywhere)
+	TSet<FIntPoint> ChunksToReveal;
+
+public:
+
+	virtual void Tick(float DeltaTime) override;
 
 	void AssignOrder(FUnitOrder NewOrder) override;
 };
