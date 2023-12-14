@@ -130,7 +130,7 @@ void UPlayerMovementComponent::UpdateMovementOnMap(float deltaTime)
 	TargetLocation += inputDirection * Speed * deltaTime;
 	TargetLocation = FVector2D(FMath::Clamp(TargetLocation.X, -HalfHeightMapBorder, HalfHeightMapBorder), FMath::Clamp(TargetLocation.Y, -HalfWidthMapBorder, HalfWidthMapBorder));
 
-	const float ScrollDelta = PlayerPawn->GetCameraArmComponent()->AddTargetLength(-PlayerPawn->GetPlayerInput()->MouseScroll * 30);
+	const float ScrollDelta = PlayerPawn->GetCameraArmComponent()->AddTargetLength(-PlayerPawn->GetPlayerInput()->MouseScroll * 120);
 
 	if (ScrollDelta != 0)
 	{
