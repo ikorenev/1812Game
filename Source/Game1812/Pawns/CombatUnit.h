@@ -2,8 +2,9 @@
 
 #include "CoreMinimal.h"
 #include "BaseUnit.h"
-#include "CombatUnitStats.h"
 #include "Components/Damageable.h"
+#include "CombatUnitStats.h"
+#include "CombatUnitEnum.h"
 #include "CombatUnit.generated.h"
 
 UCLASS()
@@ -18,7 +19,10 @@ public:
 protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	FCombatUnitStats UnitStats;
+	ECombatUnitType CombatUnitType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	struct FCombatUnitStats CombatUnitStats;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	class UCombatComponent* CombatComponent;
@@ -27,8 +31,12 @@ protected:
 
 public:
 
+	void InitCombatUnitType(ECombatUnitType NewCombatUnitType);
+
 	float GetMovementSpeed() override;
 	float GetRotationSpeed() override;
+
+	virtual struct FCombatUnitStats GetCombatUnitStats() override;
 
 	virtual void Tick(float DeltaTime) override;
 

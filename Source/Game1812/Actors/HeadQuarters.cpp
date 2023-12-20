@@ -1,17 +1,8 @@
 #include "HeadQuarters.h"
 
 #include "../Pawns/BaseUnit.h"
-
-FOrderAndUnitContainer::FOrderAndUnitContainer() 
-{
-	Unit = nullptr;
-}
-
-FOrderAndUnitContainer::FOrderAndUnitContainer(const FUnitOrder& UnitOrder, ABaseUnit* Unit) 
-{
-	this->UnitOrder = UnitOrder;
-	this->Unit = Unit;
-}
+#include "../Pawns/AdjutantUnit.h"
+#include "../CossacksGameInstance.h"
 
 AHeadQuarters* AHeadQuarters::Singleton = nullptr;
 
@@ -27,12 +18,11 @@ bool AHeadQuarters::HaveAnyOrders()
 
 void AHeadQuarters::SendOrders()
 {
-	for (auto el : UnitOrders) 
-	{
-		if (!el.Unit) continue;
+	if (AvailableAdjutants.IsEmpty())
+		return;
 
-		el.Unit->AssignOrder(el.UnitOrder);
-	}
+	AvailableAdjutants[0]->TaskOrders(UnitOrders);
+	AvailableAdjutants.RemoveAt(0);
 
 	UnitOrders.Empty();
 }
@@ -50,6 +40,23 @@ void AHeadQuarters::BeginPlay()
 	Super::BeginPlay();
 	
 	Singleton = this;
+
+	UCossacksGameInstance* gameInstance = GetGameInstance<UCossacksGameInstance>();
+
+	if (!gameInstance)
+		return;
+
+	for (int i = 0; i < AdjutantsAmount; i++) 
+	{
+		ABaseUnit* unit = SpawnUnit(gameInstance->AdjutantUnitClass);
+
+		AAdjutantUnit* adjutantUnit = Cast<AAdjutantUnit>(unit);
+
+		if (adjutantUnit) 
+		{
+			AvailableAdjutants.Add(adjutantUnit);
+		}
+	}
 }
 
 void AHeadQuarters::Tick(float DeltaTime)

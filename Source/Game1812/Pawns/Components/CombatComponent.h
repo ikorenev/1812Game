@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "../CombatUnitStats.h"
 #include "CombatComponent.generated.h"
 
 
@@ -32,15 +33,17 @@ public:
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	void Init(FCombatUnitStats UnitCombatStats);
+
 	void TryAttack(class IDamageable* Target, float DeltaTime);
 	void Attack(class IDamageable* Target, float DeltaTime);
 	bool CanAttack(class IDamageable* Target);
 
 	void ApplyDamage(UCombatComponent* Attacker, float DamageAmount);
 
-	float GetBaseDamage() { return 0.5f; };
-	float GetAttackRange() { return 15; };
-	float GetDetectionRange() { return 1000; };
+	float GetBaseDamage();
+	float GetAttackRange();
+	float GetDetectionRange();
 
 	bool IsDead() { return Dead; };
 

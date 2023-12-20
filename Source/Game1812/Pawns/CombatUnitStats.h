@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
+#include "CombatUnitEnum.h"
 #include "CombatUnitStats.generated.h"
 
 
@@ -13,6 +14,7 @@ struct GAME1812_API FCombatUnitStats
 public:
 
 	FCombatUnitStats();
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float MovementSpeed;
@@ -28,15 +30,16 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float BaseDefense;
-};
 
-UENUM(BlueprintType)
-enum class ECombatUnitType : uint8 {
-	TestUnit = 0 UMETA(DisplayName = "Test Unit")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float AttackDistance;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float EnemyDetectionRange;
 };
 
 USTRUCT(BlueprintType)
-struct GAME1812_API FCombatUnitStatsContainer
+struct GAME1812_API FCombatUnitContainer
 {
 	GENERATED_USTRUCT_BODY()
 
@@ -44,6 +47,12 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	ECombatUnitType UnitType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UStaticMesh* PieceFigureMesh;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UStaticMesh* PieceFoundationMesh;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FCombatUnitStats UnitStats;
@@ -58,5 +67,7 @@ class GAME1812_API UCombatUnitsTable : public UDataAsset
 public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<FCombatUnitStatsContainer> Units;
+	TArray<FCombatUnitContainer> Units;
+
+	FCombatUnitContainer FindUnitStatsByType(ECombatUnitType CombatUnitType);
 };

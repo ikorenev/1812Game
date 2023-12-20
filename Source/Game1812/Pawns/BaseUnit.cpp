@@ -3,6 +3,7 @@
 #include <Components/BoxComponent.h>
 
 #include "Components/UnitMovementComponent.h"
+#include "CombatUnitStats.h"
 #include "../Actors/HeadQuarters.h"
 
 ABaseUnit::ABaseUnit()
@@ -42,4 +43,9 @@ void ABaseUnit::Tick(float DeltaTime)
 void ABaseUnit::AssignOrder(FUnitOrder NewOrder)
 {
 	CurrentOrder = NewOrder;
+}
+
+FCombatUnitStats ABaseUnit::GetCombatUnitStats()
+{
+	return FCombatUnitStats();
 }

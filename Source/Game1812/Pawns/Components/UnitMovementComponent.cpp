@@ -33,7 +33,13 @@ void UUnitMovementComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 		if (Path)
 		{
 			if (Path->IsValid())
+			{
 				UpdateMovement(DeltaTime);
+			}
+			else
+			{
+				CheckMovementComplete();
+			}
 		}
 
 		UpdatePath();
