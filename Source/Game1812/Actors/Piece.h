@@ -4,7 +4,7 @@
 #include "GameFramework/Actor.h"
 #include "../Pawns/Components/Draggable.h"
 #include "../Pawns/BaseUnit.h"
-
+#include "../Pawns/CombatUnitEnum.h"
 #include <Blueprint/UserWidget.h>
 #include "Piece.generated.h"
 
@@ -19,23 +19,32 @@ public:
 
 protected:
 
-	UPROPERTY(VisibleAnywhere)
-	class UStaticMeshComponent* PieceMesh;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	class UBoxComponent* BoxCollisionComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	class UStaticMeshComponent* PieceFoundationMeshComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	class UStaticMeshComponent* PieceFigureMeshComponent;
 
 	UPROPERTY(EditAnywhere)
 	class UWidgetComponent* OrderWidgetComponent;
+
+	UPROPERTY(VisibleAnywhere)
+	ECombatUnitType CombatUnitType;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<class ABaseUnit> UnitClass;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	class ABaseUnit* Unit;
 
 	UPROPERTY(EditAnywhere)
 	float HoverHeight;
 
 	UPROPERTY(EditAnywhere)
 	float SweepCastHeight;
-
-	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<class ABaseUnit> UnitClass;
-
-	UPROPERTY(VisibleAnywhere)
-	class ABaseUnit* Unit;
 
 	UPROPERTY(VisibleAnywhere)
 	bool bWasDragged;
@@ -52,6 +61,8 @@ protected:
 	void RemoveOrder();
 
 public:
+
+	void SetCombatUnitType(ECombatUnitType NewCombatUnitType);
 
 	virtual void Tick(float DeltaTime) override;
 

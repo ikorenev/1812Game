@@ -37,6 +37,8 @@ public:
 	virtual void AssignOrder(FUnitOrder NewOrder);
 	FUnitOrder GetCurrentOrder() { return CurrentOrder; };
 
+	virtual struct FCombatUnitStats GetCombatUnitStats();
+
 	ETeam GetTeam() { return Team; };
 
 	class UUnitMovementComponent* GetMovementComponent() { return MovementComponent; };

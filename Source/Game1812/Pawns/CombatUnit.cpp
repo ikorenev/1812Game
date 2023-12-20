@@ -1,27 +1,54 @@
 #include "CombatUnit.h"
 
 #include "UnitOrder.h"
+#include "../CossacksGameInstance.h"
 #include "Components/UnitMovementComponent.h"
+
 #include "Components/CombatComponent.h"
 
 ACombatUnit::ACombatUnit()
 {
 	CombatComponent = CreateDefaultSubobject<UCombatComponent>(FName("Combat Component"));
+
+	CombatUnitType = ECombatUnitType::NONE;
 }
 
 void ACombatUnit::BeginPlay() 
 {
 	Super::BeginPlay();
+
+	InitCombatUnitType(CombatUnitType);
+}
+
+void ACombatUnit::InitCombatUnitType(ECombatUnitType NewCombatUnitType)
+{
+	CombatUnitType = NewCombatUnitType;
+
+	auto gameInstance = GetGameInstance<UCossacksGameInstance>();
+
+	if (!gameInstance)
+		return;
+
+	FCombatUnitContainer combatUnitContainer = gameInstance->GetTeamUnitsTable(Team)->FindUnitStatsByType(CombatUnitType);
+
+	CombatUnitStats = combatUnitContainer.UnitStats;
+
+	CombatComponent->Init(CombatUnitStats);
 }
 
 float ACombatUnit::GetMovementSpeed()
 {
-	return UnitStats.MovementSpeed;
+	return CombatUnitStats.MovementSpeed;
 }
 
 float ACombatUnit::GetRotationSpeed()
 {
-	return UnitStats.RotationSpeed;
+	return CombatUnitStats.RotationSpeed;
+}
+
+FCombatUnitStats ACombatUnit::GetCombatUnitStats()
+{
+	return CombatUnitStats;
 }
 
 void ACombatUnit::Tick(float DeltaTime)

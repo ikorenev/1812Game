@@ -4,8 +4,11 @@
 
 #include "Kismet/GameplayStatics.h"
 #include "../UI/BaseOrderWidget.h"
+#include "../CossacksGameInstance.h"
 #include "PaperMap.h"
+#include <Components/BoxComponent.h>
 #include "../Actors/HeadQuarters.h"
+#include "../Pawns/CombatUnit.h"
 #include <Components/StaticMeshComponent.h>
 #include <Components/WidgetComponent.h>
 
@@ -13,19 +16,26 @@ APiece::APiece()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	PieceMesh = CreateDefaultSubobject<UStaticMeshComponent>(FName("Piece Mesh"));
-	RootComponent = PieceMesh;
+	BoxCollisionComponent = CreateDefaultSubobject<UBoxComponent>(FName("Piece Collision"));
+	BoxCollisionComponent->InitBoxExtent(FVector(20, 20, 60));
+	RootComponent = BoxCollisionComponent;
+
+	PieceFoundationMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(FName("Piece Foundation"));
+	PieceFoundationMeshComponent->SetupAttachment(BoxCollisionComponent);
+	
+	PieceFigureMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(FName("Piece Figure"));
+	PieceFigureMeshComponent->SetupAttachment(BoxCollisionComponent);
 
 	OrderWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(FName("Order Widget"));
-	OrderWidgetComponent->SetupAttachment(RootComponent);
+	OrderWidgetComponent->SetupAttachment(BoxCollisionComponent);
 	OrderWidgetComponent->SetRelativeLocation(FVector(0, 0, 600));
 	OrderWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
 	OrderWidgetComponent->SetDrawSize(FVector2D(200, 200));
 
-	PieceMesh->SetSimulatePhysics(true);
-	PieceMesh->SetNotifyRigidBodyCollision(true);
+	BoxCollisionComponent->SetSimulatePhysics(true);
+	BoxCollisionComponent->SetNotifyRigidBodyCollision(true);
 
-	HoverHeight = 10;
+	HoverHeight = 100;
 	SweepCastHeight = 200;
 	bForceOrder = false;
 }
@@ -34,7 +44,7 @@ void APiece::BeginPlay()
 {
 	Super::BeginPlay();
 
-	PieceMesh->OnComponentHit.AddDynamic(this, &APiece::OnHit);
+	BoxCollisionComponent->OnComponentHit.AddDynamic(this, &APiece::OnHit);
 
 	OrderWidgetComponent->SetVisibility(false);
 
@@ -47,6 +57,21 @@ void APiece::BeginPlay()
 	}
 		
 	orderWidget->Init(this);
+}
+
+void APiece::SetCombatUnitType(ECombatUnitType NewCombatUnitType)
+{
+	CombatUnitType = NewCombatUnitType;
+
+	auto gameInstance = GetGameInstance<UCossacksGameInstance>();
+
+	if (!gameInstance)
+		return;
+
+	const FCombatUnitContainer& combatUnitContainer = gameInstance->GetTeamUnitsTable(ETeam::RUSSIA)->FindUnitStatsByType(CombatUnitType);
+
+	PieceFoundationMeshComponent->SetStaticMesh(combatUnitContainer.PieceFoundationMesh);
+	PieceFigureMeshComponent->SetStaticMesh(combatUnitContainer.PieceFigureMesh);
 }
 
 void APiece::Tick(float DeltaTime)
@@ -69,6 +94,13 @@ void APiece::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimi
 		if (AHeadQuarters::GetSingleton()) 
 		{
 			Unit = AHeadQuarters::GetSingleton()->SpawnUnit(UnitClass);
+
+			ACombatUnit* combatUnit = Cast<ACombatUnit>(Unit);
+
+			if (combatUnit) 
+			{
+				combatUnit->InitCombatUnitType(CombatUnitType);
+			}
 		}
 	}
 }
@@ -103,7 +135,7 @@ void APiece::AssignOrder(FUnitOrder UnitOrder)
 
 void APiece::OnDragStart() 
 {
-	PieceMesh->SetSimulatePhysics(false);
+	BoxCollisionComponent->SetSimulatePhysics(false);
 	SetActorEnableCollision(false);
 
 	RemoveOrder();
@@ -111,7 +143,7 @@ void APiece::OnDragStart()
 
 void APiece::OnDragEnd() 
 {
-	PieceMesh->SetSimulatePhysics(true);
+	BoxCollisionComponent->SetSimulatePhysics(true);
 	SetActorEnableCollision(true);
 
 	bWasDragged = true;

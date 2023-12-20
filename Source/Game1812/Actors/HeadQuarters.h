@@ -3,24 +3,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "../Pawns/UnitOrder.h"
+#include "../Pawns/OrderAndUnitContainer.h"
 #include "HeadQuarters.generated.h"
-
-USTRUCT(BlueprintType)
-struct GAME1812_API FOrderAndUnitContainer
-{
-	GENERATED_BODY()
-
-public: 
-
-	FOrderAndUnitContainer();
-	FOrderAndUnitContainer(const FUnitOrder& UnitOrder, class ABaseUnit* Unit);
-
-	UPROPERTY(VisibleAnywhere)
-	FUnitOrder UnitOrder;
-
-	UPROPERTY(VisibleAnywhere)
-	class ABaseUnit* Unit;
-};
 
 UCLASS()
 class GAME1812_API AHeadQuarters : public AActor
@@ -38,11 +22,20 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	TArray<FOrderAndUnitContainer> UnitOrders;
 
+	UPROPERTY(VisibleAnywhere)
+	TArray<class AAdjutantUnit*> AvailableAdjutants;
+
+	UPROPERTY(EditAnywhere)
+	int AdjutantsAmount;
+
+
 	static AHeadQuarters* Singleton;
 
 public:	
 
 	virtual void Tick(float DeltaTime) override;
+
+	void AddAdjutantUnit(class AAdjutantUnit* AdjutantUnit) { AvailableAdjutants.Add(AdjutantUnit); };
 
 	void AddOrderToAssign(const FUnitOrder& UnitOrder, class ABaseUnit* Unit);
 

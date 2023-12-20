@@ -2,6 +2,7 @@
 
 #include <Kismet/GameplayStatics.h>
 #include "UnitMovementComponent.h"
+#include "../CombatUnitStats.h"
 #include "Damageable.h"
 #include "../BaseUnit.h"
 
@@ -12,7 +13,7 @@ UCombatComponent::UCombatComponent()
 	UnitPawn = nullptr;
 	TargetedEnemy = nullptr;
 
-	HealthPoints = 1000.0f;
+	HealthPoints = 0.f;
 	Dead = false;
 }
 
@@ -24,6 +25,7 @@ void UCombatComponent::BeginPlay()
 
 	if (!UnitPawn)
 		DestroyComponent();
+
 }
 
 void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -75,6 +77,11 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 
 }
 
+void UCombatComponent::Init(FCombatUnitStats UnitCombatStats)
+{
+	HealthPoints = UnitCombatStats.StartHP;
+}
+
 void UCombatComponent::TryAttack(IDamageable* Target, float DeltaTime)
 {
 	if (CanAttack(Target))
@@ -105,6 +112,21 @@ void UCombatComponent::ApplyDamage(UCombatComponent* Attacker, float DamageAmoun
 	{
 		Dead = true;
 	}
+}
+
+float UCombatComponent::GetBaseDamage()
+{
+	return UnitPawn->GetCombatUnitStats().BaseDamage;
+}
+
+float UCombatComponent::GetAttackRange()
+{
+	return UnitPawn->GetCombatUnitStats().AttackDistance;
+}
+
+float UCombatComponent::GetDetectionRange()
+{
+	return UnitPawn->GetCombatUnitStats().EnemyDetectionRange;
 }
 
 void UCombatComponent::FindEnemiesInRange(TArray<IDamageable*>& OutArray)
