@@ -45,7 +45,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Map Movement")
 	float Speed;
 
-	UPROPERTY(EditAnywhere, Category="Map Movement")
+	UPROPERTY(EditAnywhere, Category = "Map Movement")
 	float HalfWidthMapBorder;
 
 	UPROPERTY(EditAnywhere, Category = "Map Movement")
@@ -55,6 +55,10 @@ protected:
 
 
 	virtual void BeginPlay() override;
+
+	void FindCameraSpots(TArray<class APlayerCameraSpot*>& Spots);
+	int GetDefaultSpot();
+
 
 	void UpdateCameraSpot();
 

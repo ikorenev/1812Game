@@ -5,11 +5,14 @@
 
 #include "PlayerCameraState.h"
 
-
 #include "PlayerPawn.generated.h"
 
 struct FPlayerInput
 {
+public:
+
+	FPlayerInput();
+
 	float MouseScroll;
 
 	bool MoveForward;
@@ -41,13 +44,21 @@ protected:
 
 	FPlayerInput PlayerInput;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Enhanced Input")
+	class UInputMappingContext* InputMapping;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Enhanced Input")
+	class UInputMappingConfig* InputConfig;
+
+	//Components
+
+	UPROPERTY(VisibleAnywhere)
 	class UCameraComponent* CameraComponent;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(VisibleAnywhere)
 	class UCameraArmComponent* CameraArmComponent;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(VisibleAnywhere)
 	class USceneComponent* CameraArmPoint;
 
 	UPROPERTY(VisibleAnywhere)
@@ -55,13 +66,6 @@ protected:
 
 	UPROPERTY(VisibleAnywhere)
 	class UPlayerInteractionComponent* InteractionComponent;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Enhanced Input")
-	class UInputMappingContext* InputMapping;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Enhanced Input")
-	class UInputMappingConfig* InputConfig;
-
 
 	virtual void BeginPlay() override;
 
@@ -79,11 +83,8 @@ protected:
 public:
 
 	class UCameraComponent* GetCameraComponent() { return CameraComponent; }
-
 	class UCameraArmComponent* GetCameraArmComponent() { return CameraArmComponent; }
-
-	class  UPlayerMovementComponent* GetMovementComponent() { return MovementComponent; }
-
+	class UPlayerMovementComponent* GetMovementComponent() { return MovementComponent; }
 	USceneComponent* GetCameraArmPoint() { return CameraArmPoint; }
 
 	FPlayerInput* GetPlayerInput() { return &PlayerInput; }
@@ -91,7 +92,5 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-
 
 };

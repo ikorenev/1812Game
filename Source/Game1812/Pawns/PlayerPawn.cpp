@@ -15,6 +15,22 @@
 #include "EnhancedInput/Public/EnhancedInputSubsystems.h"
 
 
+FPlayerInput::FPlayerInput()
+{
+	MouseScroll = 0.0f;
+
+	MoveForward = false;
+	MoveBack = false;
+	MoveLeft = false;
+	MoveRight = false;
+	LookAtMap = false;
+	MouseLeftClick = false;
+	MouseLeftHold = false;
+	MouseRightHold = false;
+	RotateLeft = false;
+	RotateRight = false;
+}
+
 APlayerPawn::APlayerPawn()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -63,19 +79,21 @@ void APlayerPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	if (!InputConfig) return;
+	if (!InputConfig) 
+		return;
 
 	APlayerController* playerController = Cast<APlayerController>(GetController());
 
-	if (!playerController) return;
+	if (!playerController) 
+		return;
 
 	UEnhancedInputLocalPlayerSubsystem* subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(playerController->GetLocalPlayer());
 
-	if (!subsystem) return;
+	if (!subsystem) 
+		return;
 
 	subsystem->ClearAllMappings();
 	subsystem->AddMappingContext(InputMapping, 0);
-
 
 	UEnhancedInputComponent* PlayerEnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent);
 
@@ -93,3 +111,4 @@ void APlayerPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerEnhancedInputComponent->BindAction(InputConfig->RotateLeft, ETriggerEvent::Triggered, this, &APlayerPawn::RotateLeft);
 	PlayerEnhancedInputComponent->BindAction(InputConfig->RotateRight, ETriggerEvent::Triggered, this, &APlayerPawn::RotateRight);
 }
+

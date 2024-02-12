@@ -28,15 +28,25 @@ void UPlayerMovementComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	AActor* owner = GetOwner();
+	if (!GetOwner())
+		return DestroyComponent();
 
-	if (owner)
-	{
-		PlayerPawn = Cast<APlayerPawn>(owner);
-	}
+	PlayerPawn = Cast<APlayerPawn>(GetOwner());
 
-	//Find all camera spots in scene
+	if (!PlayerPawn)
+		return DestroyComponent();
 
+
+	FindCameraSpots(CameraSpots);
+
+	CurrentSpot = GetDefaultSpot();
+
+	if (CameraSpots.Num() != 0)
+		PlayerPawn->GetCameraComponent()->SetWorldTransform(CameraSpots[CurrentSpot]->GetActorTransform());
+}
+
+void UPlayerMovementComponent::FindCameraSpots(TArray<class APlayerCameraSpot*>& Spots)
+{
 	TArray<AActor*> spotActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerCameraSpot::StaticClass(), spotActors);
 
@@ -46,22 +56,31 @@ void UPlayerMovementComponent::BeginPlay()
 	{
 		APlayerCameraSpot* cameraSpot = Cast<APlayerCameraSpot>(spot);
 
-		if (!cameraSpot) continue;
+		if (!cameraSpot)
+			continue;
 
 		spots.Add(cameraSpot);
 	}
 
 	spots.Sort();
 
-	for (auto spot : spots) 
+	for (auto spot : spots)
 	{
-		CameraSpots.Add(spot);
+		Spots.Add(spot);
+	}
+}
 
-		if (spot->GetPriority() == 0) CurrentSpot = CameraSpots.Num() - 1;
+int UPlayerMovementComponent::GetDefaultSpot()
+{
+	for (int i = 0; i < CameraSpots.Num(); i++)
+	{
+		if (CameraSpots[i]->GetPriority() == 0)
+			return i;
 	}
 
-	if (CameraSpots.Num() != 0) PlayerPawn->GetCameraComponent()->SetWorldTransform(CameraSpots[CurrentSpot]->GetActorTransform());
+	return 0;
 }
+
 
 void UPlayerMovementComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
@@ -106,7 +125,9 @@ void UPlayerMovementComponent::TickComponent(float DeltaTime, ELevelTick TickTyp
 	}
 }
 
-void UPlayerMovementComponent::UpdateCameraSpot() 
+
+
+void UPlayerMovementComponent::UpdateCameraSpot()
 {
 	if (PlayerPawn->GetPlayerInput()->MoveLeft)
 	{

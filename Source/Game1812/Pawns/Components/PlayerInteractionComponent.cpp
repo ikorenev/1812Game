@@ -8,8 +8,9 @@ UPlayerInteractionComponent::UPlayerInteractionComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 
-	InteractionDistance = 500;
 	CurrentDraggable = nullptr;
+
+	InteractionDistance = 500;
 	RotateSpeed = 100;
 }
 
@@ -17,75 +18,74 @@ void UPlayerInteractionComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	AActor* owner = GetOwner();
+	if (!GetOwner())
+		return DestroyComponent();
 
-	if (owner)
-	{
-		PlayerPawn = Cast<APlayerPawn>(owner);
-	}
-	
+	PlayerPawn = Cast<APlayerPawn>(GetOwner());
+
+	if (!PlayerPawn)
+		return DestroyComponent();
 }
 
 void UPlayerInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (PlayerPawn->GetMovementComponent()->GetMapState() == EPlayerCameraState::LookingAtMap) 
+	if (PlayerPawn->GetMovementComponent()->GetMapState() != EPlayerCameraState::LookingAtMap)
+		return;
+	
+	if (CurrentDraggable)
 	{
-		if (CurrentDraggable)
+		if (PlayerPawn->GetPlayerInput()->MouseLeftHold) 
 		{
-			if (PlayerPawn->GetPlayerInput()->MouseLeftHold) 
-			{
-				FHitResult hit = SingleCursorTrace();
+			FHitResult hit = SingleCursorTrace();
 
-				CurrentDraggable->OnMouseMove(hit.Location, !PlayerPawn->GetPlayerInput()->MouseRightHold);
+			CurrentDraggable->OnMouseMove(hit.Location, !PlayerPawn->GetPlayerInput()->MouseRightHold);
 
-				CurrentDraggable->OnRotate((-(float)PlayerPawn->GetPlayerInput()->RotateLeft + (float)PlayerPawn->GetPlayerInput()->RotateRight) * RotateSpeed * DeltaTime);
-			}
-			else 
-			{
-				SetCurrentDraggable(nullptr);
-			}
+			CurrentDraggable->OnRotate((-(float)PlayerPawn->GetPlayerInput()->RotateLeft + (float)PlayerPawn->GetPlayerInput()->RotateRight) * RotateSpeed * DeltaTime);
 		}
-		else
+		else 
 		{
-			if (PlayerPawn->GetPlayerInput()->MouseLeftClick) 
-			{
-
-				PlayerPawn->GetPlayerInput()->MouseLeftClick = false;
-
-				IDraggable* newDraggable = FindDraggableAtCursor();
-
-				if (newDraggable) SetCurrentDraggable(newDraggable);
-			}
+			SetCurrentDraggable(nullptr);
 		}
 	}
+	else
+	{
+		if (PlayerPawn->GetPlayerInput()->MouseLeftClick) 
+		{
+			PlayerPawn->GetPlayerInput()->MouseLeftClick = false;
 
-	
+			IDraggable* newDraggable = FindDraggableAtCursor();
+
+			if (newDraggable) 
+				SetCurrentDraggable(newDraggable);
+		}
+	}
 }
 
-void UPlayerInteractionComponent::SetCurrentDraggable(IDraggable* newDraggable)
+void UPlayerInteractionComponent::SetCurrentDraggable(IDraggable* NewDraggable)
 {
-	if (CurrentDraggable) CurrentDraggable->OnDragEnd();
+	if (CurrentDraggable) 
+		CurrentDraggable->OnDragEnd();
 
-	if (newDraggable) newDraggable->OnDragStart();
+	if (NewDraggable)
+		NewDraggable->OnDragStart();
 
-	CurrentDraggable = newDraggable;
+	CurrentDraggable = NewDraggable;
 }
 
 FHitResult UPlayerInteractionComponent::SingleCursorTrace() 
 {
 	FVector cursorLocation, cursorDirection;
-
 	PlayerPawn->GetLocalViewingPlayerController()->DeprojectMousePositionToWorld(cursorLocation, cursorDirection);
 
 	FHitResult hit;
-
 	FCollisionQueryParams collisionParams;
 
 	AActor* draggableActor = Cast<AActor>(CurrentDraggable);
 
-	if (draggableActor) collisionParams.AddIgnoredActor(draggableActor);
+	if (draggableActor) 
+		collisionParams.AddIgnoredActor(draggableActor);
 
 	GetWorld()->LineTraceSingleByProfile(hit, cursorLocation, cursorLocation + cursorDirection * InteractionDistance, "BlockAll", collisionParams);
 
@@ -96,13 +96,16 @@ IDraggable* UPlayerInteractionComponent::FindDraggableAtCursor()
 {
 	FHitResult hit = SingleCursorTrace();
 
-	if (!hit.bBlockingHit) return nullptr;
+	if (!hit.bBlockingHit) 
+		return nullptr;
 
-	if (!hit.GetActor()) return nullptr;
+	if (!hit.GetActor()) 
+		return nullptr;
 
 	IDraggable* draggable = Cast<IDraggable>(hit.GetActor());
 
-	if (!draggable) return nullptr;
+	if (!draggable) 
+		return nullptr;
 
 	return draggable;
 }

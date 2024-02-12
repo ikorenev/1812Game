@@ -17,25 +17,22 @@ protected:
 
 	class APlayerPawn* PlayerPawn;
 
-	class IDraggable* CurrentDraggable;
-
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Interaction")
 	float InteractionDistance;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Interaction")
 	float RotateSpeed;
+
+	class IDraggable* CurrentDraggable;
+
+	void SetCurrentDraggable(class IDraggable* NewDraggable);
 
 	virtual void BeginPlay() override;
 
-	void SetCurrentDraggable(class IDraggable* newDraggable);
-
 	FHitResult SingleCursorTrace();
-
 	class IDraggable* FindDraggableAtCursor();
 
 public:	
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
-		
 };
