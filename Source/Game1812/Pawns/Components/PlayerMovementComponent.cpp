@@ -81,7 +81,6 @@ int UPlayerMovementComponent::GetDefaultSpot()
 	return 0;
 }
 
-
 void UPlayerMovementComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
@@ -119,13 +118,10 @@ void UPlayerMovementComponent::TickComponent(float DeltaTime, ELevelTick TickTyp
 		else
 		{
 			UpdateCameraSpot();
-
 			MoveCameraToCurrentSpot(DeltaTime);
 		}
 	}
 }
-
-
 
 void UPlayerMovementComponent::UpdateCameraSpot()
 {
@@ -144,16 +140,16 @@ void UPlayerMovementComponent::UpdateCameraSpot()
 	}
 }
 
-void UPlayerMovementComponent::UpdateMovementOnMap(float deltaTime)
+void UPlayerMovementComponent::UpdateMovementOnMap(float DeltaTime)
 {
 	FVector2D inputDirection = GetInputDirection();
 
-	TargetLocation += inputDirection * Speed * deltaTime;
+	TargetLocation += inputDirection * Speed * DeltaTime;
 	TargetLocation = FVector2D(FMath::Clamp(TargetLocation.X, -HalfHeightMapBorder, HalfHeightMapBorder), FMath::Clamp(TargetLocation.Y, -HalfWidthMapBorder, HalfWidthMapBorder));
 
 	const float ScrollDelta = PlayerPawn->GetCameraArmComponent()->AddTargetLength(-PlayerPawn->GetPlayerInput()->MouseScroll * 120);
 
-	if (ScrollDelta != 0)
+	if (ScrollDelta != 0.0f)
 	{
 		FVector cursorLocation, cursorDirection;
 		PlayerPawn->GetLocalViewingPlayerController()->DeprojectMousePositionToWorld(cursorLocation, cursorDirection);
@@ -168,33 +164,36 @@ void UPlayerMovementComponent::UpdateMovementOnMap(float deltaTime)
 
 	PlayerPawn->GetPlayerInput()->MouseScroll = 0;
 
-	const FVector2D NewLocation = FMath::Vector2DInterpTo(FVector2D(PlayerPawn->GetCameraArmComponent()->GetRelativeLocation()), TargetLocation, deltaTime, MovementInterpSpeed);
+	const FVector2D NewLocation = FMath::Vector2DInterpTo(FVector2D(PlayerPawn->GetCameraArmComponent()->GetRelativeLocation()), TargetLocation, DeltaTime, MovementInterpSpeed);
 	PlayerPawn->GetCameraArmComponent()->SetRelativeLocation(FVector(NewLocation, PlayerPawn->GetCameraArmComponent()->GetRelativeLocation().Z));
 }
 
-void UPlayerMovementComponent::MoveCameraToCurrentSpot(float deltaTime) 
+void UPlayerMovementComponent::MoveCameraToCurrentSpot(float DeltaTime) 
 {
 	APlayerCameraSpot* spot = CameraSpots[CurrentSpot];
 
 	float lip = LocationInterpSpeed;
 	float rip = RotationInterpSpeed;
 
-	if (spot->HaveCustomLocationInterpSpeed()) lip = spot->GetLocationInterpSpeed();
-	if (spot->HaveCustomRotationInterpSpeed()) rip = spot->GetRotationInterpSpeed();
+	if (spot->HaveCustomLocationInterpSpeed()) 
+		lip = spot->GetLocationInterpSpeed();
 
-	FVector moveDelta = FMath::VInterpTo(PlayerPawn->GetCameraComponent()->GetComponentLocation(), spot->GetActorLocation(), deltaTime, lip);
-	FRotator rotationDelta = FMath::RInterpTo(PlayerPawn->GetCameraComponent()->GetComponentRotation(), spot->GetActorRotation(), deltaTime, rip);
+	if (spot->HaveCustomRotationInterpSpeed()) 
+		rip = spot->GetRotationInterpSpeed();
+
+	FVector moveDelta = FMath::VInterpTo(PlayerPawn->GetCameraComponent()->GetComponentLocation(), spot->GetActorLocation(), DeltaTime, lip);
+	FRotator rotationDelta = FMath::RInterpTo(PlayerPawn->GetCameraComponent()->GetComponentRotation(), spot->GetActorRotation(), DeltaTime, rip);
 
 	PlayerPawn->GetCameraComponent()->SetWorldLocation(moveDelta);
 	PlayerPawn->GetCameraComponent()->SetWorldRotation(rotationDelta);
 }
 
-void UPlayerMovementComponent::MoveCameraToMap(float deltaTime) 
+void UPlayerMovementComponent::MoveCameraToMap(float DeltaTime)
 {
 	USceneComponent* cameraPoint = PlayerPawn->GetCameraArmPoint();
 
-	FVector moveDelta = FMath::VInterpTo(PlayerPawn->GetCameraComponent()->GetComponentLocation(), cameraPoint->GetComponentLocation(), deltaTime, LocationInterpSpeed);
-	FRotator rotationDelta = FMath::RInterpTo(PlayerPawn->GetCameraComponent()->GetComponentRotation(), cameraPoint->GetComponentRotation(), deltaTime, RotationInterpSpeed);
+	FVector moveDelta = FMath::VInterpTo(PlayerPawn->GetCameraComponent()->GetComponentLocation(), cameraPoint->GetComponentLocation(), DeltaTime, LocationInterpSpeed);
+	FRotator rotationDelta = FMath::RInterpTo(PlayerPawn->GetCameraComponent()->GetComponentRotation(), cameraPoint->GetComponentRotation(), DeltaTime, RotationInterpSpeed);
 
 	PlayerPawn->GetCameraComponent()->SetWorldLocation(moveDelta);
 	PlayerPawn->GetCameraComponent()->SetWorldRotation(rotationDelta);
@@ -213,6 +212,7 @@ FVector2D UPlayerMovementComponent::GetInputDirection()
 {
 	FVector direction(0);
 
+	//Keyboard movement
 	if (PlayerPawn->GetPlayerInput()->MoveForward) direction += PlayerPawn->GetActorForwardVector();
 	if (PlayerPawn->GetPlayerInput()->MoveBack) direction -= PlayerPawn->GetActorForwardVector();
 	if (PlayerPawn->GetPlayerInput()->MoveRight) direction += PlayerPawn->GetActorRightVector();
@@ -220,21 +220,23 @@ FVector2D UPlayerMovementComponent::GetInputDirection()
 
 	APlayerController* playerController = PlayerPawn->GetController<APlayerController>();
 
-	if (playerController) 
+	if (!playerController)
+		return FVector2D(direction).GetSafeNormal();
+	
+	//Mouse window edge movement
+	float cursorX, cursorY;
+
+	if (playerController->GetMousePosition(cursorX, cursorY))
 	{
-		float cursorX, cursorY;
-		if (playerController->GetMousePosition(cursorX, cursorY))
-		{
-			const FVector2D ViewportSize = GEngine->GameViewport->Viewport->GetSizeXY();
-			const FVector2D	CursorRelativeLocation = FVector2D(cursorX, cursorY) / ViewportSize;
+		const FVector2D ViewportSize = GEngine->GameViewport->Viewport->GetSizeXY();
+		const FVector2D	CursorRelativeLocation = FVector2D(cursorX, cursorY) / ViewportSize;
 
-			const float MoveMargin = 0.01;
+		const float MoveMargin = 0.01;
 
-			if (CursorRelativeLocation.Y < MoveMargin) direction += PlayerPawn->GetActorForwardVector();
-			if (CursorRelativeLocation.Y > 1 - MoveMargin) direction -= PlayerPawn->GetActorForwardVector();
-			if (CursorRelativeLocation.X > 1 - MoveMargin) direction += PlayerPawn->GetActorRightVector();
-			if (CursorRelativeLocation.X < MoveMargin) direction -= PlayerPawn->GetActorRightVector();
-		}
+		if (CursorRelativeLocation.Y < MoveMargin) direction += PlayerPawn->GetActorForwardVector();
+		if (CursorRelativeLocation.Y > 1 - MoveMargin) direction -= PlayerPawn->GetActorForwardVector();
+		if (CursorRelativeLocation.X > 1 - MoveMargin) direction += PlayerPawn->GetActorRightVector();
+		if (CursorRelativeLocation.X < MoveMargin) direction -= PlayerPawn->GetActorRightVector();
 	}
 
 	return FVector2D(direction).GetSafeNormal();

@@ -51,22 +51,17 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Map Movement")
 	float HalfHeightMapBorder;
 
-
-
-
 	virtual void BeginPlay() override;
 
 	void FindCameraSpots(TArray<class APlayerCameraSpot*>& Spots);
 	int GetDefaultSpot();
 
-
 	void UpdateCameraSpot();
 
-	void MoveCameraToCurrentSpot(float deltaTime);
+	void MoveCameraToCurrentSpot(float DeltaTime);
+	void MoveCameraToMap(float DeltaTime);
 
-	void MoveCameraToMap(float deltaTime);
-
-	void UpdateMovementOnMap(float deltaTime);
+	void UpdateMovementOnMap(float DeltaTime);
 
 	FVector2D GetInputDirection();
 
@@ -74,7 +69,7 @@ public:
 
 	EPlayerCameraState GetMapState() { return MapState; }
 
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
 	void ChangeCameraSpot(int deltaIndex);
+
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 };
