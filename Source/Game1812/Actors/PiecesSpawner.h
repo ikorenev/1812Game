@@ -2,8 +2,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "../Pawns/TeamEnum.h"
-#include "../Pawns/CombatUnitEnum.h"
+#include "../Pawns/Unit/TeamEnum.h"
+#include "../Pawns/Unit/CombatUnitEnum.h"
 #include "PiecesSpawner.generated.h"
 
 UENUM()

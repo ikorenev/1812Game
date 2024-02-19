@@ -1,7 +1,7 @@
 #include "AdjutantUnit.h"
 
 #include "Components/UnitMovementComponent.h"
-#include "../Actors/HeadQuarters.h"
+#include "../../Actors/HeadQuarters.h"
 
 AAdjutantUnit::AAdjutantUnit()
 {

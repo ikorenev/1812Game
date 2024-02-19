@@ -6,7 +6,7 @@
 #include "Components/PlayerMovementComponent.h"
 #include "Components/PlayerInteractionComponent.h"
 #include "Components/CameraArmComponent.h"
-#include "../Configs/InputMappingConfig.h"
+#include "../../Configs/InputMappingConfig.h"
 
 #include "EnhancedInput/Public/InputActionValue.h"
 #include "EnhancedInput/Public/InputMappingContext.h"

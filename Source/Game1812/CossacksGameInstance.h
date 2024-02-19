@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
-#include "Pawns/TeamEnum.h"
+#include "Pawns/Unit/TeamEnum.h"
 #include "CossacksGameInstance.generated.h"
 
 UCLASS(BlueprintType)

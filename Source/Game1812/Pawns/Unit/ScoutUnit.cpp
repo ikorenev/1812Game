@@ -1,8 +1,8 @@
 #include "ScoutUnit.h"
 
 #include "UnitOrder.h"
-#include "../Actors/FogOfWar.h"
-#include "../Actors/HeadQuarters.h"
+#include "../../Actors/FogOfWar.h"
+#include "../../Actors/HeadQuarters.h"
 #include "Components/UnitMovementComponent.h"
 
 AScoutUnit::AScoutUnit() 

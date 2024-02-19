@@ -1,7 +1,7 @@
 #include "CossacksGameInstance.h"
 
-#include "Pawns/CombatUnitStats.h"
-#include "Pawns/AdjutantUnit.h"
+#include "Pawns/Unit/CombatUnitStats.h"
+#include "Pawns/Unit/AdjutantUnit.h"
 
 UCombatUnitsTable* UCossacksGameInstance::GetTeamUnitsTable(ETeam Team)
 {

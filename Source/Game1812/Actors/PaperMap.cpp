@@ -1,8 +1,8 @@
 #include "PaperMap.h"
 
-#include "../Pawns/PlayerPawn.h"
-#include "../Pawns/Components/PlayerMovementComponent.h"
-#include "../Pawns/Components/CameraArmComponent.h"
+#include "../Pawns/Player/PlayerPawn.h"
+#include "../Pawns/Player/Components/PlayerMovementComponent.h"
+#include "../Pawns/Player/Components/CameraArmComponent.h"
 
 
 APaperMap::APaperMap()

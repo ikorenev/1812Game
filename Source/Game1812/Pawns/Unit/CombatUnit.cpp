@@ -1,7 +1,7 @@
 #include "CombatUnit.h"
 
 #include "UnitOrder.h"
-#include "../CossacksGameInstance.h"
+#include "../../CossacksGameInstance.h"
 #include "Components/UnitMovementComponent.h"
 
 #include "Components/CombatComponent.h"

@@ -2,9 +2,9 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "../Pawns/Components/Draggable.h"
-#include "../Pawns/BaseUnit.h"
-#include "../Pawns/CombatUnitEnum.h"
+#include "../Pawns/Player/Components/Draggable.h"
+#include "../Pawns/Unit/BaseUnit.h"
+#include "../Pawns/Unit/CombatUnitEnum.h"
 #include <Blueprint/UserWidget.h>
 #include "Piece.generated.h"
 

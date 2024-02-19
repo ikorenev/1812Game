@@ -1,6 +1,6 @@
 #include "Piece.h"
 
-#include "../Pawns/UnitOrder.h"
+#include "../Pawns/Unit/UnitOrder.h"
 
 #include "Kismet/GameplayStatics.h"
 #include "../UI/BaseOrderWidget.h"
@@ -8,7 +8,7 @@
 #include "PaperMap.h"
 #include <Components/BoxComponent.h>
 #include "../Actors/HeadQuarters.h"
-#include "../Pawns/CombatUnit.h"
+#include "../Pawns/Unit/CombatUnit.h"
 #include <Components/StaticMeshComponent.h>
 #include <Components/WidgetComponent.h>
 

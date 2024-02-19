@@ -2,7 +2,7 @@
 
 #include "../PlayerPawn.h"
 #include "CameraArmComponent.h"
-#include "../PlayerCameraSpot.h"
+#include "../../../Actors/PlayerCameraSpot.h"
 
 #include <Kismet/GameplayStatics.h>
 #include <Camera/CameraComponent.h>

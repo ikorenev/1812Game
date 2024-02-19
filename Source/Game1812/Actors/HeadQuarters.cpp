@@ -1,7 +1,7 @@
 #include "HeadQuarters.h"
 
-#include "../Pawns/BaseUnit.h"
-#include "../Pawns/AdjutantUnit.h"
+#include "../Pawns/Unit/BaseUnit.h"
+#include "../Pawns/Unit/AdjutantUnit.h"
 #include "../CossacksGameInstance.h"
 
 AHeadQuarters* AHeadQuarters::Singleton = nullptr;
