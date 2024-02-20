@@ -40,8 +40,9 @@ public:
 	TArray<FVector> ExplorationLocations;
 
 	//Для адъюданта
-
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<struct FAssignedUnitOrder> SentOrdersToUnits;
+	
 
 	bool IsSetToAttack();
 	bool IsSetToDefend();

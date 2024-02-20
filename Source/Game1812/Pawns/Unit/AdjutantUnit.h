@@ -17,7 +17,7 @@ public:
 
 protected:
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class UUnitMovementComponent* MovementComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)

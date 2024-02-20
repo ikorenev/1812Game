@@ -51,14 +51,14 @@ void AAdjutantUnit::OnMovementComplete()
 
 	auto closestTarget = FindClosestTarget();
 
-	if (FVector::DistSquared2D(GetActorLocation(), closestTarget.Unit->GetActorLocation()) > FMath::Pow(MinDistanceToGiveOrder, 2))
+	if (FVector::DistSquared2D(GetActorLocation(), closestTarget.GetUnit()->GetActorLocation()) > FMath::Pow(MinDistanceToGiveOrder, 2))
 	{
 		
 		MoveToNextTarget();
 	}
 	else 
 	{
-		closestTarget.Unit->AssignOrder(closestTarget.UnitOrder);
+		closestTarget.GetUnit()->AssignOrder(closestTarget.GetUnitOrder());
 		Orders.Remove(closestTarget);
 
 		MoveToNextTarget();
@@ -78,7 +78,7 @@ void AAdjutantUnit::MoveToNextTarget()
 		return;
 	}
 
-	MovementComponent->SetTargetLocation(FindClosestTarget().Unit->GetActorLocation());
+	MovementComponent->SetTargetLocation(FindClosestTarget().GetUnit()->GetActorLocation());
 }
 
 FAssignedUnitOrder AAdjutantUnit::FindClosestTarget()
@@ -87,7 +87,7 @@ FAssignedUnitOrder AAdjutantUnit::FindClosestTarget()
 
 	for (auto el : Orders)
 	{
-		if (FVector::DistSquared2D(GetActorLocation(), el.Unit->GetActorLocation()) < FVector::DistSquared2D(GetActorLocation(), closestUnit.Unit->GetActorLocation()))
+		if (FVector::DistSquared2D(GetActorLocation(), el.GetUnit()->GetActorLocation()) < FVector::DistSquared2D(GetActorLocation(), closestUnit.GetUnit()->GetActorLocation()))
 		{
 			closestUnit = el;
 		}

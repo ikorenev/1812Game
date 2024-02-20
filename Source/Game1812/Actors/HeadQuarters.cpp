@@ -70,7 +70,7 @@ void AHeadQuarters::Tick(float DeltaTime)
 
 void AHeadQuarters::AddOrderToAssign(const FUnitOrder& UnitOrder, ABaseUnit* Unit) 
 {
-	UnitOrders.RemoveAll([&](const FAssignedUnitOrder& el) { return el.Unit == Unit; });
+	UnitOrders.RemoveAll([&](const FAssignedUnitOrder& el) { return el.GetUnit() == Unit; });
 
 	UnitOrders.Add(FAssignedUnitOrder(UnitOrder, Unit));
 }

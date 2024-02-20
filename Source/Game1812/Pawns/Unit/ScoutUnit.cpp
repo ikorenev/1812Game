@@ -123,6 +123,11 @@ void AScoutUnit::OnOrderAssign(const FUnitOrder& NewOrder)
 	MovementComponent->SetTargetLocation(firstLocation);
 }
 
+UUnitMovementComponent* AScoutUnit::GetMovementComponent()
+{
+	return MovementComponent;
+}
+
 float AScoutUnit::GetMovementSpeed()
 {
 	return MovementSpeed;

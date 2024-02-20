@@ -22,7 +22,7 @@ public:
 
 protected:
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class UUnitMovementComponent* MovementComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
@@ -45,6 +45,8 @@ protected:
 	void OnOrderAssign(const FUnitOrder& NewOrder) override;
 
 public:
+
+	class UUnitMovementComponent* GetMovementComponent() override;
 
 	float GetMovementSpeed() override;
 	float GetRotationSpeed() override;
