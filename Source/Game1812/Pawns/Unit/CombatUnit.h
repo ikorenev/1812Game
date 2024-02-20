@@ -2,13 +2,17 @@
 
 #include "CoreMinimal.h"
 #include "BaseUnit.h"
+
+#include "Components/MoveableUnit.h"
 #include "Components/Damageable.h"
+
 #include "CombatUnitStats.h"
 #include "CombatUnitEnum.h"
+
 #include "CombatUnit.generated.h"
 
 UCLASS()
-class GAME1812_API ACombatUnit : public ABaseUnit, public IDamageable
+class GAME1812_API ACombatUnit : public ABaseUnit, public IMoveableUnit, public IDamageable
 {
 	GENERATED_BODY()
 
@@ -18,35 +22,39 @@ public:
 
 protected:
 
+	UPROPERTY(VisibleAnywhere)
+	class UUnitMovementComponent* MovementComponent;
+
+	UPROPERTY(VisibleAnywhere)
+	class UCombatComponent* CombatComponent;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	ECombatUnitType CombatUnitType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	struct FCombatUnitStats CombatUnitStats;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	class UCombatComponent* CombatComponent;
+	FCombatUnitStats CombatUnitStats;
 
 	virtual void BeginPlay() override;
 
+	void OnOrderAssign(const FUnitOrder& NewOrder) override;
+
 public:
 
-	void InitCombatUnitType(ECombatUnitType NewCombatUnitType);
+	void SetCombatUnitType(ECombatUnitType NewCombatUnitType);
+
+	class UUnitMovementComponent* GetMovementComponent();
 
 	float GetMovementSpeed() override;
 	float GetRotationSpeed() override;
 
-	virtual struct FCombatUnitStats GetCombatUnitStats() override;
-
 	virtual void Tick(float DeltaTime) override;
 
-	void AssignOrder(FUnitOrder NewOrder) override;
-
-	void ApplyDamage(class UCombatComponent* Attacker, float Amount) override;
-
+	virtual FCombatUnitStats GetUnitStats();
+	
 	ETeam GetTeam() override;
-
+	FVector GetLocation() override;
 	bool IsDead() override;
 
-	FVector GetLocation() override;
+	void ApplyDamage(class UCombatComponent* Attacker, float Amount) override;
+	
 };

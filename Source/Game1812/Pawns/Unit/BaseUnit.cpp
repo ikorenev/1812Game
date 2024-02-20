@@ -17,8 +17,6 @@ ABaseUnit::ABaseUnit()
 	BoxComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	RootComponent = BoxComponent;
 
-	MovementComponent = CreateDefaultSubobject<UUnitMovementComponent>(FName("Movement Component"));
-
 	Team = ETeam::RUSSIA;
 
 	Tags.Add("AffectedByFog");
@@ -34,18 +32,21 @@ void ABaseUnit::BeginPlay()
 	CurrentOrder = FUnitOrder(GetActorLocation(), GetActorRotation().Yaw);
 }
 
-void ABaseUnit::Tick(float DeltaTime)
+ETeam ABaseUnit::GetTeam()
 {
-	Super::Tick(DeltaTime);
-
+	return Team;
 }
 
-void ABaseUnit::AssignOrder(FUnitOrder NewOrder)
+FUnitOrder ABaseUnit::GetCurrentOrder()
+{
+	return CurrentOrder;
+}
+
+void ABaseUnit::AssignOrder(const FUnitOrder& NewOrder)
 {
 	CurrentOrder = NewOrder;
+
+	OnOrderAssign(NewOrder);
 }
 
-FCombatUnitStats ABaseUnit::GetCombatUnitStats()
-{
-	return FCombatUnitStats();
-}
+void ABaseUnit::OnOrderAssign(const FUnitOrder& NewOrder) { }

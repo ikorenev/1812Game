@@ -1,13 +1,16 @@
 #include "CombatUnit.h"
 
 #include "UnitOrder.h"
-#include "../../CossacksGameInstance.h"
-#include "Components/UnitMovementComponent.h"
 
+#include "Components/UnitMovementComponent.h"
 #include "Components/CombatComponent.h"
+
+#include "../../CossacksGameInstance.h"
 
 ACombatUnit::ACombatUnit()
 {
+	MovementComponent = CreateDefaultSubobject<UUnitMovementComponent>(FName("Movement Component"));
+
 	CombatComponent = CreateDefaultSubobject<UCombatComponent>(FName("Combat Component"));
 
 	CombatUnitType = ECombatUnitType::NONE;
@@ -17,23 +20,40 @@ void ACombatUnit::BeginPlay()
 {
 	Super::BeginPlay();
 
-	InitCombatUnitType(CombatUnitType);
+	SetCombatUnitType(CombatUnitType);
 }
 
-void ACombatUnit::InitCombatUnitType(ECombatUnitType NewCombatUnitType)
+void ACombatUnit::OnOrderAssign(const FUnitOrder& NewOrder)
+{
+	MovementComponent->SetTargetLocation(CurrentOrder.Location);
+}
+
+void ACombatUnit::SetCombatUnitType(ECombatUnitType NewCombatUnitType)
 {
 	CombatUnitType = NewCombatUnitType;
 
-	auto gameInstance = GetGameInstance<UCossacksGameInstance>();
+	UCossacksGameInstance* gameInstance = GetGameInstance<UCossacksGameInstance>();
 
 	if (!gameInstance)
 		return;
 
 	FCombatUnitContainer combatUnitContainer = gameInstance->GetTeamUnitsTable(Team)->FindUnitStatsByType(CombatUnitType);
-
 	CombatUnitStats = combatUnitContainer.UnitStats;
-
 	CombatComponent->Init(CombatUnitStats);
+}
+
+
+
+void ACombatUnit::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+
+}
+
+UUnitMovementComponent* ACombatUnit::GetMovementComponent()
+{
+	return MovementComponent;
 }
 
 float ACombatUnit::GetMovementSpeed()
@@ -46,23 +66,9 @@ float ACombatUnit::GetRotationSpeed()
 	return CombatUnitStats.RotationSpeed;
 }
 
-FCombatUnitStats ACombatUnit::GetCombatUnitStats()
+FCombatUnitStats ACombatUnit::GetUnitStats()
 {
 	return CombatUnitStats;
-}
-
-void ACombatUnit::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-	
-}
-
-void ACombatUnit::AssignOrder(FUnitOrder NewOrder)
-{
-	Super::AssignOrder(NewOrder);
-
-	MovementComponent->SetTargetLocation(CurrentOrder.Location);
 }
 
 void ACombatUnit::ApplyDamage(UCombatComponent* Attacker, float Amount)

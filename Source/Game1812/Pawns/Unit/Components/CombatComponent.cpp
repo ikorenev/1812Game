@@ -1,16 +1,18 @@
 #include "CombatComponent.h"
 
-#include <Kismet/GameplayStatics.h>
 #include "UnitMovementComponent.h"
-#include "../CombatUnitStats.h"
 #include "Damageable.h"
-#include "../BaseUnit.h"
+
+#include "../CombatUnitStats.h"
+#include "../CombatUnit.h"
+
+#include <Kismet/GameplayStatics.h>
 
 UCombatComponent::UCombatComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 
-	UnitPawn = nullptr;
+	CombatUnitPawn = nullptr;
 	TargetedEnemy = nullptr;
 
 	HealthPoints = 0.f;
@@ -21,9 +23,9 @@ void UCombatComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	UnitPawn = Cast<ABaseUnit>(GetOwner());
+	CombatUnitPawn = Cast<ACombatUnit>(GetOwner());
 
-	if (!UnitPawn)
+	if (!CombatUnitPawn)
 		DestroyComponent();
 
 }
@@ -35,9 +37,9 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 	if (Dead)
 		return;
 
-	FUnitOrder order = UnitPawn->GetCurrentOrder();
+	FUnitOrder order = CombatUnitPawn->GetCurrentOrder();
 
-	UUnitMovementComponent* MovementComponent = UnitPawn->GetMovementComponent();
+	UUnitMovementComponent* MovementComponent = CombatUnitPawn->GetMovementComponent();
 
 	if (order.IsSetToAttack())
 	{
@@ -49,9 +51,9 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 			}
 			else
 			{
-				if (FVector::DistSquared2D(TargetedEnemy->GetLocation(), UnitPawn->GetActorLocation()) < FMath::Pow(GetAttackRange(), 2))
+				if (FVector::DistSquared2D(TargetedEnemy->GetLocation(), CombatUnitPawn->GetActorLocation()) < FMath::Pow(GetAttackRange(), 2))
 				{
-					MovementComponent->SetTargetLocation(UnitPawn->GetActorLocation());
+					MovementComponent->SetTargetLocation(CombatUnitPawn->GetActorLocation());
 
 					if (!MovementComponent->IsMoving())
 					{
@@ -98,8 +100,8 @@ void UCombatComponent::Attack(IDamageable* Target, float DeltaTime)
 
 bool UCombatComponent::CanAttack(IDamageable* Target)
 {
-	const bool CloseEnoughToEnemy = FVector::DistSquared2D(TargetedEnemy->GetLocation(), UnitPawn->GetActorLocation()) < FMath::Pow(GetAttackRange(), 2);
-	const bool Standing = !UnitPawn->GetMovementComponent()->IsMoving();
+	const bool CloseEnoughToEnemy = FVector::DistSquared2D(TargetedEnemy->GetLocation(), CombatUnitPawn->GetActorLocation()) < FMath::Pow(GetAttackRange(), 2);
+	const bool Standing = !CombatUnitPawn->GetMovementComponent()->IsMoving();
 
 	return CloseEnoughToEnemy && Standing;
 }
@@ -116,17 +118,22 @@ void UCombatComponent::ApplyDamage(UCombatComponent* Attacker, float DamageAmoun
 
 float UCombatComponent::GetBaseDamage()
 {
-	return UnitPawn->GetCombatUnitStats().BaseDamage;
+	return CombatUnitPawn->GetUnitStats().BaseDamage;
 }
 
 float UCombatComponent::GetAttackRange()
 {
-	return UnitPawn->GetCombatUnitStats().AttackDistance;
+	return CombatUnitPawn->GetUnitStats().AttackDistance;
 }
 
 float UCombatComponent::GetDetectionRange()
 {
-	return UnitPawn->GetCombatUnitStats().EnemyDetectionRange;
+	return CombatUnitPawn->GetUnitStats().EnemyDetectionRange;
+}
+
+bool UCombatComponent::IsDead()
+{
+	return Dead;
 }
 
 void UCombatComponent::FindEnemiesInRange(TArray<IDamageable*>& OutArray)
@@ -136,7 +143,7 @@ void UCombatComponent::FindEnemiesInRange(TArray<IDamageable*>& OutArray)
 
 	for (AActor* actor : actors)
 	{
-		if (FVector::DistSquared2D(actor->GetActorLocation(), UnitPawn->GetActorLocation()) > FMath::Pow(GetDetectionRange(), 2))
+		if (FVector::DistSquared2D(actor->GetActorLocation(), CombatUnitPawn->GetActorLocation()) > FMath::Pow(GetDetectionRange(), 2))
 			continue;
 
 		IDamageable* damageable = Cast<IDamageable>(actor);
@@ -144,7 +151,7 @@ void UCombatComponent::FindEnemiesInRange(TArray<IDamageable*>& OutArray)
 		if (!damageable)
 			continue;
 
-		if (!damageable->IsEnemy(UnitPawn->GetTeam()))
+		if (!damageable->IsEnemy(CombatUnitPawn->GetTeam()))
 			continue;
 
 		if (damageable->IsDead())
@@ -166,7 +173,7 @@ IDamageable* UCombatComponent::FindClosestEnemyInRange()
 
 	for (IDamageable* damageable : damageables) 
 	{
-		if (FVector::DistSquared2D(damageable->GetLocation(), UnitPawn->GetActorLocation()) < FVector::DistSquared2D(closestDamageable->GetLocation(), UnitPawn->GetActorLocation()))
+		if (FVector::DistSquared2D(damageable->GetLocation(), CombatUnitPawn->GetActorLocation()) < FVector::DistSquared2D(closestDamageable->GetLocation(), CombatUnitPawn->GetActorLocation()))
 		{
 			closestDamageable = damageable;
 		}
@@ -181,7 +188,7 @@ void UCombatComponent::SetTargetedEnemy(IDamageable* NewTarget)
 	
 	if (TargetedEnemy) 
 	{
-		UnitPawn->GetMovementComponent()->SetTargetLocation(TargetedEnemy->GetLocation());
+		CombatUnitPawn->GetMovementComponent()->SetTargetLocation(TargetedEnemy->GetLocation());
 	}
 }
 

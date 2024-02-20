@@ -7,10 +7,12 @@ AAdjutantUnit::AAdjutantUnit()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
+	MovementComponent = CreateDefaultSubobject<UUnitMovementComponent>(FName("Movement Component"));
+
 	MovementSpeed = 100;
 	RotationSpeed = 160;
 
-	InteractionDistance = 15;
+	MinDistanceToGiveOrder = 15;
 }
 
 void AAdjutantUnit::BeginPlay()
@@ -20,9 +22,9 @@ void AAdjutantUnit::BeginPlay()
 	MovementComponent->OnMovementComplete.BindUObject(this, &AAdjutantUnit::OnMovementComplete);
 }
 
-void AAdjutantUnit::TaskOrders(const TArray<FOrderAndUnitContainer>& NewOrders)
+void AAdjutantUnit::OnOrderAssign(const FUnitOrder& NewOrder)
 {
-	Orders = TArray<FOrderAndUnitContainer>(NewOrders);
+	Orders = TArray<FAssignedUnitOrder>(NewOrder.SentOrdersToUnits);
 	MoveToNextTarget();
 }
 
@@ -35,7 +37,7 @@ void AAdjutantUnit::OnMovementComplete()
 		if (!headQuarters)
 			return;
 
-		if (FVector::DistSquared2D(GetActorLocation(), headQuarters->GetActorLocation()) > FMath::Pow(InteractionDistance, 2))
+		if (FVector::DistSquared2D(GetActorLocation(), headQuarters->GetActorLocation()) > FMath::Pow(MinDistanceToGiveOrder, 2))
 		{
 			MovementComponent->SetTargetLocation(headQuarters->GetActorLocation());
 		}
@@ -49,7 +51,7 @@ void AAdjutantUnit::OnMovementComplete()
 
 	auto closestTarget = FindClosestTarget();
 
-	if (FVector::DistSquared2D(GetActorLocation(), closestTarget.Unit->GetActorLocation()) > FMath::Pow(InteractionDistance, 2))
+	if (FVector::DistSquared2D(GetActorLocation(), closestTarget.Unit->GetActorLocation()) > FMath::Pow(MinDistanceToGiveOrder, 2))
 	{
 		
 		MoveToNextTarget();
@@ -79,19 +81,24 @@ void AAdjutantUnit::MoveToNextTarget()
 	MovementComponent->SetTargetLocation(FindClosestTarget().Unit->GetActorLocation());
 }
 
-const FOrderAndUnitContainer& AAdjutantUnit::FindClosestTarget()
+FAssignedUnitOrder AAdjutantUnit::FindClosestTarget()
 {
-	FOrderAndUnitContainer* closestUnit = &Orders[0];
+	FAssignedUnitOrder closestUnit = Orders[0];
 
 	for (auto el : Orders)
 	{
-		if (FVector::DistSquared2D(GetActorLocation(), el.Unit->GetActorLocation()) < FVector::DistSquared2D(GetActorLocation(), closestUnit->Unit->GetActorLocation()))
+		if (FVector::DistSquared2D(GetActorLocation(), el.Unit->GetActorLocation()) < FVector::DistSquared2D(GetActorLocation(), closestUnit.Unit->GetActorLocation()))
 		{
-			closestUnit = &el;
+			closestUnit = el;
 		}
 	}
 
-	return *closestUnit;
+	return closestUnit;
+}
+
+UUnitMovementComponent* AAdjutantUnit::GetMovementComponent()
+{
+	return MovementComponent;
 }
 
 float AAdjutantUnit::GetMovementSpeed()

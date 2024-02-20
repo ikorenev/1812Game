@@ -17,38 +17,39 @@ public:
 
 protected:
 
-	class ABaseUnit* UnitPawn;
+	class ACombatUnit* CombatUnitPawn;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly);
 	float HealthPoints;
 
-	UPROPERTY(VisibleAnywhere);
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly);
 	bool Dead;
 
 	class IDamageable* TargetedEnemy;
 
 	virtual void BeginPlay() override;
 
-public:	
-
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
-	void Init(FCombatUnitStats UnitCombatStats);
+	void SetTargetedEnemy(class IDamageable* NewTarget);
 
 	void TryAttack(class IDamageable* Target, float DeltaTime);
 	void Attack(class IDamageable* Target, float DeltaTime);
 	bool CanAttack(class IDamageable* Target);
 
-	void ApplyDamage(UCombatComponent* Attacker, float DamageAmount);
+	void FindEnemiesInRange(TArray<class IDamageable*>& OutArray);
+	class IDamageable* FindClosestEnemyInRange();
+
+public:	
 
 	float GetBaseDamage();
 	float GetAttackRange();
 	float GetDetectionRange();
 
-	bool IsDead() { return Dead; };
+	bool IsDead();
 
-	void FindEnemiesInRange(TArray<class IDamageable*>& OutArray);
-	class IDamageable* FindClosestEnemyInRange();
+	void Init(FCombatUnitStats UnitCombatStats);
 
-	void SetTargetedEnemy(class IDamageable* NewTarget);
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+	void ApplyDamage(UCombatComponent* Attacker, float DamageAmount);
+	
 };

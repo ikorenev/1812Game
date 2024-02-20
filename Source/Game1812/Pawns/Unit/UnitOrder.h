@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
+#include "AssignedUnitOrder.h"
 #include "UnitOrder.generated.h"
 
 UENUM(BlueprintType)
@@ -20,7 +21,6 @@ public:
 	FUnitOrder();
 	FUnitOrder(FVector Location, float YawRotation);
 
-
 	//Для обычного юнита
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	EUnitEnemyReaction UnitEnemyReaction;
@@ -38,6 +38,10 @@ public:
 	//Для разведчика
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<FVector> ExplorationLocations;
+
+	//Для адъюданта
+
+	TArray<struct FAssignedUnitOrder> SentOrdersToUnits;
 
 	bool IsSetToAttack();
 	bool IsSetToDefend();

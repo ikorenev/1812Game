@@ -18,15 +18,16 @@ public:
 protected:
 
 	class ABaseUnit* UnitPawn;
+	class IMoveableUnit* MoveableUnit;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	FVector TargetLocation;
 
-	UPROPERTY(VisibleAnywhere)
-	class UNavigationPath* Path;
-
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	bool Moving;
+
+	UPROPERTY()
+	class UNavigationPath* Path;
 
 	virtual void BeginPlay() override;
 
@@ -46,9 +47,9 @@ public:
 
 	FOnMovementComplete OnMovementComplete;
 
-	void SetTargetLocation(FVector NewTargetLocation);
+	bool IsMoving();
 
-	bool IsMoving() { return Moving; };
+	void SetTargetLocation(FVector NewTargetLocation);
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 

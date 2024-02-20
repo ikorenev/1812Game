@@ -21,7 +21,10 @@ void AHeadQuarters::SendOrders()
 	if (AvailableAdjutants.IsEmpty())
 		return;
 
-	AvailableAdjutants[0]->TaskOrders(UnitOrders);
+	FUnitOrder unitOrder;
+	unitOrder.SentOrdersToUnits = UnitOrders;
+
+	AvailableAdjutants[0]->AssignOrder(unitOrder);
 	AvailableAdjutants.RemoveAt(0);
 
 	UnitOrders.Empty();
@@ -67,9 +70,9 @@ void AHeadQuarters::Tick(float DeltaTime)
 
 void AHeadQuarters::AddOrderToAssign(const FUnitOrder& UnitOrder, ABaseUnit* Unit) 
 {
-	UnitOrders.RemoveAll([&](const FOrderAndUnitContainer& el) { return el.Unit == Unit; });
+	UnitOrders.RemoveAll([&](const FAssignedUnitOrder& el) { return el.Unit == Unit; });
 
-	UnitOrders.Add(FOrderAndUnitContainer(UnitOrder, Unit));
+	UnitOrders.Add(FAssignedUnitOrder(UnitOrder, Unit));
 }
 
 ABaseUnit* AHeadQuarters::SpawnUnit(TSubclassOf<class ABaseUnit> UnitClass)

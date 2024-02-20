@@ -9,6 +9,8 @@ AScoutUnit::AScoutUnit()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
+	MovementComponent = CreateDefaultSubobject<UUnitMovementComponent>(FName("Movement Component"));
+
 	MovementSpeed = 100;
 	RotationSpeed = 160;
 }
@@ -39,16 +41,6 @@ void AScoutUnit::OnMovementComplete()
 	FVector location;
 	ExplorationLocations.Dequeue(location);
 	MovementComponent->SetTargetLocation(location);
-}
-
-float AScoutUnit::GetMovementSpeed()
-{
-	return MovementSpeed;
-}
-
-float AScoutUnit::GetRotationSpeed()
-{
-	return RotationSpeed;
 }
 
 void AScoutUnit::Tick(float DeltaTime)
@@ -111,14 +103,12 @@ float AScoutUnit::PredictMovementTime()
 	return totalDistance / GetMovementSpeed();
 }
 
-void AScoutUnit::AssignOrder(FUnitOrder NewOrder)
+void AScoutUnit::OnOrderAssign(const FUnitOrder& NewOrder)
 {
 	if (MovementComponent->IsMoving())
 		return;
 
-	Super::AssignOrder(NewOrder);
-
-	for (const FVector& location : CurrentOrder.ExplorationLocations) 
+	for (const FVector& location : CurrentOrder.ExplorationLocations)
 	{
 		ExplorationLocations.Enqueue(location);
 	}
@@ -131,4 +121,14 @@ void AScoutUnit::AssignOrder(FUnitOrder NewOrder)
 	FVector firstLocation;
 	ExplorationLocations.Dequeue(firstLocation);
 	MovementComponent->SetTargetLocation(firstLocation);
+}
+
+float AScoutUnit::GetMovementSpeed()
+{
+	return MovementSpeed;
+}
+
+float AScoutUnit::GetRotationSpeed()
+{
+	return RotationSpeed;
 }

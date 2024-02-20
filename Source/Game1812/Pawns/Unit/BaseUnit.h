@@ -6,7 +6,7 @@
 #include "TeamEnum.h"
 #include "BaseUnit.generated.h"
 
-UCLASS(Blueprintable)
+UCLASS(Abstract, Blueprintable)
 class GAME1812_API ABaseUnit : public APawn
 {
 	GENERATED_BODY()
@@ -17,32 +17,23 @@ public:
 
 protected:
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class UBoxComponent* BoxComponent;
-
-	UPROPERTY(EditAnywhere)
-	class UUnitMovementComponent* MovementComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	ETeam Team;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	FUnitOrder CurrentOrder;
 
 	virtual void BeginPlay() override;
 
+	virtual void OnOrderAssign(const FUnitOrder& NewOrder);
+
 public:	
 
-	virtual void Tick(float DeltaTime) override;
+	ETeam GetTeam();
+	FUnitOrder GetCurrentOrder();
 
-	virtual void AssignOrder(FUnitOrder NewOrder);
-	FUnitOrder GetCurrentOrder() { return CurrentOrder; };
-
-	virtual struct FCombatUnitStats GetCombatUnitStats();
-
-	ETeam GetTeam() { return Team; };
-
-	class UUnitMovementComponent* GetMovementComponent() { return MovementComponent; };
-
-	virtual float GetMovementSpeed() { return 0; };
-	virtual float GetRotationSpeed() { return 0; };
+	void AssignOrder(const FUnitOrder& NewOrder);
 };

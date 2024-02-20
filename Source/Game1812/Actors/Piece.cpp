@@ -99,7 +99,7 @@ void APiece::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimi
 
 			if (combatUnit) 
 			{
-				combatUnit->InitCombatUnitType(CombatUnitType);
+				combatUnit->SetCombatUnitType(CombatUnitType);
 			}
 		}
 	}

@@ -2,11 +2,12 @@
 
 #include "CoreMinimal.h"
 #include "BaseUnit.h"
-#include "OrderAndUnitContainer.h"
+#include "Components/MoveableUnit.h"
+#include "AssignedUnitOrder.h"
 #include "AdjutantUnit.generated.h"
 
 UCLASS()
-class GAME1812_API AAdjutantUnit : public ABaseUnit
+class GAME1812_API AAdjutantUnit : public ABaseUnit, public IMoveableUnit
 {
 	GENERATED_BODY()
 	
@@ -14,32 +15,38 @@ public:
 
 	AAdjutantUnit();
 
-	
-
 protected:
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(VisibleAnywhere)
+	class UUnitMovementComponent* MovementComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float MovementSpeed;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float RotationSpeed;
 
-	UPROPERTY(EditAnywhere)
-	float InteractionDistance;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float MinDistanceToGiveOrder;
 
 	UPROPERTY(VisibleAnywhere)
-	TArray<FOrderAndUnitContainer> Orders;
+	TArray<FAssignedUnitOrder> Orders;
 
 	virtual void BeginPlay() override;
 
-public:
-
-	void TaskOrders(const TArray<FOrderAndUnitContainer>& NewOrders);
+	void OnOrderAssign(const FUnitOrder& NewOrder) override;
 
 	void OnMovementComplete();
+
 	void MoveToNextTarget();
-	const FOrderAndUnitContainer& FindClosestTarget();
+
+	FAssignedUnitOrder FindClosestTarget();
+
+public:
+
+	class UUnitMovementComponent* GetMovementComponent();
 
 	float GetMovementSpeed() override;
 	float GetRotationSpeed() override;
+	
 };

@@ -2,12 +2,13 @@
 
 #include "CoreMinimal.h"
 #include "BaseUnit.h"
+#include "Components/MoveableUnit.h"
 #include "ScoutUnit.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FScoutMovementStateDelegate);
 
 UCLASS()
-class GAME1812_API AScoutUnit : public ABaseUnit
+class GAME1812_API AScoutUnit : public ABaseUnit, public IMoveableUnit
 {
 	GENERATED_BODY()
 
@@ -21,19 +22,17 @@ public:
 
 protected:
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(VisibleAnywhere)
+	class UUnitMovementComponent* MovementComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float MovementSpeed;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float RotationSpeed;
 
-
-	virtual void BeginPlay() override;
-
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TSet<FIntPoint> ChunksToReveal;
-
-public:
 
 	UPROPERTY(BlueprintAssignable)
 	FScoutMovementStateDelegate OnMovementStart;
@@ -41,6 +40,11 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FScoutMovementStateDelegate OnMovementEnd;
 
+	virtual void BeginPlay() override;
+
+	void OnOrderAssign(const FUnitOrder& NewOrder) override;
+
+public:
 
 	float GetMovementSpeed() override;
 	float GetRotationSpeed() override;
@@ -49,8 +53,5 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	float PredictMovementTime();
-
-	void AssignOrder(FUnitOrder NewOrder) override;
-
 
 };

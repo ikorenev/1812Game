@@ -3,7 +3,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "../Pawns/Unit/UnitOrder.h"
-#include "../Pawns/Unit/OrderAndUnitContainer.h"
+#include "../Pawns/Unit/AssignedUnitOrder.h"
 #include "HeadQuarters.generated.h"
 
 UCLASS()
@@ -20,7 +20,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(VisibleAnywhere)
-	TArray<FOrderAndUnitContainer> UnitOrders;
+	TArray<FAssignedUnitOrder> UnitOrders;
 
 	UPROPERTY(VisibleAnywhere)
 	TArray<class AAdjutantUnit*> AvailableAdjutants;

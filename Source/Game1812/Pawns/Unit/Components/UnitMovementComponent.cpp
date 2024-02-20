@@ -3,6 +3,8 @@
 #include <NavigationPath.h>
 #include <NavigationSystem.h>
 
+#include "MoveableUnit.h"
+
 #include "../BaseUnit.h"
 
 UUnitMovementComponent::UUnitMovementComponent()
@@ -19,7 +21,13 @@ void UUnitMovementComponent::BeginPlay()
 
 	UnitPawn = Cast<ABaseUnit>(GetOwner());
 
-	if (!UnitPawn) DestroyComponent();
+	if (!UnitPawn) 
+		DestroyComponent();
+
+	MoveableUnit = Cast<IMoveableUnit>(GetOwner());
+
+	if (!MoveableUnit)
+		DestroyComponent();
 
 	TargetLocation = UnitPawn->GetActorLocation();
 }
@@ -63,7 +71,7 @@ void UUnitMovementComponent::UpdateMovement(float DeltaTime)
 
 void UUnitMovementComponent::RotateTo(float DeltaTime, float RotationYaw)
 {
-	const float rotationDelta = FMath::Sign(RotationYaw) * DeltaTime * UnitPawn->GetRotationSpeed();
+	const float rotationDelta = FMath::Sign(RotationYaw) * DeltaTime * MoveableUnit->GetRotationSpeed();
 	const float limitedRotation = FMath::Clamp(rotationDelta, -FMath::Abs(RotationYaw), FMath::Abs(RotationYaw));
 
 	UnitPawn->AddActorLocalRotation(FRotator(0, limitedRotation, 0));
@@ -73,7 +81,7 @@ void UUnitMovementComponent::MoveTo(float DeltaTime, FVector Location)
 {
 	const FVector delta = (Location - UnitPawn->GetActorLocation()) * FVector(1, 1, 0);
 	const FVector direction = delta.GetSafeNormal();
-	const FVector distance = direction * UnitPawn->GetMovementSpeed() * DeltaTime;
+	const FVector distance = direction * MoveableUnit->GetMovementSpeed() * DeltaTime;
 
 	if (distance.SizeSquared() > delta.SizeSquared())
 	{
@@ -86,6 +94,11 @@ void UUnitMovementComponent::MoveTo(float DeltaTime, FVector Location)
 
 	UnitPawn->AddActorWorldOffset(FVector(0, 0, 50));
 	UnitPawn->AddActorWorldOffset(FVector(0, 0, -100), true);
+}
+
+bool UUnitMovementComponent::IsMoving()
+{
+	return Moving;
 }
 
 void UUnitMovementComponent::SetTargetLocation(FVector NewTargetLocation)

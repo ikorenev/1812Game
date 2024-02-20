@@ -1,5 +1,7 @@
 #include "UnitOrder.h"
 
+
+
 FUnitOrder::FUnitOrder()
 {
 	UnitEnemyReaction = EUnitEnemyReaction::ATTACK;
