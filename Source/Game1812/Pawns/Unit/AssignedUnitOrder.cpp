@@ -8,6 +8,13 @@ FAssignedUnitOrder::FAssignedUnitOrder()
 	Unit = nullptr;
 }
 
+FAssignedUnitOrder::FAssignedUnitOrder(const FAssignedUnitOrder& Other)
+{
+	this->UnitOrder = new FUnitOrder();
+	*this->UnitOrder = *Other.UnitOrder;
+	this->Unit = Other.Unit;
+}
+
 FAssignedUnitOrder::FAssignedUnitOrder(FUnitOrder UnitOrder, ABaseUnit* Unit)
 {
 	this->UnitOrder = new FUnitOrder();

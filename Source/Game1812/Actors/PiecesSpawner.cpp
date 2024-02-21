@@ -17,7 +17,7 @@ void APiecesSpawner::BeginPlay()
 {
 	Super::BeginPlay();
 
-	const int SideLength = FMath::CeilToInt(FMath::Sqrt(Amount));
+	const int SideLength = FMath::CeilToInt(FMath::Sqrt((float)Amount));
 
 	for (int x = 0, i = 0; x < SideLength; x++) 
 	{

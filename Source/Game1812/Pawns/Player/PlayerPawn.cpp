@@ -8,11 +8,10 @@
 #include "Components/CameraArmComponent.h"
 #include "../../Configs/InputMappingConfig.h"
 
-#include "EnhancedInput/Public/InputActionValue.h"
-#include "EnhancedInput/Public/InputMappingContext.h"
-#include "EnhancedInput/Public/EnhancedInputComponent.h"
-
-#include "EnhancedInput/Public/EnhancedInputSubsystems.h"
+#include <InputActionValue.h>
+#include <InputMappingContext.h>
+#include <EnhancedInputComponent.h>
+#include <EnhancedInputSubsystems.h>
 
 
 FPlayerInput::FPlayerInput()

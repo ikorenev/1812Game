@@ -18,6 +18,7 @@ protected:
 public:
 
 	FAssignedUnitOrder();
+	FAssignedUnitOrder(const FAssignedUnitOrder& Other);
 	FAssignedUnitOrder(FUnitOrder UnitOrder, class ABaseUnit* Unit);
 
 	~FAssignedUnitOrder();

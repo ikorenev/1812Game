@@ -95,7 +95,7 @@ void UCombatComponent::TryAttack(IDamageable* Target, float DeltaTime)
 void UCombatComponent::Attack(IDamageable* Target, float DeltaTime)
 {
 	//TODO: Боевой дух
-	Target->ApplyDamage(this, FMath::Pow(1, 2) * GetBaseDamage() * HealthPoints * DeltaTime);
+	Target->ApplyDamage(this, FMath::Pow(1.0f, 2) * GetBaseDamage() * HealthPoints * DeltaTime);
 }
 
 bool UCombatComponent::CanAttack(IDamageable* Target)
