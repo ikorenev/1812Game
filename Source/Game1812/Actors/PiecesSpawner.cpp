@@ -30,8 +30,6 @@ void APiecesSpawner::BeginPlay()
 			SpawnPiece(SpawnLocation + CenterOffset - GridOffset + GetActorLocation());
 		}
 	}
-
-	Destroy();
 }
 
 void APiecesSpawner::SpawnPiece(const FVector& Location)
