@@ -34,17 +34,19 @@ void APiecesSpawner::BeginPlay()
 
 void APiecesSpawner::SpawnPiece(const FVector& Location)
 {
-	static auto gameInstance = GetGameInstance<UCossacksGameInstance>();
+	UCossacksGameInstance* gameInstance = GetGameInstance<UCossacksGameInstance>();
 
 	if (!gameInstance)
 		return;
 
 	if (PieceToSpawn == EPieceToSpawn::SCOUT)
 	{
-		GetWorld()->SpawnActor<APiece>(gameInstance->ScoutUnitPieceClass.Get(), Location, FRotator::ZeroRotator);
+		GetWorld()->SpawnActor<APiece>(gameInstance->ScoutUnitPieceClass, Location, FRotator::ZeroRotator);
 		return;
 	}
 
-	APiece* piece = GetWorld()->SpawnActor<APiece>(gameInstance->CombatUnitPieceClass.Get(), Location, FRotator::ZeroRotator);
-	piece->SetCombatUnitType(CombatUnitType);
+	APiece* piece = GetWorld()->SpawnActor<APiece>(gameInstance->CombatUnitPieceClass, Location, FRotator::ZeroRotator);
+
+	if (piece)
+		piece->SetCombatUnitType(CombatUnitType);
 }
