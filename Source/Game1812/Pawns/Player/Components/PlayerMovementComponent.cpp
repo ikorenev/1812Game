@@ -14,12 +14,15 @@ UPlayerMovementComponent::UPlayerMovementComponent()
 
 	MapState = EPlayerCameraState::OutOfMap;
 
-	HalfWidthMapBorder = 400.0f;
-	HalfHeightMapBorder = 400.0f;
-	Speed = 250;
+	HalfWidthMapBorder = 2400.0f;
+	HalfHeightMapBorder = 1600.0f;
+	HalfWidthGlobalMapBorder = 1500.0f;
+	HalfHeightGlobalMapBorder = 1500.0f;
+	GlobalMapArmLength = 450.0f;
+	Speed = 1600.0f;
 
-	LocationInterpSpeed = 15;
-	RotationInterpSpeed = 20;
+	LocationInterpSpeed = 15.0f;
+	RotationInterpSpeed = 20.0f;
 
 	MovementInterpSpeed = 5.0f;
 }
@@ -140,12 +143,22 @@ void UPlayerMovementComponent::UpdateCameraSpot()
 	}
 }
 
+FVector2D UPlayerMovementComponent::ApplyBoundsToPoint(const FVector2D& Point)
+{
+	const bool isOnGlobalMap = IsInGlobalMap();
+
+	const float halfHeight = isOnGlobalMap ? HalfHeightGlobalMapBorder : HalfHeightMapBorder;
+	const float halfWidth = isOnGlobalMap ? HalfWidthGlobalMapBorder : HalfWidthMapBorder;
+
+	return FVector2D(FMath::Clamp(TargetLocation.X, -halfHeight, halfHeight), FMath::Clamp(TargetLocation.Y, -halfWidth, halfWidth));
+}
+
 void UPlayerMovementComponent::UpdateMovementOnMap(float DeltaTime)
 {
-	FVector2D inputDirection = GetInputDirection();
-
+	const FVector2D inputDirection = GetInputDirection();
 	TargetLocation += inputDirection * Speed * DeltaTime;
-	TargetLocation = FVector2D(FMath::Clamp(TargetLocation.X, -HalfHeightMapBorder, HalfHeightMapBorder), FMath::Clamp(TargetLocation.Y, -HalfWidthMapBorder, HalfWidthMapBorder));
+
+	TargetLocation = ApplyBoundsToPoint(TargetLocation);
 
 	const float ScrollDelta = PlayerPawn->GetCameraArmComponent()->AddTargetLength(-PlayerPawn->GetPlayerInput()->MouseScroll * 120);
 
@@ -181,8 +194,8 @@ void UPlayerMovementComponent::MoveCameraToCurrentSpot(float DeltaTime)
 	if (spot->HaveCustomRotationInterpSpeed()) 
 		rip = spot->GetRotationInterpSpeed();
 
-	FVector moveDelta = FMath::VInterpTo(PlayerPawn->GetCameraComponent()->GetComponentLocation(), spot->GetActorLocation(), DeltaTime, lip);
-	FRotator rotationDelta = FMath::RInterpTo(PlayerPawn->GetCameraComponent()->GetComponentRotation(), spot->GetActorRotation(), DeltaTime, rip);
+	const FVector moveDelta = FMath::VInterpTo(PlayerPawn->GetCameraComponent()->GetComponentLocation(), spot->GetActorLocation(), DeltaTime, lip);
+	const FRotator rotationDelta = FMath::RInterpTo(PlayerPawn->GetCameraComponent()->GetComponentRotation(), spot->GetActorRotation(), DeltaTime, rip);
 
 	PlayerPawn->GetCameraComponent()->SetWorldLocation(moveDelta);
 	PlayerPawn->GetCameraComponent()->SetWorldRotation(rotationDelta);
@@ -192,8 +205,8 @@ void UPlayerMovementComponent::MoveCameraToMap(float DeltaTime)
 {
 	USceneComponent* cameraPoint = PlayerPawn->GetCameraArmPoint();
 
-	FVector moveDelta = FMath::VInterpTo(PlayerPawn->GetCameraComponent()->GetComponentLocation(), cameraPoint->GetComponentLocation(), DeltaTime, LocationInterpSpeed);
-	FRotator rotationDelta = FMath::RInterpTo(PlayerPawn->GetCameraComponent()->GetComponentRotation(), cameraPoint->GetComponentRotation(), DeltaTime, RotationInterpSpeed);
+	const FVector moveDelta = FMath::VInterpTo(PlayerPawn->GetCameraComponent()->GetComponentLocation(), cameraPoint->GetComponentLocation(), DeltaTime, LocationInterpSpeed);
+	const FRotator rotationDelta = FMath::RInterpTo(PlayerPawn->GetCameraComponent()->GetComponentRotation(), cameraPoint->GetComponentRotation(), DeltaTime, RotationInterpSpeed);
 
 	PlayerPawn->GetCameraComponent()->SetWorldLocation(moveDelta);
 	PlayerPawn->GetCameraComponent()->SetWorldRotation(rotationDelta);
@@ -240,6 +253,28 @@ FVector2D UPlayerMovementComponent::GetInputDirection()
 	}
 
 	return FVector2D(direction).GetSafeNormal();
+}
+
+EPlayerCameraState UPlayerMovementComponent::GetMapState()
+{
+	return MapState;
+}
+
+float UPlayerMovementComponent::GetGlobalMapArmLength()
+{
+	return GlobalMapArmLength;
+}
+
+bool UPlayerMovementComponent::IsInGlobalMapBounds()
+{
+	const FVector2D location(PlayerPawn->GetCameraArmComponent()->GetRelativeLocation());
+
+	return (location > FVector2D(-HalfHeightGlobalMapBorder, -HalfWidthGlobalMapBorder)) && (location < FVector2D(HalfHeightGlobalMapBorder, HalfWidthGlobalMapBorder));
+}
+
+bool UPlayerMovementComponent::IsInGlobalMap()
+{
+	return PlayerPawn->GetCameraArmComponent()->GetCurrentLength() < GlobalMapArmLength;
 }
 
 void UPlayerMovementComponent::ChangeCameraSpot(int deltaIndex)

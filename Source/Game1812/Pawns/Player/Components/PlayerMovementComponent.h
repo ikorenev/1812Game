@@ -51,12 +51,23 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Map Movement")
 	float HalfHeightMapBorder;
 
+	UPROPERTY(EditAnywhere, Category = "Map Movement")
+	float GlobalMapArmLength;
+
+	UPROPERTY(EditAnywhere, Category = "Map Movement")
+	float HalfWidthGlobalMapBorder;
+
+	UPROPERTY(EditAnywhere, Category = "Map Movement")
+	float HalfHeightGlobalMapBorder;
+
 	virtual void BeginPlay() override;
 
 	void FindCameraSpots(TArray<class APlayerCameraSpot*>& Spots);
 	int GetDefaultSpot();
 
 	void UpdateCameraSpot();
+
+	FVector2D ApplyBoundsToPoint(const FVector2D& Point);
 
 	void MoveCameraToCurrentSpot(float DeltaTime);
 	void MoveCameraToMap(float DeltaTime);
@@ -67,7 +78,11 @@ protected:
 
 public:
 
-	EPlayerCameraState GetMapState() { return MapState; }
+	EPlayerCameraState GetMapState();
+
+	float GetGlobalMapArmLength();
+	bool IsInGlobalMapBounds();
+	bool IsInGlobalMap();
 
 	void ChangeCameraSpot(int deltaIndex);
 

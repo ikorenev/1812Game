@@ -31,12 +31,17 @@ void UPlayerInteractionComponent::TickComponent(float DeltaTime, ELevelTick Tick
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (PlayerPawn->GetMovementComponent()->GetMapState() != EPlayerCameraState::LookingAtMap)
+	if (PlayerPawn->GetMovementComponent()->GetMapState() != EPlayerCameraState::LookingAtMap) 
+	{
+		if (CurrentDraggable)
+			SetCurrentDraggable(nullptr);
+
 		return;
-	
+	}
+
 	if (CurrentDraggable)
 	{
-		if (PlayerPawn->GetPlayerInput()->MouseLeftHold) 
+		if (PlayerPawn->GetPlayerInput()->MouseLeftHold && !PlayerPawn->GetMovementComponent()->IsInGlobalMap()) 
 		{
 			FHitResult hit = SingleCursorTrace();
 

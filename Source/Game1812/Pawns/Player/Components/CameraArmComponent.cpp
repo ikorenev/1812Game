@@ -1,5 +1,6 @@
 #include "CameraArmComponent.h"
 
+#include "PlayerMovementComponent.h"
 #include "../PlayerPawn.h"
 
 UCameraArmComponent::UCameraArmComponent()
@@ -18,7 +19,6 @@ void UCameraArmComponent::BeginPlay()
 	CurrentLength = MaxLength;
 	TargetLength = CurrentLength;
 
-
 	if (!GetOwner()) return;
 
 	PlayerPawn = Cast<APlayerPawn>(GetOwner());
@@ -30,7 +30,10 @@ void UCameraArmComponent::BeginPlay()
 float UCameraArmComponent::AddTargetLength(float deltaLength)
 {
 	float savedLength = TargetLength;
-	TargetLength = FMath::Clamp(TargetLength + deltaLength, MinLength, MaxLength);
+
+	float minLength = PlayerPawn->GetMovementComponent()->IsInGlobalMapBounds() ? MinLength : PlayerPawn->GetMovementComponent()->GetGlobalMapArmLength();
+
+	TargetLength = FMath::Clamp(TargetLength + deltaLength, minLength, MaxLength);
 	return savedLength - TargetLength;
 }
 
