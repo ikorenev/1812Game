@@ -41,10 +41,10 @@ protected:
 	class ABaseUnit* Unit;
 
 	UPROPERTY(EditAnywhere)
-	float HoverHeight;
+	float DraggingHeight;
 
 	UPROPERTY(EditAnywhere)
-	float SweepCastHeight;
+	float AltDraggingHeight;
 
 	UPROPERTY(VisibleAnywhere)
 	bool bWasDragged;
@@ -66,12 +66,10 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 
-	void OnDragStart() override;
-	void OnDragEnd() override;
-
-	void OnMouseMove(FVector location, bool hover) override;
-
-	void OnRotate(float yawRotation) override;
+	void StartDragging() override;
+	void StopDragging() override;
+	void DragToLocation(FVector Location, bool Alt) override;
+	void DragRotate(float YawRotation) override;
 
 	UFUNCTION(BlueprintCallable)
 	void AssignOrder(FUnitOrder UnitOrder);

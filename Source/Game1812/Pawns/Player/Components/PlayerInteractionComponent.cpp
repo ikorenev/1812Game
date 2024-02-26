@@ -45,9 +45,9 @@ void UPlayerInteractionComponent::TickComponent(float DeltaTime, ELevelTick Tick
 		{
 			FHitResult hit = SingleCursorTrace();
 
-			CurrentDraggable->OnMouseMove(hit.Location, !PlayerPawn->GetPlayerInput()->MouseRightHold);
+			CurrentDraggable->DragToLocation(hit.Location, !PlayerPawn->GetPlayerInput()->MouseRightHold);
 
-			CurrentDraggable->OnRotate((-(float)PlayerPawn->GetPlayerInput()->RotateLeft + (float)PlayerPawn->GetPlayerInput()->RotateRight) * RotateSpeed * DeltaTime);
+			CurrentDraggable->DragRotate((-(float)PlayerPawn->GetPlayerInput()->RotateLeft + (float)PlayerPawn->GetPlayerInput()->RotateRight) * RotateSpeed * DeltaTime);
 		}
 		else 
 		{
@@ -71,10 +71,10 @@ void UPlayerInteractionComponent::TickComponent(float DeltaTime, ELevelTick Tick
 void UPlayerInteractionComponent::SetCurrentDraggable(IDraggable* NewDraggable)
 {
 	if (CurrentDraggable) 
-		CurrentDraggable->OnDragEnd();
+		CurrentDraggable->StopDragging();
 
 	if (NewDraggable)
-		NewDraggable->OnDragStart();
+		NewDraggable->StartDragging();
 
 	CurrentDraggable = NewDraggable;
 }

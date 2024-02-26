@@ -35,8 +35,8 @@ APiece::APiece()
 	BoxCollisionComponent->SetSimulatePhysics(true);
 	BoxCollisionComponent->SetNotifyRigidBodyCollision(true);
 
-	HoverHeight = 100;
-	SweepCastHeight = 200;
+	DraggingHeight = 100.0f;
+	AltDraggingHeight = 10.0f;
 	bForceOrder = false;
 }
 
@@ -133,7 +133,7 @@ void APiece::AssignOrder(FUnitOrder UnitOrder)
 	}
 }
 
-void APiece::OnDragStart() 
+void APiece::StartDragging()
 {
 	BoxCollisionComponent->SetSimulatePhysics(false);
 	SetActorEnableCollision(false);
@@ -141,7 +141,7 @@ void APiece::OnDragStart()
 	RemoveOrder();
 }
 
-void APiece::OnDragEnd() 
+void APiece::StopDragging()
 {
 	BoxCollisionComponent->SetSimulatePhysics(true);
 	SetActorEnableCollision(true);
@@ -149,15 +149,17 @@ void APiece::OnDragEnd()
 	bWasDragged = true;
 }
 
-void APiece::OnMouseMove(FVector location, bool hover)
+void APiece::DragToLocation(FVector Location, bool Alt)
 {
-	FVector newLocation = FMath::VInterpTo(GetActorLocation(), hover ? location + FVector(0, 0, HoverHeight) : location, GetWorld()->GetDeltaSeconds(), 20);
+	Location.Z += BoxCollisionComponent->GetScaledBoxExtent().Z;
+
+	FVector newLocation = FMath::VInterpTo(GetActorLocation(), Alt ? Location + FVector(0, 0, DraggingHeight) : Location + FVector(0, 0, AltDraggingHeight), GetWorld()->GetDeltaSeconds(), 20);
 	
 	SetActorLocation(newLocation);
 	SetActorRotation(FMath::RInterpTo(GetActorRotation(), FRotator(0, GetActorRotation().Yaw, 0), GetWorld()->GetDeltaSeconds(), 20));
 }
 
-void APiece::OnRotate(float yawRotation) 
+void APiece::DragRotate(float YawRotation)
 {
-	AddActorWorldRotation(FRotator(0, yawRotation, 0));
+	AddActorWorldRotation(FRotator(0, YawRotation, 0));
 }

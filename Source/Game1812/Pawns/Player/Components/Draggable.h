@@ -14,11 +14,11 @@ class GAME1812_API IDraggable
 
 public:
 
-    virtual void OnDragStart() {}
+    virtual void StartDragging() = 0;
 
-    virtual void OnDragEnd() {}
+    virtual void StopDragging() = 0;
 
-    virtual void OnMouseMove(FVector location, bool hover = true) {}
+    virtual void DragToLocation(FVector Location, bool Alt = true) = 0;
 
-    virtual void OnRotate(float yawRotation) {}
+    virtual void DragRotate(float YawRotation) = 0;
 };
