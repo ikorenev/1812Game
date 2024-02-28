@@ -29,8 +29,6 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Drag and Drop")
 	float RotateSpeed;
 
-	
-
 	class IDraggable* CurrentDraggable;
 
 	void SetCurrentDraggable(class IDraggable* NewDraggable);

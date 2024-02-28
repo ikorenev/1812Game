@@ -40,8 +40,6 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	class ABaseUnit* Unit;
 
-
-
 	UPROPERTY(VisibleAnywhere)
 	bool bWasDragged;
 

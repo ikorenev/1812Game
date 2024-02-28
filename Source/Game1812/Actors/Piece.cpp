@@ -86,6 +86,9 @@ void APiece::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimi
 
 	if (!map) return;
 
+	HitComponent->SetPhysicsLinearVelocity(FVector::ZeroVector);
+	HitComponent->SetPhysicsAngularVelocityInRadians(FVector::ZeroVector);
+
 	if (bWasDragged) RequestOrder();
 
 	if (!Unit)
