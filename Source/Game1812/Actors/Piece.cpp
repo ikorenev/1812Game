@@ -35,8 +35,7 @@ APiece::APiece()
 	BoxCollisionComponent->SetSimulatePhysics(true);
 	BoxCollisionComponent->SetNotifyRigidBodyCollision(true);
 
-	DraggingHeight = 100.0f;
-	AltDraggingHeight = 10.0f;
+
 	bForceOrder = false;
 }
 
@@ -149,17 +148,7 @@ void APiece::StopDragging()
 	bWasDragged = true;
 }
 
-void APiece::DragToLocation(FVector Location, bool Alt)
+FVector APiece::GetDragOffset()
 {
-	Location.Z += BoxCollisionComponent->GetScaledBoxExtent().Z;
-
-	FVector newLocation = FMath::VInterpTo(GetActorLocation(), Alt ? Location + FVector(0, 0, DraggingHeight) : Location + FVector(0, 0, AltDraggingHeight), GetWorld()->GetDeltaSeconds(), 20);
-	
-	SetActorLocation(newLocation);
-	SetActorRotation(FMath::RInterpTo(GetActorRotation(), FRotator(0, GetActorRotation().Yaw, 0), GetWorld()->GetDeltaSeconds(), 20));
-}
-
-void APiece::DragRotate(float YawRotation)
-{
-	AddActorWorldRotation(FRotator(0, YawRotation, 0));
+	return FVector(0, 0, BoxCollisionComponent->GetScaledBoxExtent().Z);
 }

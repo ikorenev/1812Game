@@ -18,7 +18,5 @@ public:
 
     virtual void StopDragging() = 0;
 
-    virtual void DragToLocation(FVector Location, bool Alt = true) = 0;
-
-    virtual void DragRotate(float YawRotation) = 0;
+    virtual FVector GetDragOffset() = 0;
 };

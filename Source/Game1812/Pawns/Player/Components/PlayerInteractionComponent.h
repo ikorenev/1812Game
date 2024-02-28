@@ -20,8 +20,16 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Interaction")
 	float InteractionDistance;
 
-	UPROPERTY(EditAnywhere, Category = "Interaction")
+	UPROPERTY(EditAnywhere, Category = "Drag and Drop")
+	float DraggingHeight;
+
+	UPROPERTY(EditAnywhere, Category = "Drag and Drop")
+	float AltDraggingHeight;
+
+	UPROPERTY(EditAnywhere, Category = "Drag and Drop")
 	float RotateSpeed;
+
+	
 
 	class IDraggable* CurrentDraggable;
 

@@ -11,6 +11,8 @@ UPlayerInteractionComponent::UPlayerInteractionComponent()
 	CurrentDraggable = nullptr;
 
 	InteractionDistance = 500;
+	DraggingHeight = 100.0f;
+	AltDraggingHeight = 10.0f;
 	RotateSpeed = 100;
 }
 
@@ -44,10 +46,21 @@ void UPlayerInteractionComponent::TickComponent(float DeltaTime, ELevelTick Tick
 		if (PlayerPawn->GetPlayerInput()->MouseLeftHold && !PlayerPawn->GetMovementComponent()->IsInGlobalMap()) 
 		{
 			FHitResult hit = SingleCursorTrace();
+			AActor* draggableActor = Cast<AActor>(CurrentDraggable);
 
-			CurrentDraggable->DragToLocation(hit.Location, !PlayerPawn->GetPlayerInput()->MouseRightHold);
+			if (!draggableActor)
+				return;
 
-			CurrentDraggable->DragRotate((-(float)PlayerPawn->GetPlayerInput()->RotateLeft + (float)PlayerPawn->GetPlayerInput()->RotateRight) * RotateSpeed * DeltaTime);
+			const bool altDragging = PlayerPawn->GetPlayerInput()->MouseRightHold;
+			const FVector locationToMoveTo = altDragging ? (hit.Location + FVector(0, 0, AltDraggingHeight)) : (hit.Location + FVector(0, 0, DraggingHeight));
+			const FVector newLocation = FMath::VInterpTo(draggableActor->GetActorLocation(), locationToMoveTo, DeltaTime, 20);
+
+			draggableActor->SetActorLocation(newLocation);
+
+			const float rotationDirection = (-(float)PlayerPawn->GetPlayerInput()->RotateLeft + (float)PlayerPawn->GetPlayerInput()->RotateRight);
+			const float rotationDelta = rotationDirection * RotateSpeed * DeltaTime;
+
+			draggableActor->AddActorWorldRotation(FRotator(0, rotationDelta, 0));
 		}
 		else 
 		{

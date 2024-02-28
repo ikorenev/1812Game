@@ -40,11 +40,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	class ABaseUnit* Unit;
 
-	UPROPERTY(EditAnywhere)
-	float DraggingHeight;
 
-	UPROPERTY(EditAnywhere)
-	float AltDraggingHeight;
 
 	UPROPERTY(VisibleAnywhere)
 	bool bWasDragged;
@@ -68,8 +64,7 @@ public:
 
 	void StartDragging() override;
 	void StopDragging() override;
-	void DragToLocation(FVector Location, bool Alt) override;
-	void DragRotate(float YawRotation) override;
+	FVector GetDragOffset() override;
 
 	UFUNCTION(BlueprintCallable)
 	void AssignOrder(FUnitOrder UnitOrder);
