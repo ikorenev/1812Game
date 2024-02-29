@@ -120,17 +120,7 @@ void UUnitMovementComponent::SetTargetLocation(FVector NewTargetLocation)
 
 void UUnitMovementComponent::UpdatePath()
 {
-	if (Path)
-	{
-		Path->EnableDebugDrawing(false);
-	}
-
 	Path = UNavigationSystemV1::FindPathToLocationSynchronously(UnitPawn, UnitPawn->GetActorLocation(), TargetLocation, UnitPawn);
-
-	if (Path) 
-	{
-		Path->EnableDebugDrawing(true);
-	}
 }
 
 void UUnitMovementComponent::CheckMovementComplete()
@@ -162,10 +152,9 @@ FVector UUnitMovementComponent::GetNextPathPoint()
 
 FVector UUnitMovementComponent::GetLastPathPoint() 
 {
-	if (!Path)
-	{
+	if (!Path || Path->PathPoints.IsEmpty())
 		return UnitPawn->GetActorLocation();
-	}
+
 	
 	return Path->PathPoints.Last();
 }

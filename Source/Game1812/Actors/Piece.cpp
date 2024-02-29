@@ -1,14 +1,15 @@
 #include "Piece.h"
 
 #include "../Pawns/Unit/UnitOrder.h"
-
-#include "Kismet/GameplayStatics.h"
+#include "../Pawns/Unit/CombatUnit.h"
 #include "../UI/BaseOrderWidget.h"
 #include "../CossacksGameInstance.h"
+#include "HeadQuarters.h"
+#include "PieceMapMarker.h"
 #include "PaperMap.h"
+
+#include <Kismet/GameplayStatics.h>
 #include <Components/BoxComponent.h>
-#include "../Actors/HeadQuarters.h"
-#include "../Pawns/Unit/CombatUnit.h"
 #include <Components/StaticMeshComponent.h>
 #include <Components/WidgetComponent.h>
 
@@ -18,6 +19,8 @@ APiece::APiece()
 
 	BoxCollisionComponent = CreateDefaultSubobject<UBoxComponent>(FName("Piece Collision"));
 	BoxCollisionComponent->InitBoxExtent(FVector(20, 20, 60));
+	BoxCollisionComponent->SetSimulatePhysics(true);
+	BoxCollisionComponent->SetNotifyRigidBodyCollision(true);
 	BoxCollisionComponent->SetGenerateOverlapEvents(true);
 	RootComponent = BoxCollisionComponent;
 
@@ -28,14 +31,12 @@ APiece::APiece()
 	PieceFigureMeshComponent->SetupAttachment(BoxCollisionComponent);
 
 	OrderWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(FName("Order Widget"));
-	OrderWidgetComponent->SetupAttachment(BoxCollisionComponent);
 	OrderWidgetComponent->SetRelativeLocation(FVector(0, 0, 600));
 	OrderWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
 	OrderWidgetComponent->SetDrawSize(FVector2D(200, 200));
-
-	BoxCollisionComponent->SetSimulatePhysics(true);
-	BoxCollisionComponent->SetNotifyRigidBodyCollision(true);
-
+	OrderWidgetComponent->SetupAttachment(BoxCollisionComponent);
+	
+	bCanSpawnUnit = true;
 	bForceOrder = false;
 }
 
@@ -75,9 +76,15 @@ void APiece::SetCombatUnitType(ECombatUnitType NewCombatUnitType)
 	PieceFigureMeshComponent->SetStaticMesh(combatUnitContainer.PieceFigureMesh);
 }
 
+UStaticMesh* APiece::GetPieceFoundationMesh()
+{
+	return PieceFoundationMeshComponent->GetStaticMesh();
+}
+
 void APiece::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
 }
 
 void APiece::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
@@ -92,6 +99,8 @@ void APiece::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimi
 
 	HitComponent->SetPhysicsLinearVelocity(FVector::ZeroVector);
 	HitComponent->SetPhysicsAngularVelocityInRadians(FVector::ZeroVector);
+
+	SpawnMapMarker();
 
 	if (bWasDragged) 
 		RequestOrder();
@@ -112,12 +121,16 @@ void APiece::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimi
 	}
 }
 
-void OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void APiece::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	if (Cast<APaperMap>(OtherActor))
+		OnMapBordersStartOverlap.Broadcast();
 }
 
-void OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+void APiece::OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
+	if (Cast<APaperMap>(OtherActor))
+		OnMapBordersEndOverlap.Broadcast();
 }
 
 void APiece::RequestOrder() 
@@ -130,6 +143,12 @@ void APiece::RequestOrder()
 void APiece::RemoveOrder() 
 {
 	OrderWidgetComponent->SetVisibility(false);
+}
+
+void APiece::SpawnMapMarker()
+{
+	APieceMapMarker* mapMarker = GetWorld()->SpawnActor<APieceMapMarker>();
+	mapMarker->Init(this);
 }
 
 void APiece::AssignOrder(FUnitOrder UnitOrder) 
@@ -159,8 +178,6 @@ void APiece::StartDragging()
 	rotation.Roll = 0.f;
 	rotation.Pitch = 0.f;
 	SetActorRotation(rotation);
-
-	OnRemovedFromMap.Broadcast();
 
 	RemoveOrder();
 }

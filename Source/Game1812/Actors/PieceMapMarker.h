@@ -16,12 +16,27 @@ public:
 protected:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	UStaticMeshComponent* MapMarkerMeshComponent;
+	UStaticMeshComponent* MarkerMeshComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UMaterial* MarkerMeshMaterial;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	class APiece* OwnerPiece;
 
 	virtual void BeginPlay() override;
 
+	void OnPieceMapBorderStartOverlap();
+	void OnPieceMapBorderEndOverlap();
+	void OnOrderAssing();
+
+	void UpdateLocation();
+
 public:	
 
+	void Init(class APiece* NewOwnerPiece);
+
 	virtual void Tick(float DeltaTime) override;
+
 
 };

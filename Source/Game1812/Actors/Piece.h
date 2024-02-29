@@ -8,9 +8,9 @@
 #include <Blueprint/UserWidget.h>
 #include "Piece.generated.h"
 
-DECLARE_MULTICAST_DELEGATE(FAddedToMapDelegate)
-DECLARE_MULTICAST_DELEGATE(FRemovedFromMapDelegate)
-DECLARE_MULTICAST_DELEGATE(FOrderAssignDelegate)
+DECLARE_MULTICAST_DELEGATE(FMapBordersStartOverlapDelegate);
+DECLARE_MULTICAST_DELEGATE(FMapBordersEndOverlapDelegate);
+DECLARE_MULTICAST_DELEGATE(FOrderAssignDelegate);
 
 UCLASS()
 class GAME1812_API APiece : public AActor, public IDraggable
@@ -47,6 +47,9 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	bool bWasDragged;
 
+	UPROPERTY(VisibleAnywhere)
+	bool bCanSpawnUnit;
+
 	UPROPERTY(EditAnywhere)
 	bool bForceOrder;
 
@@ -64,13 +67,16 @@ protected:
 	void RequestOrder();
 	void RemoveOrder();
 
+	void SpawnMapMarker();
+
 public:
 
-	FAddedToMapDelegate OnAddedToMap;
-	FRemovedFromMapDelegate OnRemovedFromMap;
+	FMapBordersStartOverlapDelegate OnMapBordersStartOverlap;
+	FMapBordersEndOverlapDelegate OnMapBordersEndOverlap;
 	FOrderAssignDelegate OnOrderAssign;
 
 	void SetCombatUnitType(ECombatUnitType NewCombatUnitType);
+	UStaticMesh* GetPieceFoundationMesh();
 
 	virtual void Tick(float DeltaTime) override;
 
