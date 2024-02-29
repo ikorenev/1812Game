@@ -4,11 +4,11 @@
 #include "../Pawns/Unit/AdjutantUnit.h"
 #include "../CossacksGameInstance.h"
 
-AHeadQuarters* AHeadQuarters::Singleton = nullptr;
+AHeadQuarters* AHeadQuarters::Instance = nullptr;
 
-AHeadQuarters* AHeadQuarters::GetSingleton()
+AHeadQuarters* AHeadQuarters::GetInstance()
 {
-	return Singleton;
+	return Instance;
 }
 
 bool AHeadQuarters::HaveAnyOrders()
@@ -42,7 +42,7 @@ void AHeadQuarters::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	Singleton = this;
+	Instance = this;
 
 	UCossacksGameInstance* gameInstance = GetGameInstance<UCossacksGameInstance>();
 

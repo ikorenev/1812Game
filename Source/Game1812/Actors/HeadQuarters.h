@@ -29,7 +29,7 @@ protected:
 	int AdjutantsAmount;
 
 
-	static AHeadQuarters* Singleton;
+	static AHeadQuarters* Instance;
 
 public:	
 
@@ -40,7 +40,7 @@ public:
 	void AddOrderToAssign(const FUnitOrder& UnitOrder, class ABaseUnit* Unit);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	static AHeadQuarters* GetSingleton();
+	static AHeadQuarters* GetInstance();
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	bool HaveAnyOrders();

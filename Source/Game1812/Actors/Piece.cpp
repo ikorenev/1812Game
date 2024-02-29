@@ -18,6 +18,7 @@ APiece::APiece()
 
 	BoxCollisionComponent = CreateDefaultSubobject<UBoxComponent>(FName("Piece Collision"));
 	BoxCollisionComponent->InitBoxExtent(FVector(20, 20, 60));
+	BoxCollisionComponent->SetGenerateOverlapEvents(true);
 	RootComponent = BoxCollisionComponent;
 
 	PieceFoundationMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(FName("Piece Foundation"));
@@ -34,7 +35,6 @@ APiece::APiece()
 
 	BoxCollisionComponent->SetSimulatePhysics(true);
 	BoxCollisionComponent->SetNotifyRigidBodyCollision(true);
-
 
 	bForceOrder = false;
 }
@@ -80,11 +80,13 @@ void APiece::Tick(float DeltaTime)
 
 void APiece::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	if (!OtherActor) return;
+	if (!OtherActor) 
+		return;
 
 	APaperMap* map = Cast<APaperMap>(OtherActor);
 
-	if (!map) return;
+	if (!map) 
+		return;
 
 	HitComponent->SetPhysicsLinearVelocity(FVector::ZeroVector);
 	HitComponent->SetPhysicsAngularVelocityInRadians(FVector::ZeroVector);
@@ -93,9 +95,9 @@ void APiece::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimi
 
 	if (!Unit)
 	{
-		if (AHeadQuarters::GetSingleton()) 
+		if (AHeadQuarters::GetInstance()) 
 		{
-			Unit = AHeadQuarters::GetSingleton()->SpawnUnit(UnitClass);
+			Unit = AHeadQuarters::GetInstance()->SpawnUnit(UnitClass);
 
 			ACombatUnit* combatUnit = Cast<ACombatUnit>(Unit);
 
@@ -131,7 +133,7 @@ void APiece::AssignOrder(FUnitOrder UnitOrder)
 	}
 	else 
 	{
-		AHeadQuarters::GetSingleton()->AddOrderToAssign(UnitOrder, Unit);
+		AHeadQuarters::GetInstance()->AddOrderToAssign(UnitOrder, Unit);
 	}
 }
 

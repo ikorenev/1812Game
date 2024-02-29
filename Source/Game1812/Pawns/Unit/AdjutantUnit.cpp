@@ -32,7 +32,7 @@ void AAdjutantUnit::OnMovementComplete()
 {
 	if (Orders.IsEmpty())
 	{
-		AHeadQuarters* headQuarters = AHeadQuarters::GetSingleton();
+		AHeadQuarters* headQuarters = AHeadQuarters::GetInstance();
 
 		if (!headQuarters)
 			return;
@@ -69,7 +69,7 @@ void AAdjutantUnit::MoveToNextTarget()
 {
 	if (Orders.IsEmpty()) 
 	{
-		AHeadQuarters* headQuarters = AHeadQuarters::GetSingleton();
+		AHeadQuarters* headQuarters = AHeadQuarters::GetInstance();
 
 		if (!headQuarters)
 			return;

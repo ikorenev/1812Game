@@ -113,7 +113,7 @@ void AScoutUnit::OnOrderAssign(const FUnitOrder& NewOrder)
 		ExplorationLocations.Enqueue(location);
 	}
 
-	ExplorationLocations.Enqueue(AHeadQuarters::GetSingleton()->GetActorLocation());
+	ExplorationLocations.Enqueue(AHeadQuarters::GetInstance()->GetActorLocation());
 
 	if (OnMovementStart.IsBound())
 		OnMovementStart.Broadcast();
