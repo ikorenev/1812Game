@@ -8,6 +8,10 @@
 #include <Blueprint/UserWidget.h>
 #include "Piece.generated.h"
 
+DECLARE_MULTICAST_DELEGATE(FAddedToMapDelegate)
+DECLARE_MULTICAST_DELEGATE(FRemovedFromMapDelegate)
+DECLARE_MULTICAST_DELEGATE(FOrderAssignDelegate)
+
 UCLASS()
 class GAME1812_API APiece : public AActor, public IDraggable
 {
@@ -51,10 +55,20 @@ protected:
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
+	UFUNCTION()
+	void OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
+	void OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
 	void RequestOrder();
 	void RemoveOrder();
 
 public:
+
+	FAddedToMapDelegate OnAddedToMap;
+	FRemovedFromMapDelegate OnRemovedFromMap;
+	FOrderAssignDelegate OnOrderAssign;
 
 	void SetCombatUnitType(ECombatUnitType NewCombatUnitType);
 

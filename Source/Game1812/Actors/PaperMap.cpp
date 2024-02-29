@@ -1,53 +1,27 @@
 #include "PaperMap.h"
 
-#include "../Pawns/Player/PlayerPawn.h"
-#include "../Pawns/Player/Components/PlayerMovementComponent.h"
-#include "../Pawns/Player/Components/CameraArmComponent.h"
-
+#include <Components/BoxComponent.h>
 
 APaperMap::APaperMap()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
-	MapMesh = CreateDefaultSubobject<UStaticMeshComponent>(FName("Map Mesh"));
-	RootComponent = MapMesh;
+	PaperMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Paper Mesh"));
+	PaperMeshComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Block);
+	RootComponent = PaperMeshComponent;
 
-	MapMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Block);
+	MapBordersComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("Borders"));
+	MapBordersComponent->SetupAttachment(RootComponent);
 
-	HideDistance = 150;
+	BordersHeight = 250.f;
 }
 
 void APaperMap::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	
-
-
+	FVector mapBordersExtent = PaperMeshComponent->CalcBounds(PaperMeshComponent->GetComponentTransform()).BoxExtent;
+	mapBordersExtent /= GetActorScale3D();
+	mapBordersExtent.Z = BordersHeight;
+	MapBordersComponent->InitBoxExtent(mapBordersExtent);
 }
-
-void APaperMap::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-	/*
-
-	APawn* pawn = GetWorld()->GetFirstPlayerController()->GetPawn();
-
-	if (!pawn) return;
-
-	APlayerPawn* playerPawn = Cast<APlayerPawn>(pawn);
-
-	if (!playerPawn) return;
-
-	if ((playerPawn->GetMovementComponent()->GetMapState() == EPlayerCameraState::LookingAtMap) && 
-		(playerPawn->GetCameraArmComponent()->GetCurrentLength() < HideDistance)) 
-	{
-		MapMesh->SetVisibility(false);
-	}
-	else 
-	{
-		MapMesh->SetVisibility(true);
-	}*/
-}
-

@@ -44,6 +44,8 @@ void APiece::BeginPlay()
 	Super::BeginPlay();
 
 	BoxCollisionComponent->OnComponentHit.AddDynamic(this, &APiece::OnHit);
+	BoxCollisionComponent->OnComponentBeginOverlap.AddDynamic(this, &APiece::OnBeginOverlap);
+	BoxCollisionComponent->OnComponentEndOverlap.AddDynamic(this, &APiece::OnEndOverlap);
 
 	OrderWidgetComponent->SetVisibility(false);
 
@@ -91,7 +93,8 @@ void APiece::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimi
 	HitComponent->SetPhysicsLinearVelocity(FVector::ZeroVector);
 	HitComponent->SetPhysicsAngularVelocityInRadians(FVector::ZeroVector);
 
-	if (bWasDragged) RequestOrder();
+	if (bWasDragged) 
+		RequestOrder();
 
 	if (!Unit)
 	{
@@ -109,6 +112,14 @@ void APiece::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimi
 	}
 }
 
+void OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+}
+
+void OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+}
+
 void APiece::RequestOrder() 
 {
 	OrderWidgetComponent->SetVisibility(true);
@@ -124,8 +135,10 @@ void APiece::RemoveOrder()
 void APiece::AssignOrder(FUnitOrder UnitOrder) 
 {
 	RemoveOrder();
+	OnOrderAssign.Broadcast();
 
-	if (!Unit) return;
+	if (!Unit) 
+		return;
 
 	if (bForceOrder) 
 	{
@@ -142,6 +155,13 @@ void APiece::StartDragging()
 	BoxCollisionComponent->SetSimulatePhysics(false);
 	SetActorEnableCollision(false);
 
+	FRotator rotation = GetActorRotation();
+	rotation.Roll = 0.f;
+	rotation.Pitch = 0.f;
+	SetActorRotation(rotation);
+
+	OnRemovedFromMap.Broadcast();
+
 	RemoveOrder();
 }
 
@@ -157,3 +177,5 @@ FVector APiece::GetDragOffset()
 {
 	return FVector(0, 0, BoxCollisionComponent->GetScaledBoxExtent().Z);
 }
+
+

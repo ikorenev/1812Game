@@ -15,16 +15,16 @@ public:
 
 protected:
 
-	UPROPERTY(EditAnywhere)
-	float HideDistance;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	class UStaticMeshComponent* PaperMeshComponent;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	class UStaticMeshComponent* MapMesh;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	class UBoxComponent* MapBordersComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	float BordersHeight;
 
 	virtual void BeginPlay() override;
 
-public:	
-
-	virtual void Tick(float DeltaTime) override;
 
 };
