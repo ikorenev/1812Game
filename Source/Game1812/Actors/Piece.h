@@ -4,7 +4,7 @@
 #include "GameFramework/Actor.h"
 #include "../Pawns/Player/Components/Draggable.h"
 #include "../Pawns/Unit/BaseUnit.h"
-#include "../Pawns/Unit/CombatUnitEnum.h"
+
 #include <Blueprint/UserWidget.h>
 #include "Piece.generated.h"
 
@@ -23,35 +23,32 @@ public:
 
 protected:
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class UBoxComponent* BoxCollisionComponent;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class UStaticMeshComponent* PieceFoundationMeshComponent;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class UStaticMeshComponent* PieceFigureMeshComponent;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UWidgetComponent* OrderWidgetComponent;
 
-	UPROPERTY(VisibleAnywhere)
-	ECombatUnitType CombatUnitType;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TWeakObjectPtr<class ABaseUnit> Unit;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TWeakObjectPtr<class APieceMapMarker> MapMarker;
 
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<class ABaseUnit> UnitClass;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	class ABaseUnit* Unit;
 
 	UPROPERTY(VisibleAnywhere)
 	bool bWasDragged;
 
 	UPROPERTY(VisibleAnywhere)
 	bool bCanSpawnUnit;
-
-	UPROPERTY(EditAnywhere)
-	bool bForceOrder;
 
 	virtual void BeginPlay() override;
 
@@ -67,7 +64,8 @@ protected:
 	void RequestOrder();
 	void RemoveOrder();
 
-	void SpawnMapMarker();
+	virtual void SpawnUnit();
+	virtual void SpawnMapMarker();
 
 public:
 
@@ -75,7 +73,7 @@ public:
 	FMapBordersEndOverlapDelegate OnMapBordersEndOverlap;
 	FOrderAssignDelegate OnOrderAssign;
 
-	void SetCombatUnitType(ECombatUnitType NewCombatUnitType);
+	
 	UStaticMesh* GetPieceFoundationMesh();
 
 	virtual void Tick(float DeltaTime) override;
@@ -84,6 +82,8 @@ public:
 	void StopDragging() override;
 	FVector GetDragOffset() override;
 
+	void ResetRotation();
+
 	UFUNCTION(BlueprintCallable)
-	void AssignOrder(FUnitOrder UnitOrder);
+	virtual void AssignOrder(FUnitOrder UnitOrder);
 };

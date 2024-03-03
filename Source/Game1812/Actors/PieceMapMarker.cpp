@@ -34,7 +34,7 @@ void APieceMapMarker::OnPieceMapBorderEndOverlap()
 	MarkerMeshComponent->SetVisibility(false);
 }
 
-void APieceMapMarker::OnOrderAssing()
+void APieceMapMarker::OnOrderAssign()
 {
 	Destroy();
 }
@@ -59,7 +59,7 @@ void APieceMapMarker::Init(APiece* NewOwnerPiece)
 
 	OwnerPiece->OnMapBordersStartOverlap.AddUObject(this, &APieceMapMarker::OnPieceMapBorderStartOverlap);
 	OwnerPiece->OnMapBordersEndOverlap.AddUObject(this, &APieceMapMarker::OnPieceMapBorderEndOverlap);
-	OwnerPiece->OnOrderAssign.AddUObject(this, &APieceMapMarker::OnOrderAssing);
+	OwnerPiece->OnOrderAssign.AddUObject(this, &APieceMapMarker::OnOrderAssign);
 
 	MarkerMeshComponent->SetStaticMesh(OwnerPiece->GetPieceFoundationMesh());
 

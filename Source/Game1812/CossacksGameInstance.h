@@ -9,7 +9,15 @@ UCLASS(BlueprintType)
 class GAME1812_API UCossacksGameInstance : public UGameInstance
 {
 	GENERATED_BODY()
-	
+
+protected:
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	TSubclassOf<class ACombatPiece> CombatUnitPieceClass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	TSubclassOf<class AScoutPiece> ScoutUnitPieceClass;
+
 public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
@@ -19,14 +27,10 @@ public:
 	class UCombatUnitsTable* FrenchUnitsTable;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	TSubclassOf<class APiece> CombatUnitPieceClass;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	TSubclassOf<class APiece> ScoutUnitPieceClass;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	TSubclassOf<class AAdjutantUnit> AdjutantUnitClass;
-
+	
+	UClass* GetCombatUnitPieceClass();
+	UClass* GetScoutUnitPieceClass();
 
 	class UCombatUnitsTable* GetTeamUnitsTable(ETeam Team);
 };

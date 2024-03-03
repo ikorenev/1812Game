@@ -12,8 +12,6 @@ enum class EPieceToSpawn : uint8 {
 	SCOUT = 1	UMETA(DisplayName = "Scout Piece"),
 };
 
-
-
 UCLASS()
 class GAME1812_API APiecesSpawner : public AActor
 {
@@ -32,13 +30,10 @@ protected:
 	ECombatUnitType CombatUnitType;
 
 	UPROPERTY(EditAnywhere)
-	ETeam Team;
-
-	UPROPERTY(EditAnywhere)
 	int Amount;
 
 	UPROPERTY(EditAnywhere)
-	float SpawnOffset;
+	float SpawnInterval;
 
 	virtual void BeginPlay() override;
 	

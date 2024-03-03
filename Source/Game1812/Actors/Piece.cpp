@@ -37,7 +37,7 @@ APiece::APiece()
 	OrderWidgetComponent->SetupAttachment(BoxCollisionComponent);
 	
 	bCanSpawnUnit = true;
-	bForceOrder = false;
+	bWasDragged = false;
 }
 
 void APiece::BeginPlay()
@@ -61,31 +61,13 @@ void APiece::BeginPlay()
 	orderWidget->Init(this);
 }
 
-void APiece::SetCombatUnitType(ECombatUnitType NewCombatUnitType)
-{
-	CombatUnitType = NewCombatUnitType;
-
-	auto gameInstance = GetGameInstance<UCossacksGameInstance>();
-
-	if (!gameInstance)
-		return;
-
-	const FCombatUnitContainer& combatUnitContainer = gameInstance->GetTeamUnitsTable(ETeam::RUSSIA)->FindUnitStatsByType(CombatUnitType);
-
-	PieceFoundationMeshComponent->SetStaticMesh(combatUnitContainer.PieceFoundationMesh);
-	PieceFigureMeshComponent->SetStaticMesh(combatUnitContainer.PieceFigureMesh);
-}
-
-UStaticMesh* APiece::GetPieceFoundationMesh()
-{
-	return PieceFoundationMeshComponent->GetStaticMesh();
-}
-
 void APiece::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
 }
+
+
 
 void APiece::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
@@ -105,20 +87,13 @@ void APiece::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimi
 	if (bWasDragged) 
 		RequestOrder();
 
-	if (!Unit)
-	{
-		if (AHeadQuarters::GetInstance()) 
-		{
-			Unit = AHeadQuarters::GetInstance()->SpawnUnit(UnitClass);
+	bWasDragged = false;
 
-			ACombatUnit* combatUnit = Cast<ACombatUnit>(Unit);
-
-			if (combatUnit) 
-			{
-				combatUnit->SetCombatUnitType(CombatUnitType);
-			}
-		}
-	}
+	if (!bCanSpawnUnit)
+		return;
+	
+	SpawnUnit();
+	bCanSpawnUnit = false;
 }
 
 void APiece::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -136,8 +111,6 @@ void APiece::OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Othe
 void APiece::RequestOrder() 
 {
 	OrderWidgetComponent->SetVisibility(true);
-
-	bWasDragged = false;
 }
 
 void APiece::RemoveOrder() 
@@ -145,28 +118,27 @@ void APiece::RemoveOrder()
 	OrderWidgetComponent->SetVisibility(false);
 }
 
+void APiece::SpawnUnit()
+{
+	if (!AHeadQuarters::GetInstance())
+		return;
+	
+	Unit = AHeadQuarters::GetInstance()->SpawnUnit(UnitClass);
+}
+
 void APiece::SpawnMapMarker()
 {
-	APieceMapMarker* mapMarker = GetWorld()->SpawnActor<APieceMapMarker>();
-	mapMarker->Init(this);
+	if (MapMarker.IsValid())
+		return;
+
+	MapMarker = GetWorld()->SpawnActor<APieceMapMarker>();
+	MapMarker->Init(this);
 }
 
 void APiece::AssignOrder(FUnitOrder UnitOrder) 
 {
 	RemoveOrder();
 	OnOrderAssign.Broadcast();
-
-	if (!Unit) 
-		return;
-
-	if (bForceOrder) 
-	{
-		Unit->AssignOrder(UnitOrder);
-	}
-	else 
-	{
-		AHeadQuarters::GetInstance()->AddOrderToAssign(UnitOrder, Unit);
-	}
 }
 
 void APiece::StartDragging()
@@ -174,11 +146,7 @@ void APiece::StartDragging()
 	BoxCollisionComponent->SetSimulatePhysics(false);
 	SetActorEnableCollision(false);
 
-	FRotator rotation = GetActorRotation();
-	rotation.Roll = 0.f;
-	rotation.Pitch = 0.f;
-	SetActorRotation(rotation);
-
+	ResetRotation();
 	RemoveOrder();
 }
 
@@ -195,4 +163,15 @@ FVector APiece::GetDragOffset()
 	return FVector(0, 0, BoxCollisionComponent->GetScaledBoxExtent().Z);
 }
 
+void APiece::ResetRotation()
+{
+	FRotator rotation = GetActorRotation();
+	rotation.Roll = 0.f;
+	rotation.Pitch = 0.f;
+	SetActorRotation(rotation);
+}
 
+UStaticMesh* APiece::GetPieceFoundationMesh()
+{
+	return PieceFoundationMeshComponent->GetStaticMesh();
+}

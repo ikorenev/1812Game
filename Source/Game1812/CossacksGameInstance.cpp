@@ -3,6 +3,19 @@
 #include "Pawns/Unit/CombatUnitStats.h"
 #include "Pawns/Unit/AdjutantUnit.h"
 
+#include "Actors/ScoutPiece.h"
+#include "Actors/CombatPiece.h"
+
+UClass* UCossacksGameInstance::GetCombatUnitPieceClass()
+{
+	return CombatUnitPieceClass.Get();
+}
+
+UClass* UCossacksGameInstance::GetScoutUnitPieceClass()
+{
+	return ScoutUnitPieceClass.Get();
+}
+
 UCombatUnitsTable* UCossacksGameInstance::GetTeamUnitsTable(ETeam Team)
 {
 	switch (Team)

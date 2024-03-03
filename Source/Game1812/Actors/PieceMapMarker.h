@@ -28,7 +28,7 @@ protected:
 
 	void OnPieceMapBorderStartOverlap();
 	void OnPieceMapBorderEndOverlap();
-	void OnOrderAssing();
+	void OnOrderAssign();
 
 	void UpdateLocation();
 

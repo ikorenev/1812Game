@@ -1,16 +1,16 @@
 #include "PiecesSpawner.h"
 
 #include "../CossacksGameInstance.h"
-#include "Piece.h"
+#include "ScoutPiece.h"
+#include "CombatPiece.h"
 
 APiecesSpawner::APiecesSpawner()
 {
 	RootComponent = CreateDefaultSubobject<USceneComponent>(FName("Root Component"));
 
 	PieceToSpawn = EPieceToSpawn::COMBAT;
-	Team = ETeam::RUSSIA;
 	CombatUnitType = ECombatUnitType::NONE;
-	SpawnOffset = 40.f;
+	SpawnInterval = 40.f;
 }
 
 void APiecesSpawner::BeginPlay()
@@ -23,9 +23,9 @@ void APiecesSpawner::BeginPlay()
 	{
 		for (int y = 0; (y < SideLength) && (i < Amount); y++, i++)
 		{
-			const FVector SpawnLocation = FVector(x, y, 0) * SpawnOffset;
-			const FVector CenterOffset = FVector(1, 1, 0) * SpawnOffset / 2.f;
-			const FVector GridOffset = FVector(1, 1, 0) * (SideLength / 2.f) * SpawnOffset;
+			const FVector SpawnLocation = FVector(x, y, 0) * SpawnInterval;
+			const FVector CenterOffset = FVector(1, 1, 0) * SpawnInterval / 2.f;
+			const FVector GridOffset = FVector(1, 1, 0) * (SideLength / 2.f) * SpawnInterval;
 
 			SpawnPiece(SpawnLocation + CenterOffset - GridOffset + GetActorLocation());
 		}
@@ -39,14 +39,18 @@ void APiecesSpawner::SpawnPiece(const FVector& Location)
 	if (!gameInstance)
 		return;
 
-	if (PieceToSpawn == EPieceToSpawn::SCOUT)
+	switch (PieceToSpawn)
 	{
-		GetWorld()->SpawnActor<APiece>(gameInstance->ScoutUnitPieceClass, Location, FRotator::ZeroRotator);
-		return;
+	case EPieceToSpawn::SCOUT:
+		GetWorld()->SpawnActor<AScoutPiece>(gameInstance->GetScoutUnitPieceClass(), Location, FRotator::ZeroRotator);
+		break;
+
+	case EPieceToSpawn::COMBAT:
+		ACombatPiece* piece = GetWorld()->SpawnActor<ACombatPiece>(gameInstance->GetCombatUnitPieceClass(), Location, FRotator::ZeroRotator);
+
+		if (piece)
+			piece->SetCombatUnitType(CombatUnitType);
+
+		break;
 	}
-
-	APiece* piece = GetWorld()->SpawnActor<APiece>(gameInstance->CombatUnitPieceClass, Location, FRotator::ZeroRotator);
-
-	if (piece)
-		piece->SetCombatUnitType(CombatUnitType);
 }
