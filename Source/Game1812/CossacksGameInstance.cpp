@@ -16,6 +16,11 @@ UClass* UCossacksGameInstance::GetScoutUnitPieceClass()
 	return ScoutUnitPieceClass.Get();
 }
 
+UMaterial* UCossacksGameInstance::GetPieceMapMarkerMaterial()
+{
+	return PieceMapMarkerMaterial;
+}
+
 UCombatUnitsTable* UCossacksGameInstance::GetTeamUnitsTable(ETeam Team)
 {
 	switch (Team)

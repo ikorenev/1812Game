@@ -18,6 +18,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	TSubclassOf<class AScoutPiece> ScoutUnitPieceClass;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	UMaterial* PieceMapMarkerMaterial;
+
 public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
@@ -31,6 +34,7 @@ public:
 	
 	UClass* GetCombatUnitPieceClass();
 	UClass* GetScoutUnitPieceClass();
+	UMaterial* GetPieceMapMarkerMaterial();
 
 	class UCombatUnitsTable* GetTeamUnitsTable(ETeam Team);
 };
