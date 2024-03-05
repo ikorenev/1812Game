@@ -40,13 +40,6 @@ protected:
 
 public:
 
-	void SetCombatUnitType(ECombatUnitType NewCombatUnitType);
-
-	class UUnitMovementComponent* GetMovementComponent();
-
-	float GetMovementSpeed() override;
-	float GetRotationSpeed() override;
-
 	virtual void Tick(float DeltaTime) override;
 
 	virtual FCombatUnitStats GetUnitStats();
@@ -57,4 +50,10 @@ public:
 
 	void ApplyDamage(class UCombatComponent* Attacker, float Amount) override;
 	
+	void SetCombatUnitType(ECombatUnitType NewCombatUnitType);
+
+	class UUnitMovementComponent* GetMovementComponent();
+
+	float GetMovementSpeed() override;
+	float GetRotationSpeed() override;
 };

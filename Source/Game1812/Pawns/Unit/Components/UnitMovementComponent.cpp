@@ -12,7 +12,7 @@ UUnitMovementComponent::UUnitMovementComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 
 	TargetLocation = FVector::ZeroVector;
-	Moving = false;
+	bIsMoving = false;
 }
 
 void UUnitMovementComponent::BeginPlay()
@@ -36,28 +36,28 @@ void UUnitMovementComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (Moving)
-	{
-		if (Path)
-		{
-			if (Path->IsValid())
-			{
-				UpdateMovement(DeltaTime);
-			}
-			else
-			{
-				CheckMovementComplete();
-			}
-		}
+	if (!bIsMoving)
+		return;
+	
+	MoveAlongPath(DeltaTime);
 
-		UpdatePath();
-	}
+	UpdatePath();
+}
+
+void UUnitMovementComponent::MoveAlongPath(float DeltaTime)
+{
+	if (!Path || !Path->IsValid())
+		return;
+	
+	UpdateMovement(DeltaTime);
+
+	CheckMovementComplete();
 }
 
 void UUnitMovementComponent::UpdateMovement(float DeltaTime) 
 {
-	FVector targetPoint = GetNextPathPoint();
-	FVector movementDirection = (targetPoint - UnitPawn->GetActorLocation()).GetSafeNormal2D();
+	const FVector targetPoint = GetNextPathPoint();
+	const FVector movementDirection = (targetPoint - UnitPawn->GetActorLocation()).GetSafeNormal2D();
 
 	const float rotationYaw = FQuat::FindBetween(UnitPawn->GetActorForwardVector(), movementDirection).Rotator().Yaw;
 
@@ -65,8 +65,6 @@ void UUnitMovementComponent::UpdateMovement(float DeltaTime)
 
 	//if (FMath::Abs(rotationYaw) < 5.0f)
 		MoveTo(DeltaTime, targetPoint);
-
-	CheckMovementComplete();
 }
 
 void UUnitMovementComponent::RotateTo(float DeltaTime, float RotationYaw)
@@ -98,7 +96,7 @@ void UUnitMovementComponent::MoveTo(float DeltaTime, FVector Location)
 
 bool UUnitMovementComponent::IsMoving()
 {
-	return Moving;
+	return bIsMoving;
 }
 
 void UUnitMovementComponent::SetTargetLocation(FVector NewTargetLocation)
@@ -112,7 +110,7 @@ void UUnitMovementComponent::SetTargetLocation(FVector NewTargetLocation)
 	
 	TargetLocation = hit.Location;
 
-	Moving = true;
+	bIsMoving = true;
 	UpdatePath();
 
 	CheckMovementComplete();
@@ -155,6 +153,5 @@ FVector UUnitMovementComponent::GetLastPathPoint()
 	if (!Path || Path->PathPoints.IsEmpty())
 		return UnitPawn->GetActorLocation();
 
-	
 	return Path->PathPoints.Last();
 }

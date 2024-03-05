@@ -24,12 +24,14 @@ protected:
 	FVector TargetLocation;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	bool Moving;
+	bool bIsMoving;
 
 	UPROPERTY()
 	class UNavigationPath* Path;
 
 	virtual void BeginPlay() override;
+
+	void MoveAlongPath(float DeltaTime);
 
 	void UpdateMovement(float DeltaTime);
 
@@ -53,5 +55,5 @@ public:
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-		
+	///void MoveTo(const FVector& MoveToLocation);
 };
