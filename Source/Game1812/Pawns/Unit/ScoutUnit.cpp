@@ -19,7 +19,7 @@ void AScoutUnit::BeginPlay()
 {
 	Super::BeginPlay();
 
-	MovementComponent->OnMovementComplete.BindUObject(this, &AScoutUnit::OnMovementComplete);
+	MovementComponent->OnMovementEnd.AddDynamic(this, &AScoutUnit::OnMovementComplete);
 }
 
 void AScoutUnit::OnMovementComplete() 
@@ -40,7 +40,7 @@ void AScoutUnit::OnMovementComplete()
 
 	FVector location;
 	ExplorationLocations.Dequeue(location);
-	MovementComponent->SetTargetLocation(location);
+	MovementComponent->MoveTo(location);
 }
 
 void AScoutUnit::Tick(float DeltaTime)
@@ -120,7 +120,7 @@ void AScoutUnit::OnOrderAssign(const FUnitOrder& NewOrder)
 
 	FVector firstLocation;
 	ExplorationLocations.Dequeue(firstLocation);
-	MovementComponent->SetTargetLocation(firstLocation);
+	MovementComponent->MoveTo(firstLocation);
 }
 
 UUnitMovementComponent* AScoutUnit::GetMovementComponent()

@@ -4,7 +4,8 @@
 #include "Components/ActorComponent.h"
 #include "UnitMovementComponent.generated.h"
 
-DECLARE_DELEGATE(FOnMovementComplete)
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnMovementStartDelegate);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnMovementEndDelegate);
 
 UCLASS(Blueprintable, BlueprintType)
 class GAME1812_API UUnitMovementComponent : public UActorComponent
@@ -29,31 +30,38 @@ protected:
 	UPROPERTY()
 	class UNavigationPath* Path;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	int CurrentFollowingSegmentIndex;
+
+	FVector GetNextPathPoint();
+	FVector GetLastPathPoint();
+
+	FVector ProjectPointToMap(const FVector& Point);
+
 	virtual void BeginPlay() override;
 
 	void MoveAlongPath(float DeltaTime);
 
 	void UpdateMovement(float DeltaTime);
 
-	void RotateTo(float DeltaTime, float RotationYaw);
-	void MoveTo(float DeltaTime, FVector Location);
-
-	FVector GetNextPathPoint();
-	FVector GetLastPathPoint();
+	void RotatePawn(float DeltaTime, float RotationYaw);
+	void MovePawn(float DeltaTime, const FVector& Location);
 
 	void UpdatePath();
 
-	void CheckMovementComplete();
+	void CheckMovementStart();
+	void CheckMovementEnd();
 
 public:	
 
-	FOnMovementComplete OnMovementComplete;
+	FOnMovementStartDelegate OnMovementStart;
+	FOnMovementEndDelegate OnMovementEnd;
 
 	bool IsMoving();
 
-	void SetTargetLocation(FVector NewTargetLocation);
+	void MoveTo(const FVector& MoveToLocation);
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	///void MoveTo(const FVector& MoveToLocation);
+	
 };

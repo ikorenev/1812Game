@@ -25,7 +25,7 @@ void ACombatUnit::BeginPlay()
 
 void ACombatUnit::OnOrderAssign(const FUnitOrder& NewOrder)
 {
-	MovementComponent->SetTargetLocation(CurrentOrder.Location);
+	MovementComponent->MoveTo(CurrentOrder.Location);
 }
 
 void ACombatUnit::SetCombatUnitType(ECombatUnitType NewCombatUnitType)

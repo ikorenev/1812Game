@@ -53,7 +53,7 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 			{
 				if (FVector::DistSquared2D(TargetedEnemy->GetLocation(), CombatUnitPawn->GetActorLocation()) < FMath::Pow(GetAttackRange(), 2))
 				{
-					MovementComponent->SetTargetLocation(CombatUnitPawn->GetActorLocation());
+					MovementComponent->MoveTo(CombatUnitPawn->GetActorLocation());
 
 					if (!MovementComponent->IsMoving())
 					{
@@ -62,7 +62,7 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 				}
 				else
 				{
-					MovementComponent->SetTargetLocation(TargetedEnemy->GetLocation());
+					MovementComponent->MoveTo(TargetedEnemy->GetLocation());
 				}
 			}
 		}
@@ -188,7 +188,7 @@ void UCombatComponent::SetTargetedEnemy(IDamageable* NewTarget)
 	
 	if (TargetedEnemy) 
 	{
-		CombatUnitPawn->GetMovementComponent()->SetTargetLocation(TargetedEnemy->GetLocation());
+		CombatUnitPawn->GetMovementComponent()->MoveTo(TargetedEnemy->GetLocation());
 	}
 }
 

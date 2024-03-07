@@ -36,6 +36,7 @@ protected:
 
 	void OnOrderAssign(const FUnitOrder& NewOrder) override;
 
+	UFUNCTION()
 	void OnMovementComplete();
 
 	void MoveToNextTarget();

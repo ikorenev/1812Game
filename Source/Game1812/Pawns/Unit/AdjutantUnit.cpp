@@ -19,7 +19,7 @@ void AAdjutantUnit::BeginPlay()
 {
 	Super::BeginPlay();
 
-	MovementComponent->OnMovementComplete.BindUObject(this, &AAdjutantUnit::OnMovementComplete);
+	MovementComponent->OnMovementEnd.AddDynamic(this, &AAdjutantUnit::OnMovementComplete);
 }
 
 void AAdjutantUnit::OnOrderAssign(const FUnitOrder& NewOrder)
@@ -39,7 +39,7 @@ void AAdjutantUnit::OnMovementComplete()
 
 		if (FVector::DistSquared2D(GetActorLocation(), headQuarters->GetActorLocation()) > FMath::Pow(MinDistanceToGiveOrder, 2))
 		{
-			MovementComponent->SetTargetLocation(headQuarters->GetActorLocation());
+			MovementComponent->MoveTo(headQuarters->GetActorLocation());
 		}
 		else 
 		{
@@ -74,11 +74,11 @@ void AAdjutantUnit::MoveToNextTarget()
 		if (!headQuarters)
 			return;
 
-		MovementComponent->SetTargetLocation(headQuarters->GetActorLocation());
+		MovementComponent->MoveTo(headQuarters->GetActorLocation());
 		return;
 	}
 
-	MovementComponent->SetTargetLocation(FindClosestTarget().GetUnit()->GetActorLocation());
+	MovementComponent->MoveTo(FindClosestTarget().GetUnit()->GetActorLocation());
 }
 
 FAssignedUnitOrder AAdjutantUnit::FindClosestTarget()

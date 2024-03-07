@@ -17,7 +17,8 @@ public:
 	AScoutUnit();
 
 	TQueue<FVector> ExplorationLocations;
-
+	
+	UFUNCTION()
 	void OnMovementComplete();
 
 protected:
