@@ -5,7 +5,7 @@ AScoutPiece::AScoutPiece()
 
 }
 
-void AScoutPiece::AssignOrder(FUnitOrder UnitOrder)
+void AScoutPiece::AssignOrder(UUnitOrder* UnitOrder)
 {
 	Super::AssignOrder(UnitOrder);
 

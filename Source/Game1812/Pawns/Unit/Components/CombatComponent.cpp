@@ -5,6 +5,7 @@
 
 #include "../CombatUnitStats.h"
 #include "../CombatUnit.h"
+#include "../UnitOrder.h"
 
 #include <Kismet/GameplayStatics.h>
 
@@ -37,11 +38,14 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 	if (Dead)
 		return;
 
-	FUnitOrder order = CombatUnitPawn->GetCurrentOrder();
+	UCombatUnitOrder* order = Cast<UCombatUnitOrder>(CombatUnitPawn->GetCurrentOrder());
+
+	if (!order)
+		return;
 
 	UUnitMovementComponent* MovementComponent = CombatUnitPawn->GetMovementComponent();
 
-	if (order.IsSetToAttack())
+	if (order->UnitEnemyReaction == EUnitEnemyReaction::ATTACK)
 	{
 		if (TargetedEnemy)
 		{

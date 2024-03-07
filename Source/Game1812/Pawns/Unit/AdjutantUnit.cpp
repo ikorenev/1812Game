@@ -1,5 +1,6 @@
 #include "AdjutantUnit.h"
 
+#include "UnitOrder.h"
 #include "Components/UnitMovementComponent.h"
 #include "../../Actors/HeadQuarters.h"
 
@@ -22,9 +23,14 @@ void AAdjutantUnit::BeginPlay()
 	MovementComponent->OnMovementEnd.AddDynamic(this, &AAdjutantUnit::OnMovementComplete);
 }
 
-void AAdjutantUnit::OnOrderAssign(const FUnitOrder& NewOrder)
+void AAdjutantUnit::AssignOrder(UUnitOrder* NewOrder)
 {
-	Orders = TArray<FAssignedUnitOrder>(NewOrder.SentOrdersToUnits);
+	CurrentOrder = Cast<UAdjutantUnitOrder>(NewOrder);
+
+	if (!CurrentOrder)
+		return;
+
+	Orders = TArray<FAssignedCombatUnitOrder>(CurrentOrder->SentOrdersToUnits);
 	MoveToNextTarget();
 }
 
@@ -51,14 +57,14 @@ void AAdjutantUnit::OnMovementComplete()
 
 	auto closestTarget = FindClosestTarget();
 
-	if (FVector::DistSquared2D(GetActorLocation(), closestTarget.GetUnit()->GetActorLocation()) > FMath::Pow(MinDistanceToGiveOrder, 2))
+	if (FVector::DistSquared2D(GetActorLocation(), closestTarget.Unit->GetActorLocation()) > FMath::Pow(MinDistanceToGiveOrder, 2))
 	{
 		
 		MoveToNextTarget();
 	}
 	else 
 	{
-		closestTarget.GetUnit()->AssignOrder(closestTarget.GetUnitOrder());
+		closestTarget.Unit->AssignOrder(closestTarget.UnitOrder);
 		Orders.Remove(closestTarget);
 
 		MoveToNextTarget();
@@ -78,22 +84,27 @@ void AAdjutantUnit::MoveToNextTarget()
 		return;
 	}
 
-	MovementComponent->MoveTo(FindClosestTarget().GetUnit()->GetActorLocation());
+	MovementComponent->MoveTo(FindClosestTarget().Unit->GetActorLocation());
 }
 
-FAssignedUnitOrder AAdjutantUnit::FindClosestTarget()
+FAssignedCombatUnitOrder AAdjutantUnit::FindClosestTarget()
 {
-	FAssignedUnitOrder closestUnit = Orders[0];
+	FAssignedCombatUnitOrder closestUnit = Orders[0];
 
 	for (auto el : Orders)
 	{
-		if (FVector::DistSquared2D(GetActorLocation(), el.GetUnit()->GetActorLocation()) < FVector::DistSquared2D(GetActorLocation(), closestUnit.GetUnit()->GetActorLocation()))
+		if (FVector::DistSquared2D(GetActorLocation(), el.Unit->GetActorLocation()) < FVector::DistSquared2D(GetActorLocation(), closestUnit.Unit->GetActorLocation()))
 		{
 			closestUnit = el;
 		}
 	}
 
 	return closestUnit;
+}
+
+UUnitOrder* AAdjutantUnit::GetCurrentOrder()
+{
+	return nullptr;
 }
 
 UUnitMovementComponent* AAdjutantUnit::GetMovementComponent()

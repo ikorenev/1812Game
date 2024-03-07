@@ -75,5 +75,5 @@ public:
 	void ResetRotation();
 
 	UFUNCTION(BlueprintCallable)
-	virtual void AssignOrder(FUnitOrder UnitOrder);
+	virtual void AssignOrder(class UUnitOrder* UnitOrder);
 };

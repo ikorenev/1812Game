@@ -28,6 +28,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class UCombatComponent* CombatComponent;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	class UCombatUnitOrder* CurrentOrder;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	ECombatUnitType CombatUnitType;
 
@@ -36,11 +39,12 @@ protected:
 
 	virtual void BeginPlay() override;
 
-	void OnOrderAssign(const FUnitOrder& NewOrder) override;
-
 public:
 
 	virtual void Tick(float DeltaTime) override;
+
+	class UUnitOrder* GetCurrentOrder();
+	void AssignOrder(class UUnitOrder* NewOrder);
 
 	virtual FCombatUnitStats GetUnitStats();
 	

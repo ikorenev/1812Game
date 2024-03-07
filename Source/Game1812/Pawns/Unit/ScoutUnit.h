@@ -26,6 +26,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class UUnitMovementComponent* MovementComponent;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	class UScoutUnitOrder* CurrentOrder;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float MovementSpeed;
 
@@ -43,9 +46,10 @@ protected:
 
 	virtual void BeginPlay() override;
 
-	void OnOrderAssign(const FUnitOrder& NewOrder) override;
-
 public:
+
+	class UUnitOrder* GetCurrentOrder();
+	void AssignOrder(class UUnitOrder* NewOrder);
 
 	class UUnitMovementComponent* GetMovementComponent() override;
 

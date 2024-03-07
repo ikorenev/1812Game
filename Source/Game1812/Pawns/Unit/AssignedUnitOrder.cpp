@@ -2,45 +2,25 @@
 
 #include "UnitOrder.h"
 
-FAssignedUnitOrder::FAssignedUnitOrder()
+FAssignedCombatUnitOrder::FAssignedCombatUnitOrder()
 {
 	UnitOrder = nullptr;
 	Unit = nullptr;
 }
 
-FAssignedUnitOrder::FAssignedUnitOrder(const FAssignedUnitOrder& Other)
+FAssignedCombatUnitOrder::FAssignedCombatUnitOrder(const FAssignedCombatUnitOrder& Other)
 {
-	this->UnitOrder = new FUnitOrder();
-	*this->UnitOrder = *Other.UnitOrder;
-	this->Unit = Other.Unit;
+	UnitOrder = Other.UnitOrder;
+	Unit = Other.Unit;
 }
 
-FAssignedUnitOrder::FAssignedUnitOrder(FUnitOrder UnitOrder, ABaseUnit* Unit)
+FAssignedCombatUnitOrder::FAssignedCombatUnitOrder(UCombatUnitOrder* UnitOrder, ABaseUnit* Unit)
 {
-	this->UnitOrder = new FUnitOrder();
-	*this->UnitOrder = UnitOrder;
+	this->UnitOrder = UnitOrder;
 	this->Unit = Unit;
 }
 
-FAssignedUnitOrder::~FAssignedUnitOrder()
-{
-	delete this->UnitOrder;
-}
-
-FUnitOrder FAssignedUnitOrder::GetUnitOrder() const
-{
-	if (UnitOrder)
-		return *UnitOrder;
-
-	return FUnitOrder();
-}
-
-ABaseUnit* FAssignedUnitOrder::GetUnit() const
-{
-	return Unit;
-}
-
-bool FAssignedUnitOrder::operator==(const FAssignedUnitOrder& Other)
+bool FAssignedCombatUnitOrder::operator==(const FAssignedCombatUnitOrder& Other)
 {
 	return (Unit == Other.Unit);
 }

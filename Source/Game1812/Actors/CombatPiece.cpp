@@ -33,10 +33,15 @@ void ACombatPiece::SetCombatUnitType(ECombatUnitType NewCombatUnitType)
 	PieceFigureMeshComponent->SetStaticMesh(combatUnitContainer.PieceFigureMesh);
 }
 
-void ACombatPiece::AssignOrder(FUnitOrder UnitOrder)
+void ACombatPiece::AssignOrder(UUnitOrder* UnitOrder)
 {
 	Super::AssignOrder(UnitOrder);
 
+	UCombatUnitOrder* combatUnitOrder = Cast<UCombatUnitOrder>(UnitOrder);
+
+	if (!combatUnitOrder)
+		return;
+
 	if (AHeadQuarters::GetInstance() && Unit.IsValid())
-		AHeadQuarters::GetInstance()->AddOrderToAssign(UnitOrder, Unit.Get());
+		AHeadQuarters::GetInstance()->AddOrderToAssign(combatUnitOrder, Unit.Get());
 }

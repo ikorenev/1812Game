@@ -25,5 +25,5 @@ public:
 
 	void SetCombatUnitType(ECombatUnitType NewCombatUnitType);
 
-	virtual void AssignOrder(FUnitOrder UnitOrder) override;
+	virtual void AssignOrder(class UUnitOrder* UnitOrder) override;
 };

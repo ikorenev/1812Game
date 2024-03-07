@@ -11,39 +11,64 @@ enum class EUnitEnemyReaction : uint8 {
 	DEFEND = 1	UMETA(DisplayName = "DEFEND"),
 };
 
-USTRUCT(BlueprintType)
-struct GAME1812_API FUnitOrder
+UCLASS(BlueprintType, Abstract)
+class GAME1812_API UUnitOrder : public UObject
 {
 	GENERATED_BODY()
 
 public:
-	
-	FUnitOrder();
-	FUnitOrder(FVector Location, float YawRotation);
 
-	//Для обычного юнита
+	UUnitOrder();
+};
+
+UCLASS(BlueprintType)
+class GAME1812_API UCombatUnitOrder : public UUnitOrder
+{
+	GENERATED_BODY()
+
+public:
+
+	UCombatUnitOrder();
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	EUnitEnemyReaction UnitEnemyReaction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bForcedMarch;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bConcentratedFire;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FVector Location;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float YawRotation;
 
-	//Для разведчика
+};
+
+UCLASS(BlueprintType, Blueprintable)
+class GAME1812_API UScoutUnitOrder : public UUnitOrder
+{
+	GENERATED_BODY()
+
+public:
+
+	UScoutUnitOrder();
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<FVector> ExplorationLocations;
+};
 
-	//Для адъюданта
+UCLASS(BlueprintType)
+class GAME1812_API UAdjutantUnitOrder : public UUnitOrder
+{
+	GENERATED_BODY()
+
+public:
+
+	UAdjutantUnitOrder();
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<struct FAssignedUnitOrder> SentOrdersToUnits;
-	
-
-	bool IsSetToAttack();
-	bool IsSetToDefend();
+	TArray<FAssignedCombatUnitOrder> SentOrdersToUnits;
 };

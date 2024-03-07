@@ -21,8 +21,8 @@ void AHeadQuarters::SendOrders()
 	if (AvailableAdjutants.IsEmpty())
 		return;
 
-	FUnitOrder unitOrder;
-	unitOrder.SentOrdersToUnits = UnitOrders;
+	UAdjutantUnitOrder* unitOrder = NewObject<UAdjutantUnitOrder>();
+	unitOrder->SentOrdersToUnits = UnitOrders;
 
 	AvailableAdjutants[0]->AssignOrder(unitOrder);
 	AvailableAdjutants.RemoveAt(0);
@@ -68,11 +68,11 @@ void AHeadQuarters::Tick(float DeltaTime)
 
 }
 
-void AHeadQuarters::AddOrderToAssign(const FUnitOrder& UnitOrder, ABaseUnit* Unit) 
+void AHeadQuarters::AddOrderToAssign(class UCombatUnitOrder* UnitOrder, ABaseUnit* Unit)
 {
-	UnitOrders.RemoveAll([&](const FAssignedUnitOrder& el) { return el.GetUnit() == Unit; });
+	UnitOrders.RemoveAll([&](const FAssignedCombatUnitOrder& el) { return el.Unit == Unit; });
 
-	UnitOrders.Add(FAssignedUnitOrder(UnitOrder, Unit));
+	UnitOrders.Add(FAssignedCombatUnitOrder(UnitOrder, Unit));
 }
 
 ABaseUnit* AHeadQuarters::SpawnUnit(TSubclassOf<class ABaseUnit> UnitClass)

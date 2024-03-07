@@ -5,26 +5,21 @@
 #include "AssignedUnitOrder.generated.h"
 
 USTRUCT(BlueprintType)
-struct GAME1812_API FAssignedUnitOrder
+struct GAME1812_API FAssignedCombatUnitOrder
 {
-	GENERATED_BODY()
-
-protected:
-
-	struct FUnitOrder* UnitOrder;
-
-	class ABaseUnit* Unit;
+	GENERATED_BODY();
 
 public:
 
-	FAssignedUnitOrder();
-	FAssignedUnitOrder(const FAssignedUnitOrder& Other);
-	FAssignedUnitOrder(FUnitOrder UnitOrder, class ABaseUnit* Unit);
+	FAssignedCombatUnitOrder();
+	FAssignedCombatUnitOrder(const FAssignedCombatUnitOrder& Other);
+	FAssignedCombatUnitOrder(class UCombatUnitOrder* UnitOrder, class ABaseUnit* Unit);
 
-	~FAssignedUnitOrder();
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class UCombatUnitOrder* UnitOrder;
 
-	struct FUnitOrder GetUnitOrder() const;
-	class ABaseUnit* GetUnit() const;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class ABaseUnit* Unit;
 
-	bool operator==(const FAssignedUnitOrder& Other);
+	bool operator==(const FAssignedCombatUnitOrder& Other);
 };

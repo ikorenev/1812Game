@@ -23,11 +23,6 @@ void ACombatUnit::BeginPlay()
 	SetCombatUnitType(CombatUnitType);
 }
 
-void ACombatUnit::OnOrderAssign(const FUnitOrder& NewOrder)
-{
-	MovementComponent->MoveTo(CurrentOrder.Location);
-}
-
 void ACombatUnit::SetCombatUnitType(ECombatUnitType NewCombatUnitType)
 {
 	CombatUnitType = NewCombatUnitType;
@@ -42,13 +37,24 @@ void ACombatUnit::SetCombatUnitType(ECombatUnitType NewCombatUnitType)
 	CombatComponent->Init(CombatUnitStats);
 }
 
-
-
 void ACombatUnit::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
 
+}
+
+void ACombatUnit::AssignOrder(UUnitOrder* NewOrder)
+{
+	CurrentOrder = Cast<UCombatUnitOrder>(NewOrder);
+
+	if (CurrentOrder)
+		MovementComponent->MoveTo(CurrentOrder->Location);
+}
+
+UUnitOrder* ACombatUnit::GetCurrentOrder()
+{
+	return CurrentOrder;
 }
 
 UUnitMovementComponent* ACombatUnit::GetMovementComponent()

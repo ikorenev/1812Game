@@ -20,7 +20,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(VisibleAnywhere)
-	TArray<FAssignedUnitOrder> UnitOrders;
+	TArray<FAssignedCombatUnitOrder> UnitOrders;
 
 	UPROPERTY(VisibleAnywhere)
 	TArray<class AAdjutantUnit*> AvailableAdjutants;
@@ -37,7 +37,7 @@ public:
 
 	void AddAdjutantUnit(class AAdjutantUnit* AdjutantUnit) { AvailableAdjutants.Add(AdjutantUnit); };
 
-	void AddOrderToAssign(const FUnitOrder& UnitOrder, class ABaseUnit* Unit);
+	void AddOrderToAssign(class UCombatUnitOrder* UnitOrder, class ABaseUnit* Unit);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	static AHeadQuarters* GetInstance();

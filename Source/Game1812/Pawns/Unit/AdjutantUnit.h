@@ -20,6 +20,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class UUnitMovementComponent* MovementComponent;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	class UAdjutantUnitOrder* CurrentOrder;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float MovementSpeed;
 
@@ -30,20 +33,21 @@ protected:
 	float MinDistanceToGiveOrder;
 
 	UPROPERTY(VisibleAnywhere)
-	TArray<FAssignedUnitOrder> Orders;
+	TArray<FAssignedCombatUnitOrder> Orders;
 
 	virtual void BeginPlay() override;
-
-	void OnOrderAssign(const FUnitOrder& NewOrder) override;
 
 	UFUNCTION()
 	void OnMovementComplete();
 
 	void MoveToNextTarget();
 
-	FAssignedUnitOrder FindClosestTarget();
+	FAssignedCombatUnitOrder FindClosestTarget();
 
 public:
+
+	class UUnitOrder* GetCurrentOrder();
+	void AssignOrder(class UUnitOrder* NewOrder);
 
 	class UUnitMovementComponent* GetMovementComponent();
 

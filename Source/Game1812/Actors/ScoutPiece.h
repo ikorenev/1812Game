@@ -17,5 +17,5 @@ protected:
 
 public:
 
-	virtual void AssignOrder(FUnitOrder UnitOrder) override;
+	virtual void AssignOrder(class UUnitOrder* UnitOrder) override;
 };

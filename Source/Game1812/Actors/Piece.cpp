@@ -123,7 +123,7 @@ void APiece::SpawnMapMarker()
 	MapMarker->Init(this);
 }
 
-void APiece::AssignOrder(FUnitOrder UnitOrder) 
+void APiece::AssignOrder(UUnitOrder* UnitOrder)
 {
 	RemoveOrder();
 

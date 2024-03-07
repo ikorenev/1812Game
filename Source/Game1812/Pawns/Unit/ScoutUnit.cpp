@@ -36,6 +36,8 @@ void AScoutUnit::OnMovementComplete()
 
 		fogOfWarActor->RevealChunks(ChunksToReveal.Array());
 		ChunksToReveal.Empty();
+
+		return;
 	}
 
 	FVector location;
@@ -103,12 +105,14 @@ float AScoutUnit::PredictMovementTime()
 	return totalDistance / GetMovementSpeed();
 }
 
-void AScoutUnit::OnOrderAssign(const FUnitOrder& NewOrder)
+void AScoutUnit::AssignOrder(UUnitOrder* NewOrder)
 {
+	CurrentOrder = Cast<UScoutUnitOrder>(NewOrder);
+
 	if (MovementComponent->IsMoving())
 		return;
 
-	for (const FVector& location : CurrentOrder.ExplorationLocations)
+	for (const FVector& location : CurrentOrder->ExplorationLocations)
 	{
 		ExplorationLocations.Enqueue(location);
 	}
@@ -121,6 +125,11 @@ void AScoutUnit::OnOrderAssign(const FUnitOrder& NewOrder)
 	FVector firstLocation;
 	ExplorationLocations.Dequeue(firstLocation);
 	MovementComponent->MoveTo(firstLocation);
+}
+
+UUnitOrder* AScoutUnit::GetCurrentOrder()
+{
+	return CurrentOrder;
 }
 
 UUnitMovementComponent* AScoutUnit::GetMovementComponent()

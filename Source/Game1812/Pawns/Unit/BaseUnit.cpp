@@ -1,10 +1,11 @@
 #include "BaseUnit.h"
 
-#include <Components/BoxComponent.h>
-
+#include "UnitOrder.h"
 #include "Components/UnitMovementComponent.h"
 #include "CombatUnitStats.h"
 #include "../../Actors/HeadQuarters.h"
+
+#include <Components/BoxComponent.h>
 
 ABaseUnit::ABaseUnit()
 {
@@ -28,8 +29,6 @@ void ABaseUnit::BeginPlay()
 
 	AddActorWorldOffset(FVector(0, 0, 10));
 	AddActorWorldOffset(FVector(0, 0, -20), true);
-
-	CurrentOrder = FUnitOrder(GetActorLocation(), GetActorRotation().Yaw);
 }
 
 ETeam ABaseUnit::GetTeam()
@@ -37,16 +36,12 @@ ETeam ABaseUnit::GetTeam()
 	return Team;
 }
 
-FUnitOrder ABaseUnit::GetCurrentOrder()
+UUnitOrder* ABaseUnit::GetCurrentOrder()
 {
-	return CurrentOrder;
+	return nullptr;
 }
 
-void ABaseUnit::AssignOrder(const FUnitOrder& NewOrder)
+void ABaseUnit::AssignOrder(UUnitOrder* NewOrder)
 {
-	CurrentOrder = NewOrder;
 
-	OnOrderAssign(NewOrder);
 }
-
-void ABaseUnit::OnOrderAssign(const FUnitOrder& NewOrder) { }
