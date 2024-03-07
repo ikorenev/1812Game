@@ -87,11 +87,6 @@ ETeam ACombatUnit::GetTeam()
 	return Team;
 }
 
-bool ACombatUnit::IsDead()
-{
-	return CombatComponent->IsDead();
-}
-
 FVector ACombatUnit::GetLocation()
 {
 	return GetActorLocation();

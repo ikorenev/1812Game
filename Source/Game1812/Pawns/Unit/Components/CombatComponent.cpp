@@ -17,7 +17,6 @@ UCombatComponent::UCombatComponent()
 	TargetedEnemy = nullptr;
 
 	HealthPoints = 0.f;
-	Dead = false;
 }
 
 void UCombatComponent::BeginPlay()
@@ -28,15 +27,11 @@ void UCombatComponent::BeginPlay()
 
 	if (!CombatUnitPawn)
 		DestroyComponent();
-
 }
 
 void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	if (Dead)
-		return;
 
 	UCombatUnitOrder* order = Cast<UCombatUnitOrder>(CombatUnitPawn->GetCurrentOrder());
 
@@ -47,28 +42,22 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 
 	if (order->UnitEnemyReaction == EUnitEnemyReaction::ATTACK)
 	{
-		if (TargetedEnemy)
-		{
-			if (TargetedEnemy->IsDead()) 
+		if (TargetedEnemy.IsValid())
+		{	
+			if (FVector::DistSquared2D(TargetedEnemy->GetLocation(), CombatUnitPawn->GetActorLocation()) < FMath::Pow(GetAttackRange(), 2))
 			{
-				SetTargetedEnemy(nullptr);
+				MovementComponent->MoveTo(CombatUnitPawn->GetActorLocation());
+
+				if (!MovementComponent->IsMoving())
+				{
+					Attack(TargetedEnemy.Get(), DeltaTime);
+				}
 			}
 			else
 			{
-				if (FVector::DistSquared2D(TargetedEnemy->GetLocation(), CombatUnitPawn->GetActorLocation()) < FMath::Pow(GetAttackRange(), 2))
-				{
-					MovementComponent->MoveTo(CombatUnitPawn->GetActorLocation());
-
-					if (!MovementComponent->IsMoving())
-					{
-						Attack(TargetedEnemy, DeltaTime);
-					}
-				}
-				else
-				{
-					MovementComponent->MoveTo(TargetedEnemy->GetLocation());
-				}
+				MovementComponent->MoveTo(TargetedEnemy->GetLocation());
 			}
+			
 		}
 		else 
 		{
@@ -116,7 +105,7 @@ void UCombatComponent::ApplyDamage(UCombatComponent* Attacker, float DamageAmoun
 
 	if (HealthPoints < 0) 
 	{
-		Dead = true;
+		CombatUnitPawn->Destroy();
 	}
 }
 
@@ -135,11 +124,6 @@ float UCombatComponent::GetDetectionRange()
 	return CombatUnitPawn->GetUnitStats().EnemyDetectionRange;
 }
 
-bool UCombatComponent::IsDead()
-{
-	return Dead;
-}
-
 void UCombatComponent::FindEnemiesInRange(TArray<IDamageable*>& OutArray)
 {
 	TArray<AActor*> actors;
@@ -156,9 +140,6 @@ void UCombatComponent::FindEnemiesInRange(TArray<IDamageable*>& OutArray)
 			continue;
 
 		if (!damageable->IsEnemy(CombatUnitPawn->GetTeam()))
-			continue;
-
-		if (damageable->IsDead())
 			continue;
 
 		OutArray.Add(damageable);
@@ -190,7 +171,7 @@ void UCombatComponent::SetTargetedEnemy(IDamageable* NewTarget)
 {
 	TargetedEnemy = NewTarget;
 	
-	if (TargetedEnemy) 
+	if (TargetedEnemy.IsValid()) 
 	{
 		CombatUnitPawn->GetMovementComponent()->MoveTo(TargetedEnemy->GetLocation());
 	}

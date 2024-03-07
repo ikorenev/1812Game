@@ -50,7 +50,6 @@ public:
 	
 	ETeam GetTeam() override;
 	FVector GetLocation() override;
-	bool IsDead() override;
 
 	void ApplyDamage(class UCombatComponent* Attacker, float Amount) override;
 	

@@ -23,7 +23,5 @@ public:
     virtual ETeam GetTeam() { return ETeam::RUSSIA; }
     virtual bool IsEnemy(ETeam Team) { return GetTeam() != Team; }
 
-    virtual bool IsDead() { return false; }
-
     virtual FVector GetLocation() { return FVector::ZeroVector; }
 };

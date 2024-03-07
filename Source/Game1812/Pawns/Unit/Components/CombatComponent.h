@@ -22,10 +22,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly);
 	float HealthPoints;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly);
-	bool Dead;
-
-	class IDamageable* TargetedEnemy;
+	TWeakInterfacePtr<class IDamageable> TargetedEnemy;
 
 	virtual void BeginPlay() override;
 
@@ -43,8 +40,6 @@ public:
 	float GetBaseDamage();
 	float GetAttackRange();
 	float GetDetectionRange();
-
-	bool IsDead();
 
 	void Init(FCombatUnitStats UnitCombatStats);
 
