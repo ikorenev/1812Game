@@ -16,14 +16,16 @@ public:
 
 protected:
 
-	UPROPERTY(VisibleAnywhere)
-	ECombatUnitType CombatUnitType;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	const UCombatUnitDataAsset* CombatUnitData;
 
 	virtual void SpawnUnit() override;
 
+	void UpdatePieceMesh();
+
 public:
 
-	void SetCombatUnitType(ECombatUnitType NewCombatUnitType);
+	void SetCombatUnitData(class UCombatUnitDataAsset* NewCombatUnitData);
 
 	virtual void AssignOrder(class UUnitOrder* UnitOrder) override;
 };

@@ -27,7 +27,7 @@ protected:
 	EPieceToSpawn PieceToSpawn;
 
 	UPROPERTY(EditAnywhere, meta = (EditCondition = "PieceToSpawn==EPieceToSpawn::Combat"))
-	ECombatUnitType CombatUnitType;
+	class UCombatUnitDataAsset* CombatUnitData;
 
 	UPROPERTY(EditAnywhere)
 	int Amount;

@@ -18,19 +18,20 @@ void ACombatPiece::SpawnUnit()
 		combatUnit->SetCombatUnitType(CombatUnitType);
 }
 
-void ACombatPiece::SetCombatUnitType(ECombatUnitType NewCombatUnitType)
+void ACombatPiece::SetCombatUnitData(UCombatUnitDataAsset* NewCombatUnitData)
 {
-	CombatUnitType = NewCombatUnitType;
+	CombatUnitData = NewCombatUnitData;
 
-	UCossacksGameInstance* gameInstance = GetGameInstance<UCossacksGameInstance>();
+	UpdatePieceMesh();
+}
 
-	if (!gameInstance)
+void ACombatPiece::UpdatePieceMesh()
+{
+	if (!CombatUnitData)
 		return;
 
-	FCombatUnitContainer combatUnitContainer = gameInstance->GetTeamUnitsTable(ETeam::RUSSIA)->FindUnitStatsByType(CombatUnitType);
-
-	PieceFoundationMeshComponent->SetStaticMesh(combatUnitContainer.PieceFoundationMesh);
-	PieceFigureMeshComponent->SetStaticMesh(combatUnitContainer.PieceFigureMesh);
+	PieceFoundationMeshComponent->SetStaticMesh(CombatUnitData->GetPieceFoundationMesh());
+	PieceFigureMeshComponent->SetStaticMesh(CombatUnitData->GetPieceMesh());
 }
 
 void ACombatPiece::AssignOrder(UUnitOrder* UnitOrder)

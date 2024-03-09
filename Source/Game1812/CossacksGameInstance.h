@@ -24,17 +24,9 @@ protected:
 public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	class UCombatUnitsTable* RussianUnitsTable;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	class UCombatUnitsTable* FrenchUnitsTable;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	TSubclassOf<class AAdjutantUnit> AdjutantUnitClass;
 	
 	UClass* GetCombatUnitPieceClass();
 	UClass* GetScoutUnitPieceClass();
 	UMaterial* GetPieceMapMarkerMaterial();
-
-	class UCombatUnitsTable* GetTeamUnitsTable(ETeam Team);
 };

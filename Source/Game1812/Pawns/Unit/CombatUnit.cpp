@@ -4,6 +4,7 @@
 
 #include "Components/UnitMovementComponent.h"
 #include "Components/CombatComponent.h"
+#include "CombatUnitDataAsset.h"
 
 #include "../../CossacksGameInstance.h"
 
@@ -13,7 +14,7 @@ ACombatUnit::ACombatUnit()
 
 	CombatComponent = CreateDefaultSubobject<UCombatComponent>(FName("Combat Component"));
 
-	CombatUnitType = ECombatUnitType::NONE;
+	CombatUnitData = nullptr;
 }
 
 void ACombatUnit::BeginPlay() 
@@ -44,12 +45,23 @@ void ACombatUnit::Tick(float DeltaTime)
 
 }
 
+
+
 void ACombatUnit::AssignOrder(UUnitOrder* NewOrder)
 {
 	CurrentOrder = Cast<UCombatUnitOrder>(NewOrder);
 
 	if (CurrentOrder)
 		MovementComponent->MoveTo(CurrentOrder->Location);
+}
+
+void ACombatUnit::SetCombatUnitData(UCombatUnitDataAsset* NewCombatUnitData)
+{
+}
+
+FCombatUnitStats* ACombatUnit::GetCombatUnitStats()
+{
+	return (CombatUnitData) ? (&CombatUnitData->GetCombatUnitStats()) : nullptr;
 }
 
 UUnitOrder* ACombatUnit::GetCurrentOrder()
@@ -70,11 +82,6 @@ float ACombatUnit::GetMovementSpeed()
 float ACombatUnit::GetRotationSpeed()
 {
 	return CombatUnitStats.RotationSpeed;
-}
-
-FCombatUnitStats ACombatUnit::GetUnitStats()
-{
-	return CombatUnitStats;
 }
 
 void ACombatUnit::ApplyDamage(UCombatComponent* Attacker, float Amount)

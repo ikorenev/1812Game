@@ -9,7 +9,7 @@ APiecesSpawner::APiecesSpawner()
 	RootComponent = CreateDefaultSubobject<USceneComponent>(FName("Root Component"));
 
 	PieceToSpawn = EPieceToSpawn::COMBAT;
-	CombatUnitType = ECombatUnitType::NONE;
+	CombatUnitData = nullptr;
 	SpawnInterval = 40.f;
 }
 
@@ -49,7 +49,7 @@ void APiecesSpawner::SpawnPiece(const FVector& Location)
 		ACombatPiece* piece = GetWorld()->SpawnActor<ACombatPiece>(gameInstance->GetCombatUnitPieceClass(), Location, FRotator::ZeroRotator);
 
 		if (piece)
-			piece->SetCombatUnitType(CombatUnitType);
+			piece->SetCombatUnitData(CombatUnitData);
 
 		break;
 	}

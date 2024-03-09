@@ -32,10 +32,7 @@ protected:
 	class UCombatUnitOrder* CurrentOrder;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	ECombatUnitType CombatUnitType;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	FCombatUnitStats CombatUnitStats;
+	class UCombatUnitDataAsset* CombatUnitData;
 
 	virtual void BeginPlay() override;
 
@@ -43,20 +40,26 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 
+	struct FCombatUnitStats* GetCombatUnitStats();
+
+	void SetCombatUnitData(class UCombatUnitDataAsset* NewCombatUnitData);
+
+	//ABaseUnit class override
 	class UUnitOrder* GetCurrentOrder();
 	void AssignOrder(class UUnitOrder* NewOrder);
-
-	virtual FCombatUnitStats GetUnitStats();
+	//
 	
-	ETeam GetTeam() override;
-	FVector GetLocation() override;
-
-	void ApplyDamage(class UCombatComponent* Attacker, float Amount) override;
-	
-	void SetCombatUnitType(ECombatUnitType NewCombatUnitType);
-
+	//IMoveableUnit Interface
 	class UUnitMovementComponent* GetMovementComponent();
 
 	float GetMovementSpeed() override;
 	float GetRotationSpeed() override;
+	//
+	
+	//IDamageable Interface
+	void ApplyDamage(class UCombatComponent* Attacker, float Amount) override;
+
+	ETeam GetTeam() override;
+	FVector GetLocation() override;
+	//
 };
