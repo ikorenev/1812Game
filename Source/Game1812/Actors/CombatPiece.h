@@ -2,7 +2,6 @@
 
 #include "CoreMinimal.h"
 #include "Piece.h"
-#include "../Pawns/Unit/CombatUnitEnum.h"
 #include "CombatPiece.generated.h"
 
 UCLASS()
@@ -17,7 +16,7 @@ public:
 protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	const UCombatUnitDataAsset* CombatUnitData;
+	class UCombatUnitDataAsset* CombatUnitData;
 
 	virtual void SpawnUnit() override;
 

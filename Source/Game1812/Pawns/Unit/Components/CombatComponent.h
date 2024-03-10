@@ -2,9 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "../CombatUnitStats.h"
 #include "CombatComponent.generated.h"
-
 
 UCLASS(Blueprintable, BlueprintType)
 class GAME1812_API UCombatComponent : public UActorComponent
@@ -19,7 +17,7 @@ protected:
 
 	class ACombatUnit* CombatUnitPawn;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly);
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	float HealthPoints;
 
 	TWeakInterfacePtr<class IDamageable> TargetedEnemy;
@@ -41,7 +39,7 @@ public:
 	float GetAttackRange();
 	float GetDetectionRange();
 
-	void Init(FCombatUnitStats UnitCombatStats);
+	void Init(struct FCombatUnitStats* UnitCombatStats);
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 

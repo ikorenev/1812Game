@@ -13,7 +13,6 @@ public:
 
 	FCombatUnitStats();
 
-	
 protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)

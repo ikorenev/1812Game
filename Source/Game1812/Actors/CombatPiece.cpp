@@ -1,6 +1,7 @@
 #include "CombatPiece.h"
 
 #include "../Pawns/Unit/CombatUnit.h"
+#include "../Pawns/Unit/CombatUnitDataAsset.h"
 #include "../CossacksGameInstance.h"
 #include "HeadQuarters.h"
 
@@ -15,7 +16,7 @@ void ACombatPiece::SpawnUnit()
 	ACombatUnit* combatUnit = Cast<ACombatUnit>(Unit);
 	
 	if (combatUnit)
-		combatUnit->SetCombatUnitType(CombatUnitType);
+		combatUnit->SetCombatUnitData(CombatUnitData);
 }
 
 void ACombatPiece::SetCombatUnitData(UCombatUnitDataAsset* NewCombatUnitData)

@@ -21,21 +21,8 @@ void ACombatUnit::BeginPlay()
 {
 	Super::BeginPlay();
 
-	SetCombatUnitType(CombatUnitType);
-}
-
-void ACombatUnit::SetCombatUnitType(ECombatUnitType NewCombatUnitType)
-{
-	CombatUnitType = NewCombatUnitType;
-
-	UCossacksGameInstance* gameInstance = GetGameInstance<UCossacksGameInstance>();
-
-	if (!gameInstance)
-		return;
-
-	FCombatUnitContainer combatUnitContainer = gameInstance->GetTeamUnitsTable(Team)->FindUnitStatsByType(CombatUnitType);
-	CombatUnitStats = combatUnitContainer.UnitStats;
-	CombatComponent->Init(CombatUnitStats);
+	if (CombatUnitData)
+		CombatComponent->Init(CombatUnitData->GetCombatUnitStats());
 }
 
 void ACombatUnit::Tick(float DeltaTime)
@@ -44,8 +31,6 @@ void ACombatUnit::Tick(float DeltaTime)
 
 
 }
-
-
 
 void ACombatUnit::AssignOrder(UUnitOrder* NewOrder)
 {
@@ -57,11 +42,17 @@ void ACombatUnit::AssignOrder(UUnitOrder* NewOrder)
 
 void ACombatUnit::SetCombatUnitData(UCombatUnitDataAsset* NewCombatUnitData)
 {
+	CombatUnitData = NewCombatUnitData;
+
+	if (!CombatUnitData)
+		return;
+
+	CombatComponent->Init(CombatUnitData->GetCombatUnitStats());
 }
 
 FCombatUnitStats* ACombatUnit::GetCombatUnitStats()
 {
-	return (CombatUnitData) ? (&CombatUnitData->GetCombatUnitStats()) : nullptr;
+	return CombatUnitData ? CombatUnitData->GetCombatUnitStats() : nullptr;
 }
 
 UUnitOrder* ACombatUnit::GetCurrentOrder()
@@ -76,12 +67,12 @@ UUnitMovementComponent* ACombatUnit::GetMovementComponent()
 
 float ACombatUnit::GetMovementSpeed()
 {
-	return CombatUnitStats.MovementSpeed;
+	return GetCombatUnitStats() ? GetCombatUnitStats()->GetMovementSpeed() : 0.0f;
 }
 
 float ACombatUnit::GetRotationSpeed()
 {
-	return CombatUnitStats.RotationSpeed;
+	return GetCombatUnitStats() ? GetCombatUnitStats()->GetRotationSpeed() : 0.0f;
 }
 
 void ACombatUnit::ApplyDamage(UCombatComponent* Attacker, float Amount)

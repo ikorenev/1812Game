@@ -6,9 +6,6 @@
 #include "Components/MoveableUnit.h"
 #include "Components/Damageable.h"
 
-#include "CombatUnitStats.h"
-#include "CombatUnitEnum.h"
-
 #include "CombatUnit.generated.h"
 
 UCLASS()

@@ -3,7 +3,7 @@
 #include "UnitMovementComponent.h"
 #include "Damageable.h"
 
-#include "../CombatUnitStats.h"
+#include "../CombatUnitDataAsset.h"
 #include "../CombatUnit.h"
 #include "../UnitOrder.h"
 
@@ -72,9 +72,9 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 
 }
 
-void UCombatComponent::Init(FCombatUnitStats UnitCombatStats)
+void UCombatComponent::Init(FCombatUnitStats* UnitCombatStats)
 {
-	HealthPoints = UnitCombatStats.StartHP;
+	HealthPoints = UnitCombatStats->GetBaseHP();
 }
 
 void UCombatComponent::TryAttack(IDamageable* Target, float DeltaTime)
@@ -111,17 +111,17 @@ void UCombatComponent::ApplyDamage(UCombatComponent* Attacker, float DamageAmoun
 
 float UCombatComponent::GetBaseDamage()
 {
-	return CombatUnitPawn->GetUnitStats().BaseDamage;
+	return CombatUnitPawn->GetCombatUnitStats()->GetBaseDamage();
 }
 
 float UCombatComponent::GetAttackRange()
 {
-	return CombatUnitPawn->GetUnitStats().AttackDistance;
+	return CombatUnitPawn->GetCombatUnitStats()->GetAttackDistance();
 }
 
 float UCombatComponent::GetDetectionRange()
 {
-	return CombatUnitPawn->GetUnitStats().EnemyDetectionRange;
+	return CombatUnitPawn->GetCombatUnitStats()->GetEnemyDetectionRange();
 }
 
 void UCombatComponent::FindEnemiesInRange(TArray<IDamageable*>& OutArray)

@@ -2,7 +2,6 @@
 
 #include "UnitOrder.h"
 #include "Components/UnitMovementComponent.h"
-#include "CombatUnitStats.h"
 #include "../../Actors/HeadQuarters.h"
 
 #include <Components/BoxComponent.h>
