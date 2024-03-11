@@ -18,7 +18,7 @@ class GAME1812_API IDamageable
 
 public:
 
-    virtual void ApplyDamage(class UCombatComponent* Attacker, float DamageAmount) = 0;
+    virtual void ApplyDamage(IDamageable* Attacker, float DamageAmount) = 0;
 
     virtual ETeam GetTeam() = 0;
     virtual FVector GetLocation() = 0;

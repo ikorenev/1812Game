@@ -3,8 +3,6 @@
 #include <NavigationPath.h>
 #include <NavigationSystem.h>
 
-#include "MoveableUnit.h"
-
 #include "../BaseUnit.h"
 
 UUnitMovementComponent::UUnitMovementComponent()
@@ -27,11 +25,6 @@ void UUnitMovementComponent::BeginPlay()
 	if (!UnitPawn) 
 		DestroyComponent();
 
-	MoveableUnit = Cast<IMoveableUnit>(GetOwner());
-
-	if (!MoveableUnit)
-		DestroyComponent();
-
 	TargetLocation = UnitPawn->GetActorLocation();
 }
 
@@ -49,8 +42,17 @@ void UUnitMovementComponent::MoveAlongPath(float DeltaTime)
 {
 	if (!Path || !Path->IsValid())
 		return;
-	
+
+	const FVector startLocation = UnitPawn->GetActorLocation();
+
 	UpdateMovement(DeltaTime);
+
+	//Check if bound, because sqrt is costly operation
+	if (OnMove.IsBound()) 
+	{
+		const float movedDistance = FVector::DistSquared2D(startLocation, UnitPawn->GetActorLocation());
+		OnMove.Broadcast(movedDistance);
+	}
 
 	CheckMovementEnd();
 }
@@ -72,7 +74,7 @@ void UUnitMovementComponent::MovePawn(float DeltaTime, const FVector& Location)
 {
 	const FVector delta = (Location - UnitPawn->GetActorLocation()) * FVector(1, 1, 0);
 	const FVector direction = delta.GetSafeNormal();
-	const FVector movementDelta = direction * MoveableUnit->GetMovementSpeed() * DeltaTime;
+	const FVector movementDelta = direction * UnitPawn->GetMovementSpeed() * DeltaTime;
 
 	if (movementDelta.SizeSquared() > delta.SizeSquared())
 	{
@@ -89,7 +91,7 @@ void UUnitMovementComponent::MovePawn(float DeltaTime, const FVector& Location)
 
 void UUnitMovementComponent::RotatePawn(float DeltaTime, float RotationYaw)
 {
-	const float rotationDelta = FMath::Sign(RotationYaw) * DeltaTime * MoveableUnit->GetRotationSpeed();
+	const float rotationDelta = FMath::Sign(RotationYaw) * DeltaTime * UnitPawn->GetRotationSpeed();
 	const float limitedRotation = FMath::Clamp(rotationDelta, -FMath::Abs(RotationYaw), FMath::Abs(RotationYaw));
 
 	UnitPawn->AddActorLocalRotation(FRotator(0, limitedRotation, 0));
@@ -105,6 +107,16 @@ void UUnitMovementComponent::MoveTo(const FVector& MoveToLocation)
 		UpdatePath();
 	else
 		OnMovementEnd.Broadcast();
+}
+
+void UUnitMovementComponent::StopMoving()
+{
+	TargetLocation = ProjectPointToMap(UnitPawn->GetActorLocation());
+
+	if (bIsMoving)
+		OnMovementEnd.Broadcast();
+
+	bIsMoving = false;
 }
 
 FVector UUnitMovementComponent::ProjectPointToMap(const FVector& Point)

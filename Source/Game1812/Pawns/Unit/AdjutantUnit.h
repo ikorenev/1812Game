@@ -2,12 +2,11 @@
 
 #include "CoreMinimal.h"
 #include "BaseUnit.h"
-#include "Components/MoveableUnit.h"
 #include "AssignedUnitOrder.h"
 #include "AdjutantUnit.generated.h"
 
 UCLASS()
-class GAME1812_API AAdjutantUnit : public ABaseUnit, public IMoveableUnit
+class GAME1812_API AAdjutantUnit : public ABaseUnit
 {
 	GENERATED_BODY()
 	

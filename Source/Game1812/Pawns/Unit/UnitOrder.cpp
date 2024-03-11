@@ -8,7 +8,7 @@ UUnitOrder::UUnitOrder()
 
 UCombatUnitOrder::UCombatUnitOrder()
 {
-	UnitEnemyReaction = EUnitEnemyReaction::ATTACK;
+	UnitEnemyReaction = EUnitEnemyReaction::Attack;
 
 	bForcedMarch = false;
 	bConcentratedFire = false;

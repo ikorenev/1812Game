@@ -7,8 +7,8 @@
 
 UENUM(BlueprintType)
 enum class EUnitEnemyReaction : uint8 {
-	ATTACK = 0	UMETA(DisplayName = "ATTACK"),
-	DEFEND = 1	UMETA(DisplayName = "DEFEND"),
+	Attack = 0	UMETA(DisplayName = "Attack"),
+	Defend = 1	UMETA(DisplayName = "Defend"),
 };
 
 UCLASS(BlueprintType, Abstract)

@@ -26,7 +26,13 @@ protected:
 
 public:	
 
+	virtual class UUnitMovementComponent* GetMovementComponent();
+
+	virtual float GetMovementSpeed();
+	virtual float GetRotationSpeed();
+
 	ETeam GetTeam();
+
 
 	virtual class UUnitOrder* GetCurrentOrder();
 	virtual void AssignOrder(class UUnitOrder* NewOrder);

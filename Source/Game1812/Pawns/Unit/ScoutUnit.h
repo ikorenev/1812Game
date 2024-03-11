@@ -2,13 +2,12 @@
 
 #include "CoreMinimal.h"
 #include "BaseUnit.h"
-#include "Components/MoveableUnit.h"
 #include "ScoutUnit.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FScoutMovementStateDelegate);
 
 UCLASS()
-class GAME1812_API AScoutUnit : public ABaseUnit, public IMoveableUnit
+class GAME1812_API AScoutUnit : public ABaseUnit
 {
 	GENERATED_BODY()
 

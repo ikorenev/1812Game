@@ -6,6 +6,7 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnMovementStartDelegate);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnMovementEndDelegate);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMoveDelegate, float, Distance);
 
 UCLASS(Blueprintable, BlueprintType)
 class GAME1812_API UUnitMovementComponent : public UActorComponent
@@ -19,7 +20,6 @@ public:
 protected:
 
 	class ABaseUnit* UnitPawn;
-	class IMoveableUnit* MoveableUnit;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	FVector TargetLocation;
@@ -57,9 +57,12 @@ public:
 	FOnMovementStartDelegate OnMovementStart;
 	FOnMovementEndDelegate OnMovementEnd;
 
+	FOnMoveDelegate OnMove;
+
 	bool IsMoving();
 
 	void MoveTo(const FVector& MoveToLocation);
+	void StopMoving();
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 

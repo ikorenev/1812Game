@@ -3,16 +3,17 @@
 #include "UnitOrder.h"
 
 #include "Components/UnitMovementComponent.h"
-#include "Components/CombatComponent.h"
+#include "Components/UnitCombatComponent.h"
+#include "Controllers/EnemyUnitController.h"
 #include "CombatUnitDataAsset.h"
 
 #include "../../CossacksGameInstance.h"
 
 ACombatUnit::ACombatUnit()
 {
-	MovementComponent = CreateDefaultSubobject<UUnitMovementComponent>(FName("Movement Component"));
+	MovementComponent = CreateDefaultSubobject<UUnitMovementComponent>(TEXT("Movement Component"));
 
-	CombatComponent = CreateDefaultSubobject<UCombatComponent>(FName("Combat Component"));
+	CombatComponent = CreateDefaultSubobject<UUnitCombatComponent>(TEXT("Combat Component"));
 
 	CombatUnitData = nullptr;
 }
@@ -21,8 +22,26 @@ void ACombatUnit::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (CombatUnitData)
-		CombatComponent->Init(CombatUnitData->GetCombatUnitStats());
+	if (!CombatUnitData)
+		return;
+
+	CombatComponent->Init(CombatUnitData->GetCombatUnitStats());
+
+	CurrentOrder = NewObject<UCombatUnitOrder>();
+
+	CurrentOrder->Location = GetActorLocation();
+	CurrentOrder->UnitEnemyReaction = EUnitEnemyReaction::Attack;
+}
+
+void ACombatUnit::SpawnDefaultController()
+{
+	if (GetTeam() == ETeam::France)
+	{
+		AEnemyUnitController* enemyUnitController = GetWorld()->SpawnActor<AEnemyUnitController>();
+
+		if (enemyUnitController)
+			enemyUnitController->Possess(this);
+	}
 }
 
 void ACombatUnit::Tick(float DeltaTime)
@@ -31,6 +50,8 @@ void ACombatUnit::Tick(float DeltaTime)
 
 
 }
+
+
 
 void ACombatUnit::AssignOrder(UUnitOrder* NewOrder)
 {
@@ -67,7 +88,7 @@ UUnitMovementComponent* ACombatUnit::GetMovementComponent()
 
 float ACombatUnit::GetMovementSpeed()
 {
-	return GetCombatUnitStats() ? GetCombatUnitStats()->GetMovementSpeed() : 0.0f;
+	return CombatComponent->CalculateMovementSpeed();
 }
 
 float ACombatUnit::GetRotationSpeed()
@@ -75,7 +96,7 @@ float ACombatUnit::GetRotationSpeed()
 	return GetCombatUnitStats() ? GetCombatUnitStats()->GetRotationSpeed() : 0.0f;
 }
 
-void ACombatUnit::ApplyDamage(UCombatComponent* Attacker, float Amount)
+void ACombatUnit::ApplyDamage(IDamageable* Attacker, float Amount)
 {
 	CombatComponent->ApplyDamage(Attacker, Amount);
 }

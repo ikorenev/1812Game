@@ -17,7 +17,7 @@ ABaseUnit::ABaseUnit()
 	BoxComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	RootComponent = BoxComponent;
 
-	Team = ETeam::RUSSIA;
+	Team = ETeam::Russia;
 
 	Tags.Add("AffectedByFog");
 }
@@ -28,6 +28,21 @@ void ABaseUnit::BeginPlay()
 
 	AddActorWorldOffset(FVector(0, 0, 10));
 	AddActorWorldOffset(FVector(0, 0, -20), true);
+}
+
+UUnitMovementComponent* ABaseUnit::GetMovementComponent()
+{
+	return nullptr;
+}
+
+float ABaseUnit::GetMovementSpeed()
+{
+	return 0.0f;
+}
+
+float ABaseUnit::GetRotationSpeed()
+{
+	return 0.0f;
 }
 
 ETeam ABaseUnit::GetTeam()
