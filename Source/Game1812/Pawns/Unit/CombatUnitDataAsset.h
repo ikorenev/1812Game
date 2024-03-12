@@ -25,7 +25,10 @@ protected:
 	float RotationSpeed;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	float BaseHP;
+	float BaseHP; 
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float AttackCooldown;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float BaseDamage;
@@ -34,7 +37,10 @@ protected:
 	float BaseDefense;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	float MoraleRestorationSpeed;
+	float MoraleRestorationSpeed; 
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float MoraleLossDueToLosses;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float DistanceForFullMoraleLoss;
@@ -51,9 +57,11 @@ public:
 	float GetMinMovementSpeed();
 	float GetRotationSpeed();
 	float GetBaseHP();
+	float GetAttackCooldown();
 	float GetBaseDamage();
 	float GetBaseDefense();
 	float GetMoraleRestorationSpeed();
+	float GetMoraleLossDueToLosses();
 	float GetDistanceForFullMoraleLoss();
 	float GetAttackDistance();
 	float GetEnemyDetectionRange();

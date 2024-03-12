@@ -23,6 +23,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	float Morale;
 
+	float TimeOfLastAttack;
+
 	TWeakInterfacePtr<class IDamageable> TargetedEnemy;
 
 	virtual void BeginPlay() override;
@@ -46,11 +48,14 @@ protected:
 	
 public:	
 
+	float GetAttackCooldown();
 	float GetBaseDamage();
+	float GetBaseDefense();
 	float GetAttackRange();
 	float GetDetectionRange();
 
-	float CalculateDamage(float DeltaTime);
+	float CalculateDamage();
+	float CalculateDefense();
 	float CalculateMovementSpeed();
 
 	

@@ -6,12 +6,14 @@ FCombatUnitStats::FCombatUnitStats()
 	MinMovementSpeed = 5.0f;
 	RotationSpeed = 50.0f;
 	BaseHP = 1000.0f;
+	AttackCooldown = 1.0f;
 	BaseDamage = 0.5f;
-	BaseDefense = 0.5f;
+	BaseDefense = 0.1f;
 	MoraleRestorationSpeed = 0.1f;
-	DistanceForFullMoraleLoss = 1500.f;
+	MoraleLossDueToLosses = 0.5f;
+	DistanceForFullMoraleLoss = 3000.f;
 	AttackDistance = 10.0f;
-	EnemyDetectionRange = 500.0f;
+	EnemyDetectionRange = 200.0f;
 }
 
 float FCombatUnitStats::GetMaxMovementSpeed()
@@ -34,6 +36,11 @@ float FCombatUnitStats::GetBaseHP()
 	return BaseHP;
 }
 
+float FCombatUnitStats::GetAttackCooldown()
+{
+	return AttackCooldown;
+}
+
 float FCombatUnitStats::GetBaseDamage()
 {
 	return BaseDamage;
@@ -47,6 +54,11 @@ float FCombatUnitStats::GetBaseDefense()
 float FCombatUnitStats::GetMoraleRestorationSpeed()
 {
 	return MoraleRestorationSpeed;
+}
+
+float FCombatUnitStats::GetMoraleLossDueToLosses()
+{
+	return MoraleLossDueToLosses;
 }
 
 float FCombatUnitStats::GetDistanceForFullMoraleLoss()

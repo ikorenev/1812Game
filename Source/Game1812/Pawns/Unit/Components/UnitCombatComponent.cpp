@@ -18,6 +18,8 @@ UUnitCombatComponent::UUnitCombatComponent()
 
 	HealthPoints = 0.f;
 	Morale = 1.f;
+
+	TimeOfLastAttack = -100.f;
 }
 
 void UUnitCombatComponent::BeginPlay()
@@ -119,20 +121,23 @@ void UUnitCombatComponent::TryAttack(IDamageable* Target, float DeltaTime)
 	if (CanAttack(Target))
 	{
 		Attack(Target, DeltaTime);
+
+		TimeOfLastAttack = GetWorld()->GetTimeSeconds();
 	}
 }
 
 void UUnitCombatComponent::Attack(IDamageable* Target, float DeltaTime)
 {
-	Target->ApplyDamage(CombatUnitPawn, CalculateDamage(DeltaTime));
+	Target->ApplyDamage(CombatUnitPawn, CalculateDamage());
 }
 
 bool UUnitCombatComponent::CanAttack(IDamageable* Target)
 {
-	const bool CloseEnoughToEnemy = IsTargetInRange(Target);
-	const bool Standing = !CombatUnitPawn->GetMovementComponent()->IsMoving();
+	const bool closeEnoughToEnemy = IsTargetInRange(Target);
+	const bool standing = !CombatUnitPawn->GetMovementComponent()->IsMoving();
+	const bool cooldownFinished = GetAttackCooldown() + TimeOfLastAttack < GetWorld()->GetTimeSeconds();
 
-	return CloseEnoughToEnemy && Standing;
+	return closeEnoughToEnemy && standing && cooldownFinished;
 }
 
 bool UUnitCombatComponent::IsTargetInRange(IDamageable* Target)
@@ -142,7 +147,7 @@ bool UUnitCombatComponent::IsTargetInRange(IDamageable* Target)
 
 void UUnitCombatComponent::ApplyDamage(IDamageable* Attacker, float DamageAmount)
 {
-	HealthPoints -= DamageAmount;
+	HealthPoints -= FMath::Max(1, DamageAmount - CalculateDefense());
 
 	if (HealthPoints < 0) 
 	{
@@ -154,9 +159,14 @@ void UUnitCombatComponent::ApplyDamage(IDamageable* Attacker, float DamageAmount
 		OnBeingAttacked(Attacker);
 }
 
-float UUnitCombatComponent::CalculateDamage(float DeltaTime)
+float UUnitCombatComponent::CalculateDamage()
 {
-	return FMath::Pow(Morale, 2) * GetBaseDamage() * HealthPoints * DeltaTime;
+	return FMath::Pow(Morale, 2) * GetBaseDamage() * HealthPoints;
+}
+
+float UUnitCombatComponent::CalculateDefense()
+{
+	return FMath::Pow(Morale, 2) * GetBaseDefense() * HealthPoints;
 }
 
 float UUnitCombatComponent::CalculateMovementSpeed()
@@ -211,9 +221,19 @@ IDamageable* UUnitCombatComponent::FindClosestEnemyInRange()
 	return closestDamageable;
 }
 
+float UUnitCombatComponent::GetAttackCooldown()
+{
+	return CombatUnitPawn->GetCombatUnitStats()->GetAttackCooldown();
+}
+
 float UUnitCombatComponent::GetBaseDamage()
 {
 	return CombatUnitPawn->GetCombatUnitStats()->GetBaseDamage();
+}
+
+float UUnitCombatComponent::GetBaseDefense()
+{
+	return CombatUnitPawn->GetCombatUnitStats()->GetBaseDefense();
 }
 
 float UUnitCombatComponent::GetAttackRange()
