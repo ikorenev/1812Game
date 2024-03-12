@@ -46,21 +46,14 @@ void UUnitCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	UUnitMovementComponent* movementComponent = CombatUnitPawn->GetMovementComponent();
-
-	if (!movementComponent->IsMoving()) 
-	{
-		const float moraleRestorationSpeed = CombatUnitPawn->GetCombatUnitStats()->GetMoraleRestorationSpeed();
-		const float moraleRestoreDelta = moraleRestorationSpeed * DeltaTime;
-		AddMorale(moraleRestoreDelta);
-	}
-
-
+	UpdateMoraleRestoration(DeltaTime);
 
 	UCombatUnitOrder* order = Cast<UCombatUnitOrder>(CombatUnitPawn->GetCurrentOrder());
 
 	if (!order)
 		return;
+
+	UUnitMovementComponent* movementComponent = CombatUnitPawn->GetMovementComponent();
 
 	if (order->UnitEnemyReaction == EUnitEnemyReaction::Attack)
 	{
@@ -131,6 +124,16 @@ void UUnitCombatComponent::Attack(IDamageable* Target, float DeltaTime)
 	Target->ApplyDamage(CombatUnitPawn, CalculateDamage());
 }
 
+void UUnitCombatComponent::UpdateMoraleRestoration(float DeltaTime)
+{
+	if (CombatUnitPawn->GetMovementComponent()->IsMoving())
+		return;
+
+	const float moraleRestorationSpeed = CombatUnitPawn->GetCombatUnitStats()->GetMoraleRestorationSpeed();
+	const float moraleRestoreDelta = moraleRestorationSpeed * DeltaTime;
+	AddMorale(moraleRestoreDelta);
+}
+
 bool UUnitCombatComponent::CanAttack(IDamageable* Target)
 {
 	const bool closeEnoughToEnemy = IsTargetInRange(Target);
@@ -147,7 +150,11 @@ bool UUnitCombatComponent::IsTargetInRange(IDamageable* Target)
 
 void UUnitCombatComponent::ApplyDamage(IDamageable* Attacker, float DamageAmount)
 {
-	HealthPoints -= FMath::Max(1, DamageAmount - CalculateDefense());
+	const float totalDamage = FMath::Max(1, DamageAmount - CalculateDefense());
+	HealthPoints -= totalDamage;
+
+	const float moraleLoss = CombatUnitPawn->GetCombatUnitStats()->GetMoraleLossDueToLosses();
+	AddMorale(totalDamage * moraleLoss);
 
 	if (HealthPoints < 0) 
 	{

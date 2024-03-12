@@ -1,21 +1,5 @@
 #include "CombatUnitDataAsset.h"
 
-FCombatUnitStats::FCombatUnitStats()
-{
-	MaxMovementSpeed = 25.0f;
-	MinMovementSpeed = 5.0f;
-	RotationSpeed = 50.0f;
-	BaseHP = 1000.0f;
-	AttackCooldown = 1.0f;
-	BaseDamage = 0.5f;
-	BaseDefense = 0.1f;
-	MoraleRestorationSpeed = 0.1f;
-	MoraleLossDueToLosses = 0.5f;
-	DistanceForFullMoraleLoss = 3000.f;
-	AttackDistance = 10.0f;
-	EnemyDetectionRange = 200.0f;
-}
-
 float FCombatUnitStats::GetMaxMovementSpeed()
 {
 	return MaxMovementSpeed;

@@ -16,40 +16,40 @@ public:
 protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	float MaxMovementSpeed;
+	float MaxMovementSpeed = 25.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	float MinMovementSpeed;
+	float MinMovementSpeed = 5.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	float RotationSpeed;
+	float RotationSpeed = 50.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	float BaseHP; 
+	float BaseHP = 1000.0f;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	float AttackCooldown;
+	float AttackCooldown = 1.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	float BaseDamage;
+	float BaseDamage = 0.25f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	float BaseDefense;
+	float BaseDefense = 0.1f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	float MoraleRestorationSpeed; 
+	float MoraleRestorationSpeed = 0.1f;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	float MoraleLossDueToLosses;
+	float MoraleLossDueToLosses = 0.5f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	float DistanceForFullMoraleLoss;
+	float DistanceForFullMoraleLoss = 3000.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	float AttackDistance;
+	float AttackDistance = 10.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	float EnemyDetectionRange;
+	float EnemyDetectionRange = 200.0f;
 
 public:
 

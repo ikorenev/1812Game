@@ -31,6 +31,8 @@ protected:
 
 	void SetTargetedEnemy(class IDamageable* NewTarget);
 
+	void AddMorale(float Amount);
+
 	UFUNCTION()
 	void OnPawnMove(float Distance);
 	void OnBeingAttacked(class IDamageable* Attacker);
@@ -39,7 +41,7 @@ protected:
 	bool CanAttack(class IDamageable* Target);
 	void Attack(class IDamageable* Target, float DeltaTime);
 
-	void AddMorale(float Amount);
+	void UpdateMoraleRestoration(float DeltaTime);
 
 	void FindEnemiesInRange(TArray<class IDamageable*>& OutArray);
 	class IDamageable* FindClosestEnemyInRange();
