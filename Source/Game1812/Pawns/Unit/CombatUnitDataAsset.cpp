@@ -1,61 +1,61 @@
 #include "CombatUnitDataAsset.h"
 
-float FCombatUnitStats::GetMaxMovementSpeed()
+float FCombatUnitStats::GetMaxMovementSpeed() const
 {
 	return MaxMovementSpeed;
 }
 
-float FCombatUnitStats::GetMinMovementSpeed()
+float FCombatUnitStats::GetMinMovementSpeed() const
 {
 	return MinMovementSpeed;
 }
 
-float FCombatUnitStats::GetRotationSpeed()
+float FCombatUnitStats::GetRotationSpeed() const
 {
 	return RotationSpeed;
 }
 
-float FCombatUnitStats::GetBaseHP()
+float FCombatUnitStats::GetBaseHP() const
 {
 	return BaseHP;
 }
 
-float FCombatUnitStats::GetAttackCooldown()
+float FCombatUnitStats::GetAttackCooldown() const
 {
 	return AttackCooldown;
 }
 
-float FCombatUnitStats::GetBaseDamage()
+float FCombatUnitStats::GetBaseDamage() const
 {
 	return BaseDamage;
 }
 
-float FCombatUnitStats::GetBaseDefense()
+float FCombatUnitStats::GetBaseDefense() const
 {
 	return BaseDefense;
 }
 
-float FCombatUnitStats::GetMoraleRestorationSpeed()
+float FCombatUnitStats::GetMoraleRestorationSpeed() const
 {
 	return MoraleRestorationSpeed;
 }
 
-float FCombatUnitStats::GetMoraleLossDueToLosses()
+float FCombatUnitStats::GetMoraleLossDueToLosses() const
 {
 	return MoraleLossDueToLosses;
 }
 
-float FCombatUnitStats::GetDistanceForFullMoraleLoss()
+float FCombatUnitStats::GetDistanceForFullMoraleLoss() const
 {
 	return DistanceForFullMoraleLoss;
 }
 
-float FCombatUnitStats::GetAttackDistance()
+float FCombatUnitStats::GetAttackDistance() const
 {
 	return AttackDistance;
 }
 
-float FCombatUnitStats::GetEnemyDetectionRange()
+float FCombatUnitStats::GetEnemyDetectionRange() const
 {
 	return EnemyDetectionRange;
 }
@@ -68,22 +68,22 @@ UCombatUnitDataAsset::UCombatUnitDataAsset()
 	PieceFoundationMesh = nullptr;
 }
 
-FName UCombatUnitDataAsset::GetName()
+FName UCombatUnitDataAsset::GetName() const
 {
 	return UnitName;
 }
 
-FCombatUnitStats* UCombatUnitDataAsset::GetCombatUnitStats() 
+FCombatUnitStats* UCombatUnitDataAsset::GetCombatUnitStats()
 {
 	return &CombatUnitStats;
 }
 
-UStaticMesh* UCombatUnitDataAsset::GetPieceMesh()
+UStaticMesh* UCombatUnitDataAsset::GetPieceMesh() const
 {
 	return PieceMesh;
 }
 
-UStaticMesh* UCombatUnitDataAsset::GetPieceFoundationMesh()
+UStaticMesh* UCombatUnitDataAsset::GetPieceFoundationMesh() const
 {
 	return PieceFoundationMesh;
 }

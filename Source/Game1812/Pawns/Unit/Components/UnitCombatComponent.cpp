@@ -18,8 +18,10 @@ UUnitCombatComponent::UUnitCombatComponent()
 
 	HealthPoints = 0.f;
 	Morale = 1.f;
+	bIsTemporarilyDefeated = false;
 
 	TimeOfLastAttack = -100.f;
+	TimeOfLastTakenDamage = -100.f;
 }
 
 void UUnitCombatComponent::BeginPlay()
@@ -48,18 +50,46 @@ void UUnitCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 
 	UpdateMoraleRestoration(DeltaTime);
 
+	if (bIsTemporarilyDefeated) 
+	{
+		if (Morale > 0.5f) 
+		{
+			bIsTemporarilyDefeated = false;
+			return;
+		}
+
+		
+
+		return;
+	}
+
+	UpdateOrderBehaviour();
+
+	UpdateTargetAttack();
+}
+
+void UUnitCombatComponent::UpdateMoraleRestoration(float DeltaTime)
+{
+	if (CombatUnitPawn->GetMovementComponent()->IsMoving() || (TimeOfLastTakenDamage + 5.f > GetWorld()->GetTimeSeconds()))
+		return;
+
+	const float moraleRestorationSpeed = CombatUnitPawn->GetCombatUnitStats()->GetMoraleRestorationSpeed();
+	const float moraleRestoreDelta = moraleRestorationSpeed * DeltaTime;
+	AddMorale(moraleRestoreDelta);
+}
+
+void UUnitCombatComponent::UpdateOrderBehaviour()
+{
 	UCombatUnitOrder* order = Cast<UCombatUnitOrder>(CombatUnitPawn->GetCurrentOrder());
 
 	if (!order)
 		return;
 
-	UUnitMovementComponent* movementComponent = CombatUnitPawn->GetMovementComponent();
-
 	if (order->UnitEnemyReaction == EUnitEnemyReaction::Attack)
 	{
 		//Try to find enemy
 		if (!TargetedEnemy.IsValid())
-		{	
+		{
 			IDamageable* enemy = FindClosestEnemyInRange();
 
 			if (!enemy)
@@ -68,6 +98,11 @@ void UUnitCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 			SetTargetedEnemy(enemy);
 		}
 	}
+}
+
+void UUnitCombatComponent::UpdateTargetAttack()
+{
+	UUnitMovementComponent* movementComponent = CombatUnitPawn->GetMovementComponent();
 
 	if (!TargetedEnemy.IsValid())
 		return;
@@ -84,7 +119,7 @@ void UUnitCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 		movementComponent->StopMoving();
 
 	//TF2 soldier: ATTACK!
-	TryAttack(TargetedEnemy.Get(), DeltaTime);
+	TryAttack(TargetedEnemy.Get());
 }
 
 void UUnitCombatComponent::OnPawnMove(float Distance)
@@ -95,7 +130,7 @@ void UUnitCombatComponent::OnPawnMove(float Distance)
 		AddMorale(-(Distance / moraleLoss));
 }
 
-void UUnitCombatComponent::OnBeingAttacked(IDamageable* Attacker)
+void UUnitCombatComponent::OnBeingAttackedBehaviour(IDamageable* Attacker)
 {
 	if (!TargetedEnemy.IsValid())
 	{
@@ -109,29 +144,19 @@ void UUnitCombatComponent::OnBeingAttacked(IDamageable* Attacker)
 	}
 }
 
-void UUnitCombatComponent::TryAttack(IDamageable* Target, float DeltaTime)
+void UUnitCombatComponent::TryAttack(IDamageable* Target)
 {
 	if (CanAttack(Target))
 	{
-		Attack(Target, DeltaTime);
+		Attack(Target);
 
 		TimeOfLastAttack = GetWorld()->GetTimeSeconds();
 	}
 }
 
-void UUnitCombatComponent::Attack(IDamageable* Target, float DeltaTime)
+void UUnitCombatComponent::Attack(IDamageable* Target)
 {
 	Target->ApplyDamage(CombatUnitPawn, CalculateDamage());
-}
-
-void UUnitCombatComponent::UpdateMoraleRestoration(float DeltaTime)
-{
-	if (CombatUnitPawn->GetMovementComponent()->IsMoving())
-		return;
-
-	const float moraleRestorationSpeed = CombatUnitPawn->GetCombatUnitStats()->GetMoraleRestorationSpeed();
-	const float moraleRestoreDelta = moraleRestorationSpeed * DeltaTime;
-	AddMorale(moraleRestoreDelta);
 }
 
 bool UUnitCombatComponent::CanAttack(IDamageable* Target)
@@ -153,17 +178,25 @@ void UUnitCombatComponent::ApplyDamage(IDamageable* Attacker, float DamageAmount
 	const float totalDamage = FMath::Max(1, DamageAmount - CalculateDefense());
 	HealthPoints -= totalDamage;
 
-	const float moraleLoss = CombatUnitPawn->GetCombatUnitStats()->GetMoraleLossDueToLosses();
-	AddMorale(totalDamage * moraleLoss);
-
-	if (HealthPoints < 0) 
+	if (HealthPoints < 0)
 	{
 		CombatUnitPawn->Destroy();
 		return;
 	}
 
+	const float moraleLoss = CombatUnitPawn->GetCombatUnitStats()->GetMoraleLossDueToLosses();
+	AddMorale(-(totalDamage * moraleLoss));
+
+	if (Morale < 0.05f) 
+	{
+		bIsTemporarilyDefeated = true;
+
+	}
+
+	TimeOfLastTakenDamage = GetWorld()->GetTimeSeconds();
+
 	if (Attacker)
-		OnBeingAttacked(Attacker);
+		OnBeingAttackedBehaviour(Attacker);
 }
 
 float UUnitCombatComponent::CalculateDamage()
@@ -228,27 +261,36 @@ IDamageable* UUnitCombatComponent::FindClosestEnemyInRange()
 	return closestDamageable;
 }
 
-float UUnitCombatComponent::GetAttackCooldown()
+FVector UUnitCombatComponent::FindRetreatDirection()
+{
+	TArray<IDamageable*> enemies;
+
+	FindEnemiesInRange(enemies);
+
+	
+}
+
+float UUnitCombatComponent::GetAttackCooldown() const
 {
 	return CombatUnitPawn->GetCombatUnitStats()->GetAttackCooldown();
 }
 
-float UUnitCombatComponent::GetBaseDamage()
+float UUnitCombatComponent::GetBaseDamage() const
 {
 	return CombatUnitPawn->GetCombatUnitStats()->GetBaseDamage();
 }
 
-float UUnitCombatComponent::GetBaseDefense()
+float UUnitCombatComponent::GetBaseDefense() const
 {
 	return CombatUnitPawn->GetCombatUnitStats()->GetBaseDefense();
 }
 
-float UUnitCombatComponent::GetAttackRange()
+float UUnitCombatComponent::GetAttackRange() const
 {
 	return CombatUnitPawn->GetCombatUnitStats()->GetAttackDistance();
 }
 
-float UUnitCombatComponent::GetDetectionRange()
+float UUnitCombatComponent::GetDetectionRange() const
 {
 	return CombatUnitPawn->GetCombatUnitStats()->GetEnemyDetectionRange();
 }

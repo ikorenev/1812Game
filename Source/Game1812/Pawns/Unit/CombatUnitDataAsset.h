@@ -9,10 +9,6 @@ struct GAME1812_API FCombatUnitStats
 {
 	GENERATED_USTRUCT_BODY()
 
-public:
-
-	FCombatUnitStats();
-
 protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
@@ -53,18 +49,18 @@ protected:
 
 public:
 
-	float GetMaxMovementSpeed();
-	float GetMinMovementSpeed();
-	float GetRotationSpeed();
-	float GetBaseHP();
-	float GetAttackCooldown();
-	float GetBaseDamage();
-	float GetBaseDefense();
-	float GetMoraleRestorationSpeed();
-	float GetMoraleLossDueToLosses();
-	float GetDistanceForFullMoraleLoss();
-	float GetAttackDistance();
-	float GetEnemyDetectionRange();
+	float GetMaxMovementSpeed() const;
+	float GetMinMovementSpeed() const;
+	float GetRotationSpeed() const;
+	float GetBaseHP() const;
+	float GetAttackCooldown() const;
+	float GetBaseDamage() const;
+	float GetBaseDefense() const;
+	float GetMoraleRestorationSpeed() const;
+	float GetMoraleLossDueToLosses() const;
+	float GetDistanceForFullMoraleLoss() const;
+	float GetAttackDistance() const;
+	float GetEnemyDetectionRange() const;
 
 };
 
@@ -93,9 +89,9 @@ protected:
 
 public:
 
-	FName GetName();
+	FName GetName() const;
 	FCombatUnitStats* GetCombatUnitStats();
-	UStaticMesh* GetPieceMesh();
-	UStaticMesh* GetPieceFoundationMesh();
+	UStaticMesh* GetPieceMesh() const;
+	UStaticMesh* GetPieceFoundationMesh() const;
 	
 };
