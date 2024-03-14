@@ -18,8 +18,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UCombatUnitOrder* UnitOrder;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	class ABaseUnit* Unit;
+	TWeakObjectPtr<class ABaseUnit> Unit;
 
 	bool operator==(const FAssignedCombatUnitOrder& Other);
 };

@@ -106,7 +106,7 @@ void UUnitMovementComponent::MoveTo(const FVector& MoveToLocation, bool bForceMo
 	FVector moveToLocation = ProjectPointToMap(MoveToLocation);
 
 	if (TargetLocation == moveToLocation)
-		return;
+		return OnMovementEnd.Broadcast();
 
 	TargetLocation = moveToLocation;
 

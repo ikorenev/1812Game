@@ -43,32 +43,25 @@ void AAdjutantUnit::OnMovementComplete()
 		if (!headQuarters)
 			return;
 
-		if (FVector::DistSquared2D(GetActorLocation(), headQuarters->GetActorLocation()) > FMath::Pow(MinDistanceToGiveOrder, 2))
-		{
-			MovementComponent->MoveTo(headQuarters->GetActorLocation(), true);
-		}
-		else 
+		if (IsInReachToInteractWithActor(headQuarters)) 
 		{
 			headQuarters->AddAdjutantUnit(this);
+			return;
 		}
 
+		MovementComponent->MoveTo(headQuarters->GetActorLocation(), true);
 		return;
 	}
 
-	auto closestTarget = FindClosestTarget();
+	FAssignedCombatUnitOrder closestTarget = FindClosestTarget();
 
-	if (FVector::DistSquared2D(GetActorLocation(), closestTarget.Unit->GetActorLocation()) > FMath::Pow(MinDistanceToGiveOrder, 2))
-	{
-		
-		MoveToNextTarget();
-	}
-	else 
+	if (IsInReachToInteractWithActor(closestTarget.Unit.Get()))
 	{
 		closestTarget.Unit->AssignOrder(closestTarget.UnitOrder);
 		Orders.Remove(closestTarget);
-
-		MoveToNextTarget();
 	}
+
+	MoveToNextTarget();
 }
 
 void AAdjutantUnit::MoveToNextTarget()
@@ -91,15 +84,30 @@ FAssignedCombatUnitOrder AAdjutantUnit::FindClosestTarget()
 {
 	FAssignedCombatUnitOrder closestUnit = Orders[0];
 
-	for (auto el : Orders)
+	for (int i = 0; i < Orders.Num(); i++)
 	{
-		if (FVector::DistSquared2D(GetActorLocation(), el.Unit->GetActorLocation()) < FVector::DistSquared2D(GetActorLocation(), closestUnit.Unit->GetActorLocation()))
+		if (!Orders[i].Unit.IsValid())
 		{
-			closestUnit = el;
+			Orders.RemoveAt(i);
+			i--;
+			continue;
+		}
+
+		if (FVector::DistSquared2D(GetActorLocation(), Orders[i].Unit->GetActorLocation()) < FVector::DistSquared2D(GetActorLocation(), closestUnit.Unit->GetActorLocation()))
+		{
+			closestUnit = Orders[i];
 		}
 	}
 
 	return closestUnit;
+}
+
+bool AAdjutantUnit::IsInReachToInteractWithActor(AActor* Actor)
+{
+	if (!Actor)
+		return false;
+
+	return FVector::DistSquared2D(GetActorLocation(), Actor->GetActorLocation()) < FMath::Pow(MinDistanceToGiveOrder, 2);
 }
 
 UUnitOrder* AAdjutantUnit::GetCurrentOrder()
@@ -121,3 +129,5 @@ float AAdjutantUnit::GetRotationSpeed()
 {
 	return RotationSpeed;
 }
+
+

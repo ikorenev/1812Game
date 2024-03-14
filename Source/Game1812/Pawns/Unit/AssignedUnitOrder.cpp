@@ -1,6 +1,7 @@
 #include "AssignedUnitOrder.h"
 
-#include "UnitOrder.h"
+#include "BaseUnit.h"
+#include "UnitOrder.h" 
 
 FAssignedCombatUnitOrder::FAssignedCombatUnitOrder()
 {
@@ -22,5 +23,5 @@ FAssignedCombatUnitOrder::FAssignedCombatUnitOrder(UCombatUnitOrder* UnitOrder, 
 
 bool FAssignedCombatUnitOrder::operator==(const FAssignedCombatUnitOrder& Other)
 {
-	return (Unit == Other.Unit);
+	return (Unit.Get() == Other.Unit.Get());
 }

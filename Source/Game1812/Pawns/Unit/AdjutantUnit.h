@@ -52,5 +52,7 @@ public:
 
 	float GetMovementSpeed() override;
 	float GetRotationSpeed() override;
+
+	bool IsInReachToInteractWithActor(AActor* Actor);
 	
 };
