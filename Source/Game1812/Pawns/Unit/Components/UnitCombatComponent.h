@@ -17,13 +17,13 @@ protected:
 
 	class ACombatUnit* CombatUnitPawn;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Unit Combat")
 	float HealthPoints;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Unit Combat")
 	float Morale;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Unit Combat")
 	bool bIsTemporarilyDefeated;
 
 	float TimeOfLastAttack;
@@ -34,6 +34,8 @@ protected:
 	TWeakInterfacePtr<class IDamageable> TargetedEnemy;
 
 	virtual void BeginPlay() override;
+
+	class UCombatUnitOrder* GetCombatUnitOrder();
 
 	void SetTargetedEnemy(class IDamageable* NewTarget);
 
@@ -48,6 +50,7 @@ protected:
 	void Attack(class IDamageable* Target);
 
 	void UpdateMoraleRestoration(float DeltaTime);
+	void UpdateTempDefeat();
 	void UpdateOrderBehaviour();
 	void UpdateTargetAttack();
 
@@ -56,7 +59,8 @@ protected:
 
 	FVector FindRetreatDirection();
 
-	bool IsTargetInRange(IDamageable* Target);
+	bool IsTargetInDetectionRange(IDamageable* Target);
+	bool IsTargetInAttackRange(IDamageable* Target);
 	
 public:	
 
@@ -66,13 +70,17 @@ public:
 	float GetAttackRange() const;
 	float GetDetectionRange() const;
 
-	float CalculateDamage();
-	float CalculateDefense();
+	float CalculateDamage() const;
+	float CalculateDefense() const;
+
 	float CalculateMovementSpeed();
+	float CalculateRotationSpeed();
 
 	void Init(struct FCombatUnitStats* UnitCombatStats);
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+	
 
 	
 

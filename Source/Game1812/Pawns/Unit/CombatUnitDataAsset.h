@@ -36,7 +36,7 @@ protected:
 	float MoraleRestorationSpeed = 0.1f;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	float MoraleLossDueToLosses = 0.5f;
+	float MoraleLossDueToLosses = 0.001f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float DistanceForFullMoraleLoss = 3000.f;

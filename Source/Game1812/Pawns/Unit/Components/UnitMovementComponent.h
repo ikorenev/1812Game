@@ -21,17 +21,19 @@ protected:
 
 	class ABaseUnit* UnitPawn;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Unit Movement")
 	FVector TargetLocation;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Unit Movement")
 	bool bIsMoving;
 
 	UPROPERTY()
 	class UNavigationPath* Path;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Unit Movement")
 	int CurrentFollowingSegmentIndex;
+
+	float LastTimeOfMoveAssign;
 
 	FVector GetNextPathPoint();
 	FVector GetLastPathPoint();
@@ -59,9 +61,11 @@ public:
 
 	FOnMoveDelegate OnMove;
 
+	FVector GetTargetLocation() const;
+
 	bool IsMoving();
 
-	void MoveTo(const FVector& MoveToLocation);
+	void MoveTo(const FVector& MoveToLocation, bool bForceMove = false);
 	void StopMoving();
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;

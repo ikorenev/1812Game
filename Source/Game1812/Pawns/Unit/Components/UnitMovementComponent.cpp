@@ -14,6 +14,7 @@ UUnitMovementComponent::UUnitMovementComponent()
 
 	Path = nullptr;
 	CurrentFollowingSegmentIndex = 0;
+	LastTimeOfMoveAssign = -100.f;
 }
 
 void UUnitMovementComponent::BeginPlay()
@@ -97,16 +98,29 @@ void UUnitMovementComponent::RotatePawn(float DeltaTime, float RotationYaw)
 	UnitPawn->AddActorLocalRotation(FRotator(0, limitedRotation, 0));
 }
 
-void UUnitMovementComponent::MoveTo(const FVector& MoveToLocation)
+void UUnitMovementComponent::MoveTo(const FVector& MoveToLocation, bool bForceMove)
 {
-	TargetLocation = ProjectPointToMap(MoveToLocation);
+	if (LastTimeOfMoveAssign + 1.f > GetWorld()->GetTimeSeconds() && !bForceMove)
+		return;
+
+	FVector moveToLocation = ProjectPointToMap(MoveToLocation);
+
+	if (TargetLocation == moveToLocation)
+		return;
+
+	TargetLocation = moveToLocation;
 
 	CheckMovementStart();
 
 	if (bIsMoving)
+	{
 		UpdatePath();
+		LastTimeOfMoveAssign = GetWorld()->GetTimeSeconds();
+	}
 	else
+	{
 		OnMovementEnd.Broadcast();
+	}
 }
 
 void UUnitMovementComponent::StopMoving()
@@ -181,6 +195,11 @@ FVector UUnitMovementComponent::GetLastPathPoint()
 		return UnitPawn->GetActorLocation();
 
 	return Path->PathPoints.Last();
+}
+
+FVector UUnitMovementComponent::GetTargetLocation() const
+{
+	return TargetLocation;
 }
 
 bool UUnitMovementComponent::IsMoving()

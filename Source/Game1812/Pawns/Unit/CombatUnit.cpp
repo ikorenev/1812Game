@@ -18,7 +18,7 @@ ACombatUnit::ACombatUnit()
 	CombatUnitData = nullptr;
 }
 
-void ACombatUnit::BeginPlay() 
+void ACombatUnit::BeginPlay()
 {
 	Super::BeginPlay();
 
@@ -26,11 +26,19 @@ void ACombatUnit::BeginPlay()
 		return;
 
 	CombatComponent->Init(CombatUnitData->GetCombatUnitStats());
+}
 
-	CurrentOrder = NewObject<UCombatUnitOrder>();
+void ACombatUnit::OnConstruction(const FTransform& Transform)
+{
+	Super::OnConstruction(Transform);
+
+	if (!CurrentOrder) 
+	{
+		CurrentOrder = NewObject<UCombatUnitOrder>();
+		CurrentOrder->UnitEnemyReaction = EUnitEnemyReaction::Attack;
+	}
 
 	CurrentOrder->Location = GetActorLocation();
-	CurrentOrder->UnitEnemyReaction = EUnitEnemyReaction::Attack;
 }
 
 void ACombatUnit::SpawnDefaultController()
@@ -58,7 +66,7 @@ void ACombatUnit::AssignOrder(UUnitOrder* NewOrder)
 	CurrentOrder = Cast<UCombatUnitOrder>(NewOrder);
 
 	if (CurrentOrder)
-		MovementComponent->MoveTo(CurrentOrder->Location);
+		MovementComponent->MoveTo(CurrentOrder->Location, true);
 }
 
 void ACombatUnit::SetCombatUnitData(UCombatUnitDataAsset* NewCombatUnitData)
@@ -93,7 +101,7 @@ float ACombatUnit::GetMovementSpeed()
 
 float ACombatUnit::GetRotationSpeed()
 {
-	return GetCombatUnitStats() ? GetCombatUnitStats()->GetRotationSpeed() : 0.0f;
+	return CombatComponent->CalculateRotationSpeed();
 }
 
 void ACombatUnit::ApplyDamage(IDamageable* Attacker, float Amount)

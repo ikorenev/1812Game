@@ -50,18 +50,10 @@ void UUnitCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 
 	UpdateMoraleRestoration(DeltaTime);
 
-	if (bIsTemporarilyDefeated) 
-	{
-		if (Morale > 0.5f) 
-		{
-			bIsTemporarilyDefeated = false;
-			return;
-		}
+	UpdateTempDefeat();
 
-		
-
+	if (bIsTemporarilyDefeated)
 		return;
-	}
 
 	UpdateOrderBehaviour();
 
@@ -75,25 +67,48 @@ void UUnitCombatComponent::UpdateMoraleRestoration(float DeltaTime)
 
 	const float moraleRestorationSpeed = CombatUnitPawn->GetCombatUnitStats()->GetMoraleRestorationSpeed();
 	const float moraleRestoreDelta = moraleRestorationSpeed * DeltaTime;
+
 	AddMorale(moraleRestoreDelta);
+}
+
+void UUnitCombatComponent::UpdateTempDefeat()
+{
+	if (!bIsTemporarilyDefeated)
+		return;
+
+	if (Morale > 0.5f)
+	{
+		bIsTemporarilyDefeated = false;
+		return;
+	}
+
+	const FVector retreatDirection = FindRetreatDirection();
+
+	if (retreatDirection.IsNearlyZero())
+		return;
+
+	UUnitMovementComponent* movementComponent = CombatUnitPawn->GetMovementComponent();
+
+	const FVector moveToLocation = CombatUnitPawn->GetActorLocation() + retreatDirection * 100.f + FVector(0, 0, 100.f);
+	movementComponent->MoveTo(moveToLocation);
 }
 
 void UUnitCombatComponent::UpdateOrderBehaviour()
 {
-	UCombatUnitOrder* order = Cast<UCombatUnitOrder>(CombatUnitPawn->GetCurrentOrder());
-
-	if (!order)
-		return;
+	UCombatUnitOrder* order = GetCombatUnitOrder();
 
 	if (order->UnitEnemyReaction == EUnitEnemyReaction::Attack)
 	{
 		//Try to find enemy
-		if (!TargetedEnemy.IsValid())
+		//if (!TargetedEnemy.IsValid())
 		{
 			IDamageable* enemy = FindClosestEnemyInRange();
 
 			if (!enemy)
+			{
+				CombatUnitPawn->GetMovementComponent()->MoveTo(order->Location, true);
 				return;
+			}
 
 			SetTargetedEnemy(enemy);
 		}
@@ -107,8 +122,14 @@ void UUnitCombatComponent::UpdateTargetAttack()
 	if (!TargetedEnemy.IsValid())
 		return;
 
+	if (!IsTargetInDetectionRange(TargetedEnemy.Get())) 
+	{
+		SetTargetedEnemy(nullptr);
+		return;
+	}
+
 	//Walk to the enemy, if too far
-	if (!IsTargetInRange(TargetedEnemy.Get()))
+	if (!IsTargetInAttackRange(TargetedEnemy.Get()))
 	{
 		movementComponent->MoveTo(TargetedEnemy->GetLocation());
 		return;
@@ -124,7 +145,10 @@ void UUnitCombatComponent::UpdateTargetAttack()
 
 void UUnitCombatComponent::OnPawnMove(float Distance)
 {
-	const float moraleLoss = CombatUnitPawn->GetCombatUnitStats()->GetDistanceForFullMoraleLoss();
+	float moraleLoss = CombatUnitPawn->GetCombatUnitStats()->GetDistanceForFullMoraleLoss();
+
+	if (GetCombatUnitOrder()->bForcedMarch)
+		moraleLoss *= 1.5f;
 
 	if (moraleLoss != 0.f)
 		AddMorale(-(Distance / moraleLoss));
@@ -138,7 +162,7 @@ void UUnitCombatComponent::OnBeingAttackedBehaviour(IDamageable* Attacker)
 		return;
 	}
 
-	if (!IsTargetInRange(TargetedEnemy.Get())) 
+	if (!IsTargetInAttackRange(TargetedEnemy.Get())) 
 	{
 		SetTargetedEnemy(Attacker);
 	}
@@ -161,14 +185,19 @@ void UUnitCombatComponent::Attack(IDamageable* Target)
 
 bool UUnitCombatComponent::CanAttack(IDamageable* Target)
 {
-	const bool closeEnoughToEnemy = IsTargetInRange(Target);
+	const bool closeEnoughToEnemy = IsTargetInAttackRange(Target);
 	const bool standing = !CombatUnitPawn->GetMovementComponent()->IsMoving();
 	const bool cooldownFinished = GetAttackCooldown() + TimeOfLastAttack < GetWorld()->GetTimeSeconds();
 
 	return closeEnoughToEnemy && standing && cooldownFinished;
 }
 
-bool UUnitCombatComponent::IsTargetInRange(IDamageable* Target)
+bool UUnitCombatComponent::IsTargetInDetectionRange(IDamageable* Target)
+{
+	return FVector::DistSquared2D(Target->GetLocation(), CombatUnitPawn->GetActorLocation()) < FMath::Pow(GetDetectionRange(), 2);
+}
+
+bool UUnitCombatComponent::IsTargetInAttackRange(IDamageable* Target)
 {
 	return FVector::DistSquared2D(Target->GetLocation(), CombatUnitPawn->GetActorLocation()) < FMath::Pow(GetAttackRange(), 2);
 }
@@ -199,12 +228,12 @@ void UUnitCombatComponent::ApplyDamage(IDamageable* Attacker, float DamageAmount
 		OnBeingAttackedBehaviour(Attacker);
 }
 
-float UUnitCombatComponent::CalculateDamage()
+float UUnitCombatComponent::CalculateDamage() const
 {
 	return FMath::Pow(Morale, 2) * GetBaseDamage() * HealthPoints;
 }
 
-float UUnitCombatComponent::CalculateDefense()
+float UUnitCombatComponent::CalculateDefense() const
 {
 	return FMath::Pow(Morale, 2) * GetBaseDefense() * HealthPoints;
 }
@@ -212,9 +241,31 @@ float UUnitCombatComponent::CalculateDefense()
 float UUnitCombatComponent::CalculateMovementSpeed()
 {
 	const float maxSpeed = CombatUnitPawn->GetCombatUnitStats()->GetMaxMovementSpeed();
+
+	if (bIsTemporarilyDefeated)
+		return maxSpeed * 1.25f;
+	
 	const float minSpeed = CombatUnitPawn->GetCombatUnitStats()->GetMinMovementSpeed();
 	const float speed = Morale * (maxSpeed - minSpeed) + minSpeed;
-	return FMath::Clamp(speed, minSpeed, maxSpeed);
+	const float clampedSpeed = FMath::Clamp(speed, minSpeed, maxSpeed);
+
+	if (GetCombatUnitOrder()->bForcedMarch)
+		return clampedSpeed * 1.25f;
+
+	return clampedSpeed;
+}
+
+float UUnitCombatComponent::CalculateRotationSpeed()
+{
+	const float baseRotationSpeed = CombatUnitPawn->GetCombatUnitStats()->GetRotationSpeed();
+
+	if (bIsTemporarilyDefeated)
+		return baseRotationSpeed * 3.5f;
+
+	if (GetCombatUnitOrder()->bForcedMarch)
+		return baseRotationSpeed * 1.25f;
+
+	return baseRotationSpeed;
 }
 
 void UUnitCombatComponent::FindEnemiesInRange(TArray<IDamageable*>& OutArray)
@@ -267,7 +318,28 @@ FVector UUnitCombatComponent::FindRetreatDirection()
 
 	FindEnemiesInRange(enemies);
 
-	
+	if (enemies.IsEmpty())
+		return FVector::ZeroVector;
+
+	FVector sumDirection;
+
+	for (IDamageable* enemy : enemies) 
+	{
+		FVector direction = CombatUnitPawn->GetActorLocation() - enemy->GetLocation();
+
+		direction.X = 1 / direction.X;
+		direction.Y = 1 / direction.Y;
+
+		sumDirection += direction;
+	}
+
+	return sumDirection.GetSafeNormal2D();
+}
+
+
+UCombatUnitOrder* UUnitCombatComponent::GetCombatUnitOrder()
+{
+	return Cast<UCombatUnitOrder>(CombatUnitPawn->GetCurrentOrder());
 }
 
 float UUnitCombatComponent::GetAttackCooldown() const

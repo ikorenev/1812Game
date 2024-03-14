@@ -45,7 +45,7 @@ void AAdjutantUnit::OnMovementComplete()
 
 		if (FVector::DistSquared2D(GetActorLocation(), headQuarters->GetActorLocation()) > FMath::Pow(MinDistanceToGiveOrder, 2))
 		{
-			MovementComponent->MoveTo(headQuarters->GetActorLocation());
+			MovementComponent->MoveTo(headQuarters->GetActorLocation(), true);
 		}
 		else 
 		{
@@ -80,11 +80,11 @@ void AAdjutantUnit::MoveToNextTarget()
 		if (!headQuarters)
 			return;
 
-		MovementComponent->MoveTo(headQuarters->GetActorLocation());
+		MovementComponent->MoveTo(headQuarters->GetActorLocation(), true);
 		return;
 	}
 
-	MovementComponent->MoveTo(FindClosestTarget().Unit->GetActorLocation());
+	MovementComponent->MoveTo(FindClosestTarget().Unit->GetActorLocation(), true);
 }
 
 FAssignedCombatUnitOrder AAdjutantUnit::FindClosestTarget()

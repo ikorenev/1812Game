@@ -42,7 +42,7 @@ void AScoutUnit::OnMovementComplete()
 
 	FVector location;
 	ExplorationLocations.Dequeue(location);
-	MovementComponent->MoveTo(location);
+	MovementComponent->MoveTo(location, true);
 }
 
 void AScoutUnit::Tick(float DeltaTime)
@@ -124,7 +124,7 @@ void AScoutUnit::AssignOrder(UUnitOrder* NewOrder)
 
 	FVector firstLocation;
 	ExplorationLocations.Dequeue(firstLocation);
-	MovementComponent->MoveTo(firstLocation);
+	MovementComponent->MoveTo(firstLocation, true);
 }
 
 UUnitOrder* AScoutUnit::GetCurrentOrder()
