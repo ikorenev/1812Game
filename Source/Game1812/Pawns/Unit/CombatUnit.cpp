@@ -114,6 +114,11 @@ ETeam ACombatUnit::GetTeam()
 	return Team;
 }
 
+ECombatUnitType ACombatUnit::GetUnitType()
+{
+	return GetCombatUnitStats()->GetUnitType();
+}
+
 FVector ACombatUnit::GetLocation()
 {
 	return GetActorLocation();

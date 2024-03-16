@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 #include "../TeamEnum.h"
+#include "../CombatUnitType.h"
 #include "Damageable.generated.h"
 
 
@@ -21,6 +22,7 @@ public:
     virtual void ApplyDamage(IDamageable* Attacker, float DamageAmount) = 0;
 
     virtual ETeam GetTeam() = 0;
+    virtual ECombatUnitType GetUnitType() = 0;
     virtual FVector GetLocation() = 0;
     
     virtual bool IsEnemy(ETeam Team) { return GetTeam() != Team; }

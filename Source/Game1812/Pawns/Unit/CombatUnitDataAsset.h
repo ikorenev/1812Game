@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
+#include "CombatUnitType.h"
 #include "CombatUnitDataAsset.generated.h"
 
 USTRUCT(BlueprintType)
@@ -10,6 +11,9 @@ struct GAME1812_API FCombatUnitStats
 	GENERATED_USTRUCT_BODY()
 
 protected:
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	ECombatUnitType UnitType = ECombatUnitType::Infantry;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float MaxMovementSpeed = 25.0f;
@@ -30,7 +34,13 @@ protected:
 	float BaseDamage = 0.25f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TMap<ECombatUnitType, float> DamageMultipliers;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float BaseDefense = 0.1f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TMap<ECombatUnitType, float> DefenseMultipliers;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float MoraleRestorationSpeed = 0.1f;
@@ -49,13 +59,16 @@ protected:
 
 public:
 
+	ECombatUnitType GetUnitType() const;
 	float GetMaxMovementSpeed() const;
 	float GetMinMovementSpeed() const;
 	float GetRotationSpeed() const;
 	float GetBaseHP() const;
 	float GetAttackCooldown() const;
 	float GetBaseDamage() const;
+	const TMap<ECombatUnitType, float>& GetDamageMultipliers() const;
 	float GetBaseDefense() const;
+	const TMap<ECombatUnitType, float>& GetDefenseMultipliers() const;
 	float GetMoraleRestorationSpeed() const;
 	float GetMoraleLossDueToLosses() const;
 	float GetDistanceForFullMoraleLoss() const;

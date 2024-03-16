@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "../CombatUnitType.h"
 #include "UnitCombatComponent.generated.h"
 
 UCLASS(Blueprintable, BlueprintType)
@@ -29,7 +30,6 @@ protected:
 	float TimeOfLastAttack;
 
 	float TimeOfLastTakenDamage;
-
 
 	TWeakInterfacePtr<class IDamageable> TargetedEnemy;
 
@@ -70,8 +70,11 @@ public:
 	float GetAttackRange() const;
 	float GetDetectionRange() const;
 
-	float CalculateDamage() const;
-	float CalculateDefense() const;
+	float GetDamageMultiplier(ECombatUnitType AttackedUnitType) const;
+	float GetDefenseMultiplier(ECombatUnitType AttackerUnitType) const;
+
+	float CalculateDamage(ECombatUnitType AttackedUnitType) const;
+	float CalculateDefense(ECombatUnitType AttackerUnitType) const;
 
 	float CalculateMovementSpeed();
 	float CalculateRotationSpeed();
@@ -79,11 +82,7 @@ public:
 	void Init(struct FCombatUnitStats* UnitCombatStats);
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
 	
-
-	
-
 	void ApplyDamage(class IDamageable* Attacker, float DamageAmount);
 	
 };

@@ -180,7 +180,7 @@ void UUnitCombatComponent::TryAttack(IDamageable* Target)
 
 void UUnitCombatComponent::Attack(IDamageable* Target)
 {
-	Target->ApplyDamage(CombatUnitPawn, CalculateDamage());
+	Target->ApplyDamage(CombatUnitPawn, CalculateDamage(Target->GetUnitType()));
 }
 
 bool UUnitCombatComponent::CanAttack(IDamageable* Target)
@@ -204,7 +204,7 @@ bool UUnitCombatComponent::IsTargetInAttackRange(IDamageable* Target)
 
 void UUnitCombatComponent::ApplyDamage(IDamageable* Attacker, float DamageAmount)
 {
-	const float totalDamage = FMath::Max(1, DamageAmount - CalculateDefense());
+	const float totalDamage = FMath::Max(1, DamageAmount - CalculateDefense(Attacker->GetUnitType()));
 	HealthPoints -= totalDamage;
 
 	if (HealthPoints < 0)
@@ -228,14 +228,34 @@ void UUnitCombatComponent::ApplyDamage(IDamageable* Attacker, float DamageAmount
 		OnBeingAttackedBehaviour(Attacker);
 }
 
-float UUnitCombatComponent::CalculateDamage() const
+float UUnitCombatComponent::CalculateDamage(ECombatUnitType AttackedUnitType) const
 {
-	return FMath::Pow(Morale, 2) * GetBaseDamage() * HealthPoints;
+	return FMath::Pow(Morale, 2) * GetBaseDamage() * HealthPoints * GetDamageMultiplier(AttackedUnitType);
 }
 
-float UUnitCombatComponent::CalculateDefense() const
+float UUnitCombatComponent::CalculateDefense(ECombatUnitType AttackerUnitType) const
 {
-	return FMath::Pow(Morale, 2) * GetBaseDefense() * HealthPoints;
+	return FMath::Pow(Morale, 2) * GetBaseDefense() * HealthPoints * GetDefenseMultiplier(AttackerUnitType);
+}
+
+float UUnitCombatComponent::GetDamageMultiplier(ECombatUnitType AttackedUnitType) const
+{
+	const float* customMultiplier = CombatUnitPawn->GetCombatUnitStats()->GetDamageMultipliers().Find(AttackedUnitType);
+
+	if (customMultiplier)
+		return *customMultiplier;
+
+	return 1.f;
+}
+
+float UUnitCombatComponent::GetDefenseMultiplier(ECombatUnitType AttackerUnitType) const
+{
+	const float* customMultiplier = CombatUnitPawn->GetCombatUnitStats()->GetDefenseMultipliers().Find(AttackerUnitType);
+
+	if (customMultiplier)
+		return *customMultiplier;
+
+	return 1.f;
 }
 
 float UUnitCombatComponent::CalculateMovementSpeed()
@@ -366,6 +386,7 @@ float UUnitCombatComponent::GetDetectionRange() const
 {
 	return CombatUnitPawn->GetCombatUnitStats()->GetEnemyDetectionRange();
 }
+
 
 void UUnitCombatComponent::AddMorale(float Amount)
 {

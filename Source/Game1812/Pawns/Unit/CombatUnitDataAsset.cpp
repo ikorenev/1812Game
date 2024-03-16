@@ -1,5 +1,10 @@
 #include "CombatUnitDataAsset.h"
 
+ECombatUnitType FCombatUnitStats::GetUnitType() const
+{
+	return UnitType;
+}
+
 float FCombatUnitStats::GetMaxMovementSpeed() const
 {
 	return MaxMovementSpeed;
@@ -30,9 +35,19 @@ float FCombatUnitStats::GetBaseDamage() const
 	return BaseDamage;
 }
 
+const TMap<ECombatUnitType, float>& FCombatUnitStats::GetDamageMultipliers() const
+{
+	return DamageMultipliers;
+}
+
 float FCombatUnitStats::GetBaseDefense() const
 {
 	return BaseDefense;
+}
+
+const TMap<ECombatUnitType, float>& FCombatUnitStats::GetDefenseMultipliers() const
+{
+	return DefenseMultipliers;
 }
 
 float FCombatUnitStats::GetMoraleRestorationSpeed() const
