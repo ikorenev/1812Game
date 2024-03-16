@@ -123,3 +123,8 @@ FVector ACombatUnit::GetLocation()
 {
 	return GetActorLocation();
 }
+
+bool ACombatUnit::IsValidTarget()
+{
+	return true;
+}

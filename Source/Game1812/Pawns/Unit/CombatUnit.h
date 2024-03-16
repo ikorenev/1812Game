@@ -58,5 +58,6 @@ public:
 	ETeam GetTeam() override;
 	ECombatUnitType GetUnitType() override;
 	FVector GetLocation() override;
+	bool IsValidTarget() override;
 	//
 };

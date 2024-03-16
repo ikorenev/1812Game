@@ -24,7 +24,8 @@ public:
     virtual ETeam GetTeam() = 0;
     virtual ECombatUnitType GetUnitType() = 0;
     virtual FVector GetLocation() = 0;
-    
+    virtual bool IsValidTarget() = 0;
+
     virtual bool IsEnemy(ETeam Team) { return GetTeam() != Team; }
     
 };

@@ -122,7 +122,7 @@ void UUnitCombatComponent::UpdateTargetAttack()
 	if (!TargetedEnemy.IsValid())
 		return;
 
-	if (!IsTargetInDetectionRange(TargetedEnemy.Get())) 
+	if (!IsTargetInDetectionRange(TargetedEnemy.Get()) || !TargetedEnemy->IsValidTarget()) 
 	{
 		SetTargetedEnemy(nullptr);
 		return;
@@ -303,6 +303,9 @@ void UUnitCombatComponent::FindEnemiesInRange(TArray<IDamageable*>& OutArray)
 		if (!damageable)
 			continue;
 
+		if (!damageable->IsValidTarget())
+			continue;
+
 		if (!damageable->IsEnemy(CombatUnitPawn->GetTeam()))
 			continue;
 
@@ -356,7 +359,6 @@ FVector UUnitCombatComponent::FindRetreatDirection()
 	return sumDirection.GetSafeNormal2D();
 }
 
-
 UCombatUnitOrder* UUnitCombatComponent::GetCombatUnitOrder()
 {
 	return Cast<UCombatUnitOrder>(CombatUnitPawn->GetCurrentOrder());
@@ -386,7 +388,6 @@ float UUnitCombatComponent::GetDetectionRange() const
 {
 	return CombatUnitPawn->GetCombatUnitStats()->GetEnemyDetectionRange();
 }
-
 
 void UUnitCombatComponent::AddMorale(float Amount)
 {

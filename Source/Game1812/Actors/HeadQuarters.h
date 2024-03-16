@@ -35,7 +35,8 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 
-	void AddAdjutantUnit(class AAdjutantUnit* AdjutantUnit) { AvailableAdjutants.Add(AdjutantUnit); };
+	void AddAdjutantUnit(class AAdjutantUnit* AdjutantUnit);
+	void RemoveAdjutantUnit(class AAdjutantUnit* AdjutantUnit);
 
 	void AddOrderToAssign(class UCombatUnitOrder* UnitOrder, class ABaseUnit* Unit);
 
@@ -44,6 +45,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	bool HaveAnyOrders();
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	bool CanSendOrders();
 
 	UFUNCTION(BlueprintCallable)
 	void SendOrders();

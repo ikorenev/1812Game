@@ -11,25 +11,6 @@ AHeadQuarters* AHeadQuarters::GetInstance()
 	return Instance;
 }
 
-bool AHeadQuarters::HaveAnyOrders()
-{
-	return UnitOrders.Num() != 0;
-}
-
-void AHeadQuarters::SendOrders()
-{
-	if (AvailableAdjutants.IsEmpty())
-		return;
-
-	UAdjutantUnitOrder* unitOrder = NewObject<UAdjutantUnitOrder>();
-	unitOrder->SentOrdersToUnits = UnitOrders;
-
-	AvailableAdjutants[0]->AssignOrder(unitOrder);
-	AvailableAdjutants.RemoveAt(0);
-
-	UnitOrders.Empty();
-}
-
 AHeadQuarters::AHeadQuarters()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -68,6 +49,30 @@ void AHeadQuarters::Tick(float DeltaTime)
 
 }
 
+void AHeadQuarters::AddAdjutantUnit(AAdjutantUnit* AdjutantUnit)
+{
+	AvailableAdjutants.Add(AdjutantUnit);
+}
+
+void AHeadQuarters::RemoveAdjutantUnit(AAdjutantUnit* AdjutantUnit)
+{
+	AvailableAdjutants.Remove(AdjutantUnit);
+}
+
+void AHeadQuarters::SendOrders()
+{
+	if (CanSendOrders())
+		return;
+
+	UAdjutantUnitOrder* unitOrder = NewObject<UAdjutantUnitOrder>();
+	unitOrder->SentOrdersToUnits = UnitOrders;
+
+	AvailableAdjutants[0]->AssignOrder(unitOrder);
+	AvailableAdjutants.RemoveAt(0);
+
+	UnitOrders.Empty();
+}
+
 void AHeadQuarters::AddOrderToAssign(class UCombatUnitOrder* UnitOrder, ABaseUnit* Unit)
 {
 	UnitOrders.RemoveAll([&](const FAssignedCombatUnitOrder& el) { return el.Unit == Unit; });
@@ -83,4 +88,14 @@ ABaseUnit* AHeadQuarters::SpawnUnit(TSubclassOf<class ABaseUnit> UnitClass)
 	spawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 	return GetWorld()->SpawnActor<ABaseUnit>(UnitClass.Get(), point, FRotator(0, GetActorRotation().Yaw, 0), spawnParams);
+}
+
+bool AHeadQuarters::HaveAnyOrders()
+{
+	return UnitOrders.Num() != 0;
+}
+
+bool AHeadQuarters::CanSendOrders()
+{
+	return AvailableAdjutants.IsEmpty();
 }

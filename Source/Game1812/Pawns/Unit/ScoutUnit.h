@@ -2,12 +2,13 @@
 
 #include "CoreMinimal.h"
 #include "BaseUnit.h"
+#include "Components/Damageable.h"
 #include "ScoutUnit.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FScoutMovementStateDelegate);
 
 UCLASS()
-class GAME1812_API AScoutUnit : public ABaseUnit
+class GAME1812_API AScoutUnit : public ABaseUnit, public IDamageable
 {
 	GENERATED_BODY()
 
@@ -47,17 +48,27 @@ protected:
 
 public:
 
-	class UUnitOrder* GetCurrentOrder();
-	void AssignOrder(class UUnitOrder* NewOrder);
-
-	class UUnitMovementComponent* GetMovementComponent() override;
-
-	float GetMovementSpeed() override;
-	float GetRotationSpeed() override;
-
 	virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	float PredictMovementTime();
 
+	//ABaseUnit class override
+	class UUnitMovementComponent* GetMovementComponent() override;
+
+	float GetMovementSpeed() override;
+	float GetRotationSpeed() override;
+
+	class UUnitOrder* GetCurrentOrder();
+	void AssignOrder(class UUnitOrder* NewOrder);
+	//
+
+	//IDamageable Interface
+	void ApplyDamage(IDamageable* Attacker, float Amount) override;
+
+	ETeam GetTeam() override;
+	ECombatUnitType GetUnitType() override;
+	FVector GetLocation() override;
+	bool IsValidTarget() override;
+	//
 };

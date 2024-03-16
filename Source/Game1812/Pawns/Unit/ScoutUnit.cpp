@@ -127,6 +127,32 @@ void AScoutUnit::AssignOrder(UUnitOrder* NewOrder)
 	MovementComponent->MoveTo(firstLocation, true);
 }
 
+void AScoutUnit::ApplyDamage(IDamageable* Attacker, float Amount)
+{
+	if (Amount > 1.f)
+		Destroy();
+}
+
+ETeam AScoutUnit::GetTeam()
+{
+	return Team;
+}
+
+ECombatUnitType AScoutUnit::GetUnitType()
+{
+	return ECombatUnitType::Cavalry;
+}
+
+FVector AScoutUnit::GetLocation()
+{
+	return GetActorLocation();
+}
+
+bool AScoutUnit::IsValidTarget()
+{
+	return true;
+}
+
 UUnitOrder* AScoutUnit::GetCurrentOrder()
 {
 	return CurrentOrder;
