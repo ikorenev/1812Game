@@ -59,8 +59,6 @@ void ACombatUnit::Tick(float DeltaTime)
 
 }
 
-
-
 void ACombatUnit::AssignOrder(UUnitOrder* NewOrder)
 {
 	CurrentOrder = Cast<UCombatUnitOrder>(NewOrder);
@@ -77,6 +75,21 @@ void ACombatUnit::SetCombatUnitData(UCombatUnitDataAsset* NewCombatUnitData)
 		return;
 
 	CombatComponent->Init(CombatUnitData->GetCombatUnitStats());
+}
+
+FUnitReport& ACombatUnit::GetUnitReport()
+{
+	return UnitReport;
+}
+
+FUnitReport ACombatUnit::RequestUnitReport()
+{
+	FUnitReport newUnitReport(UnitReport);
+	UnitReport.Clear();
+
+	newUnitReport.SetMorale(CombatComponent->GetMorale());
+
+	return newUnitReport;
 }
 
 FCombatUnitStats* ACombatUnit::GetCombatUnitStats()
@@ -104,9 +117,9 @@ float ACombatUnit::GetRotationSpeed()
 	return CombatComponent->CalculateRotationSpeed();
 }
 
-void ACombatUnit::ApplyDamage(IDamageable* Attacker, float Amount)
+float ACombatUnit::ApplyDamage(IDamageable* Attacker, float Amount)
 {
-	CombatComponent->ApplyDamage(Attacker, Amount);
+	return CombatComponent->ApplyDamage(Attacker, Amount);
 }
 
 ETeam ACombatUnit::GetTeam()

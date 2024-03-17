@@ -19,7 +19,7 @@ class GAME1812_API IDamageable
 
 public:
 
-    virtual void ApplyDamage(IDamageable* Attacker, float DamageAmount) = 0;
+    virtual float ApplyDamage(IDamageable* Attacker, float DamageAmount) = 0;
 
     virtual ETeam GetTeam() = 0;
     virtual ECombatUnitType GetUnitType() = 0;

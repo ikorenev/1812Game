@@ -156,6 +156,9 @@ void UUnitCombatComponent::OnPawnMove(float Distance)
 
 void UUnitCombatComponent::OnBeingAttackedBehaviour(IDamageable* Attacker)
 {
+	if (!Attacker)
+		return;
+
 	if (!TargetedEnemy.IsValid())
 	{
 		SetTargetedEnemy(Attacker);
@@ -202,30 +205,39 @@ bool UUnitCombatComponent::IsTargetInAttackRange(IDamageable* Target)
 	return FVector::DistSquared2D(Target->GetLocation(), CombatUnitPawn->GetActorLocation()) < FMath::Pow(GetAttackRange(), 2);
 }
 
-void UUnitCombatComponent::ApplyDamage(IDamageable* Attacker, float DamageAmount)
+float UUnitCombatComponent::ApplyDamage(IDamageable* Attacker, float DamageAmount)
 {
+	//Calculate total damage with defense
 	const float totalDamage = FMath::Max(1, DamageAmount - CalculateDefense(Attacker->GetUnitType()));
 	HealthPoints -= totalDamage;
 
-	if (HealthPoints < 0)
+	//Destroy if no HP
+	if (HealthPoints <= 0.f)
 	{
 		CombatUnitPawn->Destroy();
-		return;
+
+		//Return applied damage
+		return totalDamage - HealthPoints;
 	}
 
+	//Reduce morale
 	const float moraleLoss = CombatUnitPawn->GetCombatUnitStats()->GetMoraleLossDueToLosses();
 	AddMorale(-(totalDamage * moraleLoss));
 
+	//Make defeated if low morale
 	if (Morale < 0.05f) 
 	{
 		bIsTemporarilyDefeated = true;
-
 	}
 
+	//Reset time of last taken damage
 	TimeOfLastTakenDamage = GetWorld()->GetTimeSeconds();
 
-	if (Attacker)
-		OnBeingAttackedBehaviour(Attacker);
+	//React on being attacker
+	OnBeingAttackedBehaviour(Attacker);
+
+	//Return applied damage
+	return totalDamage;
 }
 
 float UUnitCombatComponent::CalculateDamage(ECombatUnitType AttackedUnitType) const
@@ -387,6 +399,11 @@ float UUnitCombatComponent::GetAttackRange() const
 float UUnitCombatComponent::GetDetectionRange() const
 {
 	return CombatUnitPawn->GetCombatUnitStats()->GetEnemyDetectionRange();
+}
+
+float UUnitCombatComponent::GetMorale() const
+{
+	return Morale;
 }
 
 void UUnitCombatComponent::AddMorale(float Amount)

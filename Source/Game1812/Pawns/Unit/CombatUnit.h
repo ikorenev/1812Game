@@ -4,6 +4,7 @@
 #include "BaseUnit.h"
 
 #include "Components/Damageable.h"
+#include "UnitReport.h"
 
 #include "CombatUnit.generated.h"
 
@@ -30,6 +31,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	class UCombatUnitDataAsset* CombatUnitData;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FUnitReport UnitReport;
+
 	virtual void BeginPlay() override;
 	virtual void OnConstruction(const FTransform& Transform) override;
 
@@ -37,6 +41,9 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 	virtual void SpawnDefaultController() override;
+
+	FUnitReport& GetUnitReport();
+	FUnitReport RequestUnitReport();
 
 	struct FCombatUnitStats* GetCombatUnitStats();
 
@@ -53,7 +60,7 @@ public:
 	//
 	
 	//IDamageable Interface
-	void ApplyDamage(IDamageable* Attacker, float Amount) override;
+	float ApplyDamage(IDamageable* Attacker, float Amount) override;
 
 	ETeam GetTeam() override;
 	ECombatUnitType GetUnitType() override;

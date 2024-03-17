@@ -64,11 +64,19 @@ protected:
 	
 public:	
 
+	void Init(struct FCombatUnitStats* UnitCombatStats);
+
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+	float ApplyDamage(class IDamageable* Attacker, float DamageAmount);
+
 	float GetAttackCooldown() const;
 	float GetBaseDamage() const;
 	float GetBaseDefense() const;
 	float GetAttackRange() const;
 	float GetDetectionRange() const;
+
+	float GetMorale() const;
 
 	float GetDamageMultiplier(ECombatUnitType AttackedUnitType) const;
 	float GetDefenseMultiplier(ECombatUnitType AttackerUnitType) const;
@@ -78,11 +86,5 @@ public:
 
 	float CalculateMovementSpeed();
 	float CalculateRotationSpeed();
-
-	void Init(struct FCombatUnitStats* UnitCombatStats);
-
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-	
-	void ApplyDamage(class IDamageable* Attacker, float DamageAmount);
 	
 };
