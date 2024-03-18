@@ -13,10 +13,12 @@ AHeadQuarters* AHeadQuarters::GetInstance()
 
 AHeadQuarters::AHeadQuarters()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	RootComponent = CreateDefaultSubobject<USceneComponent>(FName("Root"));
 
+	AdjutantsAmount = 3;
+	RangeForCloseOrders = 50.f;
 }
 
 void AHeadQuarters::BeginPlay()
@@ -43,12 +45,6 @@ void AHeadQuarters::BeginPlay()
 	}
 }
 
-void AHeadQuarters::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
-
 void AHeadQuarters::AddAdjutantUnit(AAdjutantUnit* AdjutantUnit)
 {
 	AvailableAdjutants.Add(AdjutantUnit);
@@ -61,7 +57,29 @@ void AHeadQuarters::RemoveAdjutantUnit(AAdjutantUnit* AdjutantUnit)
 
 void AHeadQuarters::SendOrders()
 {
-	if (CanSendOrders())
+	for (int i = 0; i < UnitOrders.Num();) 
+	{
+		//Remove order, if unit is dead
+		if (!UnitOrders[i].Unit.IsValid()) 
+		{
+			UnitOrders.RemoveAt(i);
+			continue;
+		}
+
+		const FVector unitLocation = UnitOrders[i].Unit->GetActorLocation();
+		const float distance = FVector::DistSquared2D(unitLocation, GetActorLocation());
+
+		if (FMath::Pow(RangeForCloseOrders, 2) > distance)
+		{
+			UnitOrders[i].Unit->AssignOrder(UnitOrders[i].UnitOrder);
+			UnitOrders.RemoveAt(i);
+			continue;
+		}
+
+		i++;
+	}
+
+	if (!HaveAnyAdjutants() || !HaveAnyOrders())
 		return;
 
 	UAdjutantUnitOrder* unitOrder = NewObject<UAdjutantUnitOrder>();
@@ -95,7 +113,7 @@ bool AHeadQuarters::HaveAnyOrders()
 	return UnitOrders.Num() != 0;
 }
 
-bool AHeadQuarters::CanSendOrders()
+bool AHeadQuarters::HaveAnyAdjutants()
 {
-	return AvailableAdjutants.IsEmpty();
+	return !AvailableAdjutants.IsEmpty();
 }
