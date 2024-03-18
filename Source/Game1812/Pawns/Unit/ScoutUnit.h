@@ -64,7 +64,7 @@ public:
 	//
 
 	//IDamageable Interface
-	void ApplyDamage(IDamageable* Attacker, float Amount) override;
+	float ApplyDamage(IDamageable* Attacker, float Amount) override;
 
 	ETeam GetTeam() override;
 	ECombatUnitType GetUnitType() override;

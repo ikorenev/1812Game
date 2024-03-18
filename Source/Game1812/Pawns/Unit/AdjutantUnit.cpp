@@ -1,15 +1,17 @@
 #include "AdjutantUnit.h"
 
+#include "CombatUnit.h"
 #include "AssignedUnitOrder.h"
 #include "UnitOrder.h"
 #include "Components/UnitMovementComponent.h"
 #include "../../Actors/HeadQuarters.h"
+#include "../../Actors/ReportSpawner.h"
 
 AAdjutantUnit::AAdjutantUnit()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	MovementComponent = CreateDefaultSubobject<UUnitMovementComponent>(FName("Movement Component"));
+	MovementComponent = CreateDefaultSubobject<UUnitMovementComponent>(TEXT("Movement Component"));
 
 	MovementSpeed = 100.f;
 	RotationSpeed = 160.f;
@@ -55,6 +57,7 @@ void AAdjutantUnit::OnMovementComplete()
 		if (IsInReachToInteractWithActor(headQuarters)) 
 		{
 			headQuarters->AddAdjutantUnit(this);
+			GiveReport();
 			return;
 		}
 
@@ -68,6 +71,11 @@ void AAdjutantUnit::OnMovementComplete()
 	{
 		closestTarget.Unit->AssignOrder(closestTarget.UnitOrder);
 		Orders.Remove(closestTarget);
+
+		ACombatUnit* combatUnit = Cast<ACombatUnit>(closestTarget.Unit);
+
+		if (combatUnit)
+			CollectedReports = CollectedReports + combatUnit->RequestUnitReport();
 	}
 
 	MoveToNextTarget();
@@ -124,13 +132,13 @@ bool AAdjutantUnit::IsInReachToInteractWithActor(AActor* Actor)
 	return FVector::DistSquared2D(GetActorLocation(), Actor->GetActorLocation()) < FMath::Pow(MinDistanceToGiveOrder, 2);
 }
 
-void AAdjutantUnit::ApplyDamage(IDamageable* Attacker, float Amount)
+float AAdjutantUnit::ApplyDamage(IDamageable* Attacker, float Amount)
 {
 	if (Amount < 1.f)
-		return;
+		return 0.f;
 
 	ForceReturnToHQ();
-	return;
+	return 1.f;
 }
 
 void AAdjutantUnit::ForceReturnToHQ()
@@ -149,6 +157,8 @@ void AAdjutantUnit::ForceReturnToHQ()
 	Orders.Empty();
 	SetActorLocation(headQuarters->GetActorLocation());
 	MovementComponent->StopMoving();
+
+	CollectedReports.Clear();
 }
 
 void AAdjutantUnit::OnDeathCooldownEnd()
@@ -157,6 +167,16 @@ void AAdjutantUnit::OnDeathCooldownEnd()
 
 	if (headQuarters)
 		headQuarters->AddAdjutantUnit(this);
+}
+
+void AAdjutantUnit::GiveReport()
+{
+	AReportSpawner* reportSpawner = AReportSpawner::GetInstance();
+
+	if (reportSpawner)
+		reportSpawner->AddReport(CollectedReports);
+
+	CollectedReports.Clear();
 }
 
 ETeam AAdjutantUnit::GetTeam()

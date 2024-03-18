@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "BaseUnit.h"
+#include "UnitReport.h"
 #include "Components/Damageable.h"
 #include "AdjutantUnit.generated.h"
 
@@ -21,6 +22,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class UAdjutantUnitOrder* CurrentOrder;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FUnitReport CollectedReports;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float MovementSpeed;
@@ -49,6 +53,8 @@ protected:
 	UFUNCTION()
 	void OnDeathCooldownEnd();
 
+	void GiveReport();
+
 	struct FAssignedCombatUnitOrder FindClosestTarget();
 
 public:
@@ -69,7 +75,7 @@ public:
 	//
 
 	//IDamageable Interface
-	void ApplyDamage(IDamageable* Attacker, float Amount) override;
+	float ApplyDamage(IDamageable* Attacker, float Amount) override;
 
 	ETeam GetTeam() override;
 	ECombatUnitType GetUnitType() override;

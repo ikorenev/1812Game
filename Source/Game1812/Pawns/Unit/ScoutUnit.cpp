@@ -127,10 +127,13 @@ void AScoutUnit::AssignOrder(UUnitOrder* NewOrder)
 	MovementComponent->MoveTo(firstLocation, true);
 }
 
-void AScoutUnit::ApplyDamage(IDamageable* Attacker, float Amount)
+float AScoutUnit::ApplyDamage(IDamageable* Attacker, float Amount)
 {
-	if (Amount > 1.f)
-		Destroy();
+	if (Amount < 1.f)
+		return 0.f;
+	
+	Destroy();
+	return 1.f;
 }
 
 ETeam AScoutUnit::GetTeam()
