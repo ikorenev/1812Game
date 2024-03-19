@@ -4,8 +4,9 @@
 
 AUnitDeathNotifier::AUnitDeathNotifier()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
+	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root Component"));
 }
 
 void AUnitDeathNotifier::SetPiece(APiece* NewPiece)

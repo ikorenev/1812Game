@@ -31,6 +31,9 @@ protected:
 	class UStaticMeshComponent* PieceFigureMeshComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UMaterialInterface* MaterialOnDeath;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UWidgetComponent* OrderWidgetComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
@@ -47,6 +50,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere)
 	bool bCanSpawnUnit;
+
+	UPROPERTY(VisibleAnywhere)
+	bool bIsDead;
 
 	virtual void BeginPlay() override;
 
@@ -71,6 +77,7 @@ public:
 	UStaticMesh* GetPieceFoundationMesh();
 
 	void SetUnitDead();
+	
 
 	//IDraggable Interface
 	void StartDragging() override;

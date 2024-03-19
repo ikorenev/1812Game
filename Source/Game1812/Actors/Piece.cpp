@@ -38,9 +38,8 @@ APiece::APiece()
 	
 	bCanSpawnUnit = true;
 	bWasDragged = false;
+	bIsDead = false;
 }
-
-
 
 void APiece::BeginPlay()
 {
@@ -80,7 +79,8 @@ void APiece::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimi
 	HitComponent->SetPhysicsLinearVelocity(FVector::ZeroVector);
 	HitComponent->SetPhysicsAngularVelocityInRadians(FVector::ZeroVector);
 
-	
+	if (bIsDead)
+		return;
 
 	if (bWasDragged)
 	{
@@ -153,8 +153,13 @@ UStaticMesh* APiece::GetPieceFoundationMesh()
 
 void APiece::SetUnitDead()
 {
-}
+	bIsDead = true;
 
+	RemoveOrder();
+
+	PieceFoundationMeshComponent->SetMaterial(0, MaterialOnDeath);
+	PieceFigureMeshComponent->SetMaterial(0, MaterialOnDeath);
+}
 
 void APiece::StartDragging()
 {

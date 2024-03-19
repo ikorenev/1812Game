@@ -132,6 +132,7 @@ float AScoutUnit::ApplyDamage(IDamageable* Attacker, float Amount)
 	if (Amount < 1.f)
 		return 0.f;
 	
+	OnUnitDeath();
 	Destroy();
 	return 1.f;
 }

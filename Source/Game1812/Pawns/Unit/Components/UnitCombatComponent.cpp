@@ -214,6 +214,7 @@ float UUnitCombatComponent::ApplyDamage(IDamageable* Attacker, float DamageAmoun
 	//Destroy if no HP
 	if (HealthPoints <= 0.f)
 	{
+		CombatUnitPawn->OnUnitDeath();
 		CombatUnitPawn->Destroy();
 
 		//Return applied damage
