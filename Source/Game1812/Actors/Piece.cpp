@@ -40,6 +40,8 @@ APiece::APiece()
 	bWasDragged = false;
 }
 
+
+
 void APiece::BeginPlay()
 {
 	Super::BeginPlay();
@@ -130,6 +132,24 @@ void APiece::AssignOrder(UUnitOrder* UnitOrder)
 	OnOrderAssign.Broadcast();
 }
 
+FRotator APiece::GetResetRotation()
+{
+	FRotator rotation = GetActorRotation();
+	rotation.Roll = 0.f;
+	rotation.Pitch = 0.f;
+	return rotation;
+}
+
+void APiece::ResetRotation()
+{
+	SetActorRotation(GetResetRotation());
+}
+
+UStaticMesh* APiece::GetPieceFoundationMesh()
+{
+	return PieceFoundationMeshComponent->GetStaticMesh();
+}
+
 void APiece::StartDragging()
 {
 	BoxCollisionComponent->SetSimulatePhysics(false);
@@ -152,20 +172,3 @@ FVector APiece::GetDragOffset()
 	return FVector(0, 0, BoxCollisionComponent->GetScaledBoxExtent().Z);
 }
 
-FRotator APiece::GetResetRotation()
-{
-	FRotator rotation = GetActorRotation();
-	rotation.Roll = 0.f;
-	rotation.Pitch = 0.f;
-	return rotation;
-}
-
-void APiece::ResetRotation()
-{
-	SetActorRotation(GetResetRotation());
-}
-
-UStaticMesh* APiece::GetPieceFoundationMesh()
-{
-	return PieceFoundationMeshComponent->GetStaticMesh();
-}

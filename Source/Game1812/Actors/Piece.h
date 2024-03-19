@@ -63,10 +63,14 @@ public:
 
 	FOrderAssignDelegate OnOrderAssign;
 	
-	UStaticMesh* GetPieceFoundationMesh();
-
 	virtual void Tick(float DeltaTime) override;
 
+	UFUNCTION(BlueprintCallable)
+	virtual void AssignOrder(class UUnitOrder* UnitOrder);
+
+	UStaticMesh* GetPieceFoundationMesh();
+
+	//IDraggable Interface
 	void StartDragging() override;
 	void StopDragging() override;
 	FVector GetDragOffset() override;
@@ -74,6 +78,5 @@ public:
 	FRotator GetResetRotation();
 	void ResetRotation();
 
-	UFUNCTION(BlueprintCallable)
-	virtual void AssignOrder(class UUnitOrder* UnitOrder);
+
 };

@@ -50,6 +50,21 @@ ETeam ABaseUnit::GetTeam()
 	return Team;
 }
 
+void ABaseUnit::OnBeingCoveredInFog()
+{
+	SetActorHiddenInGame(true);
+}
+
+void ABaseUnit::OnBeingRevealedFromFog()
+{
+	SetActorHiddenInGame(false);
+}
+
+bool ABaseUnit::IsCoveredInFog()
+{
+	return IsHidden();
+}
+
 UUnitOrder* ABaseUnit::GetCurrentOrder()
 {
 	return nullptr;

@@ -2,11 +2,12 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
+#include "../../Actors/FogAffected.h"
 #include "TeamEnum.h"
 #include "BaseUnit.generated.h"
 
 UCLASS(Abstract, Blueprintable)
-class GAME1812_API ABaseUnit : public APawn
+class GAME1812_API ABaseUnit : public APawn, public IFogAffected
 {
 	GENERATED_BODY()
 
@@ -32,6 +33,12 @@ public:
 	virtual float GetRotationSpeed();
 
 	ETeam GetTeam();
+
+	//IFogAffected Interface
+	void OnBeingCoveredInFog() override;
+	void OnBeingRevealedFromFog() override;
+	bool IsCoveredInFog() override;
+	//
 
 
 	virtual class UUnitOrder* GetCurrentOrder();
