@@ -11,31 +11,14 @@ AHeadQuarters* AHeadQuarters::GetInstance()
 	return Instance;
 }
 
-bool AHeadQuarters::HaveAnyOrders()
-{
-	return UnitOrders.Num() != 0;
-}
-
-void AHeadQuarters::SendOrders()
-{
-	if (AvailableAdjutants.IsEmpty())
-		return;
-
-	FUnitOrder unitOrder;
-	unitOrder.SentOrdersToUnits = UnitOrders;
-
-	AvailableAdjutants[0]->AssignOrder(unitOrder);
-	AvailableAdjutants.RemoveAt(0);
-
-	UnitOrders.Empty();
-}
-
 AHeadQuarters::AHeadQuarters()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	RootComponent = CreateDefaultSubobject<USceneComponent>(FName("Root"));
 
+	AdjutantsAmount = 3;
+	RangeForCloseOrders = 50.f;
 }
 
 void AHeadQuarters::BeginPlay()
@@ -62,17 +45,57 @@ void AHeadQuarters::BeginPlay()
 	}
 }
 
-void AHeadQuarters::Tick(float DeltaTime)
+void AHeadQuarters::AddAdjutantUnit(AAdjutantUnit* AdjutantUnit)
 {
-	Super::Tick(DeltaTime);
-
+	AvailableAdjutants.Add(AdjutantUnit);
 }
 
-void AHeadQuarters::AddOrderToAssign(const FUnitOrder& UnitOrder, ABaseUnit* Unit) 
+void AHeadQuarters::RemoveAdjutantUnit(AAdjutantUnit* AdjutantUnit)
 {
-	UnitOrders.RemoveAll([&](const FAssignedUnitOrder& el) { return el.GetUnit() == Unit; });
+	AvailableAdjutants.Remove(AdjutantUnit);
+}
 
-	UnitOrders.Add(FAssignedUnitOrder(UnitOrder, Unit));
+void AHeadQuarters::SendOrders()
+{
+	for (int i = 0; i < UnitOrders.Num();) 
+	{
+		//Remove order, if unit is dead
+		if (!UnitOrders[i].Unit.IsValid()) 
+		{
+			UnitOrders.RemoveAt(i);
+			continue;
+		}
+
+		const FVector unitLocation = UnitOrders[i].Unit->GetActorLocation();
+		const float distance = FVector::DistSquared2D(unitLocation, GetActorLocation());
+
+		if (FMath::Pow(RangeForCloseOrders, 2) > distance)
+		{
+			UnitOrders[i].Unit->AssignOrder(UnitOrders[i].UnitOrder);
+			UnitOrders.RemoveAt(i);
+			continue;
+		}
+
+		i++;
+	}
+
+	if (!HaveAnyAdjutants() || !HaveAnyOrders())
+		return;
+
+	UAdjutantUnitOrder* unitOrder = NewObject<UAdjutantUnitOrder>();
+	unitOrder->SentOrdersToUnits = UnitOrders;
+
+	AvailableAdjutants[0]->AssignOrder(unitOrder);
+	AvailableAdjutants.RemoveAt(0);
+
+	UnitOrders.Empty();
+}
+
+void AHeadQuarters::AddOrderToAssign(class UCombatUnitOrder* UnitOrder, ABaseUnit* Unit)
+{
+	UnitOrders.RemoveAll([&](const FAssignedCombatUnitOrder& el) { return el.Unit == Unit; });
+
+	UnitOrders.Add(FAssignedCombatUnitOrder(UnitOrder, Unit));
 }
 
 ABaseUnit* AHeadQuarters::SpawnUnit(TSubclassOf<class ABaseUnit> UnitClass)
@@ -83,4 +106,14 @@ ABaseUnit* AHeadQuarters::SpawnUnit(TSubclassOf<class ABaseUnit> UnitClass)
 	spawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 	return GetWorld()->SpawnActor<ABaseUnit>(UnitClass.Get(), point, FRotator(0, GetActorRotation().Yaw, 0), spawnParams);
+}
+
+bool AHeadQuarters::HaveAnyOrders()
+{
+	return UnitOrders.Num() != 0;
+}
+
+bool AHeadQuarters::HaveAnyAdjutants()
+{
+	return !AvailableAdjutants.IsEmpty();
 }

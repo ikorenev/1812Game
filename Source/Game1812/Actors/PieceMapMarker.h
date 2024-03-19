@@ -18,19 +18,14 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UStaticMeshComponent* MarkerMeshComponent;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UMaterial* MarkerMeshMaterial;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class APiece* OwnerPiece;
 
-	virtual void BeginPlay() override;
-
-	void OnPieceMapBorderStartOverlap();
-	void OnPieceMapBorderEndOverlap();
-	void OnOrderAssing();
+	UFUNCTION()
+	void OnPieceOrderAssign();
 
 	void UpdateLocation();
+	void UpdateRotation();
 
 public:	
 

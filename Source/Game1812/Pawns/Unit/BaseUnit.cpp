@@ -1,10 +1,12 @@
 #include "BaseUnit.h"
 
-#include <Components/BoxComponent.h>
-
+#include "UnitOrder.h"
 #include "Components/UnitMovementComponent.h"
-#include "CombatUnitStats.h"
+#include "../../Actors/Piece.h"
 #include "../../Actors/HeadQuarters.h"
+#include "../../Actors/UnitDeathNotifier.h"
+
+#include <Components/BoxComponent.h>
 
 ABaseUnit::ABaseUnit()
 {
@@ -17,7 +19,7 @@ ABaseUnit::ABaseUnit()
 	BoxComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	RootComponent = BoxComponent;
 
-	Team = ETeam::RUSSIA;
+	Team = ETeam::Russia;
 
 	Tags.Add("AffectedByFog");
 }
@@ -28,8 +30,32 @@ void ABaseUnit::BeginPlay()
 
 	AddActorWorldOffset(FVector(0, 0, 10));
 	AddActorWorldOffset(FVector(0, 0, -20), true);
+}
 
-	CurrentOrder = FUnitOrder(GetActorLocation(), GetActorRotation().Yaw);
+void ABaseUnit::SetOwnerPiece(APiece* NewOwnerPiece)
+{
+	OwnerPiece = NewOwnerPiece;
+}
+
+void ABaseUnit::OnUnitDeath()
+{
+	AUnitDeathNotifier* notifier = GetWorld()->SpawnActor<AUnitDeathNotifier>(AUnitDeathNotifier::StaticClass(), GetActorLocation(), FRotator::ZeroRotator);
+	notifier->SetPiece(OwnerPiece.Get());
+}
+
+UUnitMovementComponent* ABaseUnit::GetMovementComponent()
+{
+	return nullptr;
+}
+
+float ABaseUnit::GetMovementSpeed()
+{
+	return 0.0f;
+}
+
+float ABaseUnit::GetRotationSpeed()
+{
+	return 0.0f;
 }
 
 ETeam ABaseUnit::GetTeam()
@@ -37,16 +63,27 @@ ETeam ABaseUnit::GetTeam()
 	return Team;
 }
 
-FUnitOrder ABaseUnit::GetCurrentOrder()
+void ABaseUnit::OnBeingCoveredInFog()
 {
-	return CurrentOrder;
+	SetActorHiddenInGame(true);
 }
 
-void ABaseUnit::AssignOrder(const FUnitOrder& NewOrder)
+void ABaseUnit::OnBeingRevealedFromFog()
 {
-	CurrentOrder = NewOrder;
-
-	OnOrderAssign(NewOrder);
+	SetActorHiddenInGame(false);
 }
 
-void ABaseUnit::OnOrderAssign(const FUnitOrder& NewOrder) { }
+bool ABaseUnit::IsCoveredInFog()
+{
+	return IsHidden();
+}
+
+UUnitOrder* ABaseUnit::GetCurrentOrder()
+{
+	return nullptr;
+}
+
+void ABaseUnit::AssignOrder(UUnitOrder* NewOrder)
+{
+
+}

@@ -1,10 +1,14 @@
 #include "UnitOrder.h"
 
-
-
-FUnitOrder::FUnitOrder()
+UUnitOrder::UUnitOrder()
 {
-	UnitEnemyReaction = EUnitEnemyReaction::ATTACK;
+	
+
+}
+
+UCombatUnitOrder::UCombatUnitOrder()
+{
+	UnitEnemyReaction = EUnitEnemyReaction::Attack;
 
 	bForcedMarch = false;
 	bConcentratedFire = false;
@@ -13,19 +17,14 @@ FUnitOrder::FUnitOrder()
 	YawRotation = 0.f;
 }
 
-FUnitOrder::FUnitOrder(FVector Location, float YawRotation) : FUnitOrder()
+UScoutUnitOrder::UScoutUnitOrder()
 {
-	this->Location = Location;
-	this->YawRotation = YawRotation;
+	
 }
 
-bool FUnitOrder::IsSetToAttack()
+UAdjutantUnitOrder::UAdjutantUnitOrder()
 {
-	return UnitEnemyReaction == EUnitEnemyReaction::ATTACK;
+
 }
 
-bool FUnitOrder::IsSetToDefend()
-{
-	return UnitEnemyReaction == EUnitEnemyReaction::DEFEND;
-}
 

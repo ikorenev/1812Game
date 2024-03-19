@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 #include "../TeamEnum.h"
+#include "../CombatUnitType.h"
 #include "Damageable.generated.h"
 
 
@@ -18,12 +19,13 @@ class GAME1812_API IDamageable
 
 public:
 
-    virtual void ApplyDamage(class UCombatComponent* Attacker, float DamageAmount) {}
+    virtual float ApplyDamage(IDamageable* Attacker, float DamageAmount) = 0;
 
-    virtual ETeam GetTeam() { return ETeam::RUSSIA; }
+    virtual ETeam GetTeam() = 0;
+    virtual ECombatUnitType GetUnitType() = 0;
+    virtual FVector GetLocation() = 0;
+    virtual bool IsValidTarget() = 0;
+
     virtual bool IsEnemy(ETeam Team) { return GetTeam() != Team; }
-
-    virtual bool IsDead() { return false; }
-
-    virtual FVector GetLocation() { return FVector::ZeroVector; }
+    
 };
