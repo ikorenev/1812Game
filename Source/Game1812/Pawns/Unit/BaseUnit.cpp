@@ -2,7 +2,9 @@
 
 #include "UnitOrder.h"
 #include "Components/UnitMovementComponent.h"
+#include "../../Actors/Piece.h"
 #include "../../Actors/HeadQuarters.h"
+#include "../../Actors/UnitDeathNotifier.h"
 
 #include <Components/BoxComponent.h>
 
@@ -28,6 +30,17 @@ void ABaseUnit::BeginPlay()
 
 	AddActorWorldOffset(FVector(0, 0, 10));
 	AddActorWorldOffset(FVector(0, 0, -20), true);
+}
+
+void ABaseUnit::SetOwnerPiece(APiece* NewOwnerPiece)
+{
+	OwnerPiece = NewOwnerPiece;
+}
+
+void ABaseUnit::OnUnitDeath()
+{
+	AUnitDeathNotifier* notifier = GetWorld()->SpawnActor<AUnitDeathNotifier>(AUnitDeathNotifier::StaticClass(), GetActorLocation(), FRotator::ZeroRotator);
+	notifier->SetPiece(OwnerPiece.Get());
 }
 
 UUnitMovementComponent* ABaseUnit::GetMovementComponent()

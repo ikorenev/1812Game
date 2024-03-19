@@ -16,19 +16,17 @@ public:
 
 protected:
 
-	virtual void BeginPlay() override;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TWeakObjectPtr<class APiece> PieceToNotify;
 
 public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
 
-public:
+	void SetPiece(class APiece* NewPiece);
+
+	//IFogAffected Interface
 	void OnBeingCoveredInFog() override;
-
-
 	void OnBeingRevealedFromFog() override;
-
-
 	bool IsCoveredInFog() override;
+	//
 
 };

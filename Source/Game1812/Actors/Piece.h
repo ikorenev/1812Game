@@ -70,10 +70,13 @@ public:
 
 	UStaticMesh* GetPieceFoundationMesh();
 
+	void SetUnitDead();
+
 	//IDraggable Interface
 	void StartDragging() override;
 	void StopDragging() override;
 	FVector GetDragOffset() override;
+	//
 
 	FRotator GetResetRotation();
 	void ResetRotation();

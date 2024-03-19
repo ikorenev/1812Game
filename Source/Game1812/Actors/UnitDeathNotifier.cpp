@@ -1,35 +1,34 @@
 #include "UnitDeathNotifier.h"
 
+#include "Piece.h"
+
 AUnitDeathNotifier::AUnitDeathNotifier()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
 }
 
-void AUnitDeathNotifier::BeginPlay()
+void AUnitDeathNotifier::SetPiece(APiece* NewPiece)
 {
-	Super::BeginPlay();
-	
-}
-
-void AUnitDeathNotifier::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
+	PieceToNotify = NewPiece;
 }
 
 void AUnitDeathNotifier::OnBeingCoveredInFog()
 {
-	throw std::logic_error("The method or operation is not implemented.");
+	Destroy();
 }
 
 void AUnitDeathNotifier::OnBeingRevealedFromFog()
 {
-	throw std::logic_error("The method or operation is not implemented.");
+	if (PieceToNotify.IsValid())
+		//HEAVY IS DEAD
+		PieceToNotify->SetUnitDead();
+
+	Destroy();
 }
 
 bool AUnitDeathNotifier::IsCoveredInFog()
 {
-	throw std::logic_error("The method or operation is not implemented.");
+	return true;
 }
 

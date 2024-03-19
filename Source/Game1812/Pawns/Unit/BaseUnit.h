@@ -21,11 +21,18 @@ protected:
 	class UBoxComponent* BoxComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TWeakObjectPtr<class APiece> OwnerPiece;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	ETeam Team;
 
 	virtual void BeginPlay() override;
 
 public:	
+
+	void SetOwnerPiece(class APiece* NewOwnerPiece);
+
+	virtual void OnUnitDeath();
 
 	virtual class UUnitMovementComponent* GetMovementComponent();
 

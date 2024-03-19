@@ -114,6 +114,7 @@ void APiece::SpawnUnit()
 		return;
 	
 	Unit = AHeadQuarters::GetInstance()->SpawnUnit(UnitClass);
+	Unit->SetOwnerPiece(this);
 }
 
 void APiece::SpawnMapMarker()
@@ -149,6 +150,11 @@ UStaticMesh* APiece::GetPieceFoundationMesh()
 {
 	return PieceFoundationMeshComponent->GetStaticMesh();
 }
+
+void APiece::SetUnitDead()
+{
+}
+
 
 void APiece::StartDragging()
 {
