@@ -3,13 +3,16 @@
 #include "CoreMinimal.h"
 #include "BaseUnit.h"
 
+#include "Components/MoveableUnit.h"
 #include "Components/Damageable.h"
-#include "UnitReport.h"
+
+#include "CombatUnitStats.h"
+#include "CombatUnitEnum.h"
 
 #include "CombatUnit.generated.h"
 
 UCLASS()
-class GAME1812_API ACombatUnit : public ABaseUnit, public IDamageable
+class GAME1812_API ACombatUnit : public ABaseUnit, public IMoveableUnit, public IDamageable
 {
 	GENERATED_BODY()
 
@@ -23,48 +26,35 @@ protected:
 	class UUnitMovementComponent* MovementComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	class UUnitCombatComponent* CombatComponent;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	class UCombatUnitOrder* CurrentOrder;
+	class UCombatComponent* CombatComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	class UCombatUnitDataAsset* CombatUnitData;
+	ECombatUnitType CombatUnitType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	FUnitReport UnitReport;
+	FCombatUnitStats CombatUnitStats;
 
 	virtual void BeginPlay() override;
-	virtual void OnConstruction(const FTransform& Transform) override;
+
+	void OnOrderAssign(const FUnitOrder& NewOrder) override;
 
 public:
 
-	virtual void Tick(float DeltaTime) override;
-	virtual void SpawnDefaultController() override;
+	void SetCombatUnitType(ECombatUnitType NewCombatUnitType);
 
-	FUnitReport& GetUnitReport();
-	FUnitReport RequestUnitReport();
-
-	struct FCombatUnitStats* GetCombatUnitStats();
-
-	void SetCombatUnitData(class UCombatUnitDataAsset* NewCombatUnitData);
-
-	//ABaseUnit class override
-	class UUnitMovementComponent* GetMovementComponent() override;
+	class UUnitMovementComponent* GetMovementComponent();
 
 	float GetMovementSpeed() override;
 	float GetRotationSpeed() override;
 
-	class UUnitOrder* GetCurrentOrder();
-	void AssignOrder(class UUnitOrder* NewOrder);
-	//
-	
-	//IDamageable Interface
-	float ApplyDamage(IDamageable* Attacker, float Amount) override;
+	virtual void Tick(float DeltaTime) override;
 
+	virtual FCombatUnitStats GetUnitStats();
+	
 	ETeam GetTeam() override;
-	ECombatUnitType GetUnitType() override;
 	FVector GetLocation() override;
-	bool IsValidTarget() override;
-	//
+	bool IsDead() override;
+
+	void ApplyDamage(class UCombatComponent* Attacker, float Amount) override;
+	
 };

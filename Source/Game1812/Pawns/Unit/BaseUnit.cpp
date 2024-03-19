@@ -1,12 +1,10 @@
 #include "BaseUnit.h"
 
-#include "UnitOrder.h"
-#include "Components/UnitMovementComponent.h"
-#include "../../Actors/Piece.h"
-#include "../../Actors/HeadQuarters.h"
-#include "../../Actors/UnitDeathNotifier.h"
-
 #include <Components/BoxComponent.h>
+
+#include "Components/UnitMovementComponent.h"
+#include "CombatUnitStats.h"
+#include "../../Actors/HeadQuarters.h"
 
 ABaseUnit::ABaseUnit()
 {
@@ -19,7 +17,7 @@ ABaseUnit::ABaseUnit()
 	BoxComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	RootComponent = BoxComponent;
 
-	Team = ETeam::Russia;
+	Team = ETeam::RUSSIA;
 
 	Tags.Add("AffectedByFog");
 }
@@ -30,32 +28,8 @@ void ABaseUnit::BeginPlay()
 
 	AddActorWorldOffset(FVector(0, 0, 10));
 	AddActorWorldOffset(FVector(0, 0, -20), true);
-}
 
-void ABaseUnit::SetOwnerPiece(APiece* NewOwnerPiece)
-{
-	OwnerPiece = NewOwnerPiece;
-}
-
-void ABaseUnit::OnUnitDeath()
-{
-	AUnitDeathNotifier* notifier = GetWorld()->SpawnActor<AUnitDeathNotifier>(AUnitDeathNotifier::StaticClass(), GetActorLocation(), FRotator::ZeroRotator);
-	notifier->SetPiece(OwnerPiece.Get());
-}
-
-UUnitMovementComponent* ABaseUnit::GetMovementComponent()
-{
-	return nullptr;
-}
-
-float ABaseUnit::GetMovementSpeed()
-{
-	return 0.0f;
-}
-
-float ABaseUnit::GetRotationSpeed()
-{
-	return 0.0f;
+	CurrentOrder = FUnitOrder(GetActorLocation(), GetActorRotation().Yaw);
 }
 
 ETeam ABaseUnit::GetTeam()
@@ -63,27 +37,16 @@ ETeam ABaseUnit::GetTeam()
 	return Team;
 }
 
-void ABaseUnit::OnBeingCoveredInFog()
+FUnitOrder ABaseUnit::GetCurrentOrder()
 {
-	SetActorHiddenInGame(true);
+	return CurrentOrder;
 }
 
-void ABaseUnit::OnBeingRevealedFromFog()
+void ABaseUnit::AssignOrder(const FUnitOrder& NewOrder)
 {
-	SetActorHiddenInGame(false);
+	CurrentOrder = NewOrder;
+
+	OnOrderAssign(NewOrder);
 }
 
-bool ABaseUnit::IsCoveredInFog()
-{
-	return IsHidden();
-}
-
-UUnitOrder* ABaseUnit::GetCurrentOrder()
-{
-	return nullptr;
-}
-
-void ABaseUnit::AssignOrder(UUnitOrder* NewOrder)
-{
-
-}
+void ABaseUnit::OnOrderAssign(const FUnitOrder& NewOrder) { }

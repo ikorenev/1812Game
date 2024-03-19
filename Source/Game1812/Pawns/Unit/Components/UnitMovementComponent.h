@@ -4,9 +4,7 @@
 #include "Components/ActorComponent.h"
 #include "UnitMovementComponent.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnMovementStartDelegate);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnMovementEndDelegate);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMoveDelegate, float, Distance);
+DECLARE_DELEGATE(FOnMovementComplete)
 
 UCLASS(Blueprintable, BlueprintType)
 class GAME1812_API UUnitMovementComponent : public UActorComponent
@@ -20,55 +18,40 @@ public:
 protected:
 
 	class ABaseUnit* UnitPawn;
+	class IMoveableUnit* MoveableUnit;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Unit Movement")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	FVector TargetLocation;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Unit Movement")
-	bool bIsMoving;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	bool Moving;
 
 	UPROPERTY()
 	class UNavigationPath* Path;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Unit Movement")
-	int CurrentFollowingSegmentIndex;
+	virtual void BeginPlay() override;
 
-	float LastTimeOfMoveAssign;
+	void UpdateMovement(float DeltaTime);
+
+	void RotateTo(float DeltaTime, float RotationYaw);
+	void MoveTo(float DeltaTime, FVector Location);
 
 	FVector GetNextPathPoint();
 	FVector GetLastPathPoint();
 
-	FVector ProjectPointToMap(const FVector& Point);
-
-	virtual void BeginPlay() override;
-
-	void MoveAlongPath(float DeltaTime);
-
-	void UpdateMovement(float DeltaTime);
-
-	void RotatePawn(float DeltaTime, float RotationYaw);
-	void MovePawn(float DeltaTime, const FVector& Location);
-
 	void UpdatePath();
 
-	void CheckMovementStart();
-	void CheckMovementEnd();
+	void CheckMovementComplete();
 
 public:	
 
-	FOnMovementStartDelegate OnMovementStart;
-	FOnMovementEndDelegate OnMovementEnd;
-
-	FOnMoveDelegate OnMove;
-
-	FVector GetTargetLocation() const;
+	FOnMovementComplete OnMovementComplete;
 
 	bool IsMoving();
 
-	void MoveTo(const FVector& MoveToLocation, bool bForceMove = false);
-	void StopMoving();
+	void SetTargetLocation(FVector NewTargetLocation);
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	
+		
 };

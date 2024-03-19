@@ -2,12 +2,12 @@
 
 #include "CoreMinimal.h"
 #include "BaseUnit.h"
-#include "UnitReport.h"
-#include "Components/Damageable.h"
+#include "Components/MoveableUnit.h"
+#include "AssignedUnitOrder.h"
 #include "AdjutantUnit.generated.h"
 
 UCLASS()
-class GAME1812_API AAdjutantUnit : public ABaseUnit, public IDamageable
+class GAME1812_API AAdjutantUnit : public ABaseUnit, public IMoveableUnit
 {
 	GENERATED_BODY()
 	
@@ -20,12 +20,6 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class UUnitMovementComponent* MovementComponent;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	class UAdjutantUnitOrder* CurrentOrder;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	FUnitReport CollectedReports;
-
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float MovementSpeed;
 
@@ -35,51 +29,24 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float MinDistanceToGiveOrder;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	float DeathCooldown;
-
-	FTimerHandle DeathCooldownTimer;
-
 	UPROPERTY(VisibleAnywhere)
-	TArray<struct FAssignedCombatUnitOrder> Orders;
+	TArray<FAssignedUnitOrder> Orders;
 
 	virtual void BeginPlay() override;
 
-	UFUNCTION()
+	void OnOrderAssign(const FUnitOrder& NewOrder) override;
+
 	void OnMovementComplete();
 
 	void MoveToNextTarget();
 
-	UFUNCTION()
-	void OnDeathCooldownEnd();
-
-	void GiveReport();
-
-	struct FAssignedCombatUnitOrder FindClosestTarget();
+	FAssignedUnitOrder FindClosestTarget();
 
 public:
 
-	bool IsOnDeathCooldown();
-	bool IsInReachToInteractWithActor(AActor* Actor);
-	
-	void ForceReturnToHQ();
-
-	//ABaseUnit class override
 	class UUnitMovementComponent* GetMovementComponent();
 
 	float GetMovementSpeed() override;
 	float GetRotationSpeed() override;
-
-	class UUnitOrder* GetCurrentOrder();
-	void AssignOrder(class UUnitOrder* NewOrder);
-	//
-
-	//IDamageable Interface
-	float ApplyDamage(IDamageable* Attacker, float Amount) override;
-
-	ETeam GetTeam() override;
-	ECombatUnitType GetUnitType() override;
-	FVector GetLocation() override;
-	bool IsValidTarget() override;
-	//
+	
 };

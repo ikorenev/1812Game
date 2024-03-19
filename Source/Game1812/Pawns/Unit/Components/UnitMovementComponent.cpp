@@ -3,6 +3,8 @@
 #include <NavigationPath.h>
 #include <NavigationSystem.h>
 
+#include "MoveableUnit.h"
+
 #include "../BaseUnit.h"
 
 UUnitMovementComponent::UUnitMovementComponent()
@@ -10,11 +12,7 @@ UUnitMovementComponent::UUnitMovementComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 
 	TargetLocation = FVector::ZeroVector;
-	bIsMoving = false;
-
-	Path = nullptr;
-	CurrentFollowingSegmentIndex = 0;
-	LastTimeOfMoveAssign = -100.f;
+	Moving = false;
 }
 
 void UUnitMovementComponent::BeginPlay()
@@ -26,6 +24,11 @@ void UUnitMovementComponent::BeginPlay()
 	if (!UnitPawn) 
 		DestroyComponent();
 
+	MoveableUnit = Cast<IMoveableUnit>(GetOwner());
+
+	if (!MoveableUnit)
+		DestroyComponent();
+
 	TargetLocation = UnitPawn->GetActorLocation();
 }
 
@@ -33,160 +36,118 @@ void UUnitMovementComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (!bIsMoving)
-		return;
-	
-	MoveAlongPath(DeltaTime);
-}
-
-void UUnitMovementComponent::MoveAlongPath(float DeltaTime)
-{
-	if (!Path || !Path->IsValid())
-		return;
-
-	const FVector startLocation = UnitPawn->GetActorLocation();
-
-	UpdateMovement(DeltaTime);
-
-	//Check if bound, because sqrt is costly operation
-	if (OnMove.IsBound()) 
+	if (Moving)
 	{
-		const float movedDistance = FVector::DistSquared2D(startLocation, UnitPawn->GetActorLocation());
-		OnMove.Broadcast(movedDistance);
-	}
+		if (Path)
+		{
+			if (Path->IsValid())
+			{
+				UpdateMovement(DeltaTime);
+			}
+			else
+			{
+				CheckMovementComplete();
+			}
+		}
 
-	CheckMovementEnd();
+		UpdatePath();
+	}
 }
 
 void UUnitMovementComponent::UpdateMovement(float DeltaTime) 
 {
-	const FVector targetPoint = GetNextPathPoint();
+	FVector targetPoint = GetNextPathPoint();
+	FVector movementDirection = (targetPoint - UnitPawn->GetActorLocation()).GetSafeNormal2D();
 
-	const FVector movementDirection = (targetPoint - UnitPawn->GetActorLocation()).GetSafeNormal2D();
 	const float rotationYaw = FQuat::FindBetween(UnitPawn->GetActorForwardVector(), movementDirection).Rotator().Yaw;
 
-	RotatePawn(DeltaTime, rotationYaw);
+	RotateTo(DeltaTime, rotationYaw);
 
-	if (FMath::Abs(rotationYaw) < 5.0f)
-		MovePawn(DeltaTime, targetPoint);
+	//if (FMath::Abs(rotationYaw) < 5.0f)
+		MoveTo(DeltaTime, targetPoint);
+
+	CheckMovementComplete();
 }
 
-void UUnitMovementComponent::MovePawn(float DeltaTime, const FVector& Location)
+void UUnitMovementComponent::RotateTo(float DeltaTime, float RotationYaw)
+{
+	const float rotationDelta = FMath::Sign(RotationYaw) * DeltaTime * MoveableUnit->GetRotationSpeed();
+	const float limitedRotation = FMath::Clamp(rotationDelta, -FMath::Abs(RotationYaw), FMath::Abs(RotationYaw));
+
+	UnitPawn->AddActorLocalRotation(FRotator(0, limitedRotation, 0));
+}
+
+void UUnitMovementComponent::MoveTo(float DeltaTime, FVector Location)
 {
 	const FVector delta = (Location - UnitPawn->GetActorLocation()) * FVector(1, 1, 0);
 	const FVector direction = delta.GetSafeNormal();
-	const FVector movementDelta = direction * UnitPawn->GetMovementSpeed() * DeltaTime;
+	const FVector distance = direction * MoveableUnit->GetMovementSpeed() * DeltaTime;
 
-	if (movementDelta.SizeSquared() > delta.SizeSquared())
+	if (distance.SizeSquared() > delta.SizeSquared())
 	{
 		UnitPawn->SetActorLocation(Location);
 	}
 	else
 	{
-		UnitPawn->AddActorWorldOffset(movementDelta);
+		UnitPawn->AddActorWorldOffset(distance);
 	}
 
 	UnitPawn->AddActorWorldOffset(FVector(0, 0, 50));
 	UnitPawn->AddActorWorldOffset(FVector(0, 0, -100), true);
 }
 
-void UUnitMovementComponent::RotatePawn(float DeltaTime, float RotationYaw)
+bool UUnitMovementComponent::IsMoving()
 {
-	const float rotationDelta = FMath::Sign(RotationYaw) * DeltaTime * UnitPawn->GetRotationSpeed();
-	const float limitedRotation = FMath::Clamp(rotationDelta, -FMath::Abs(RotationYaw), FMath::Abs(RotationYaw));
-
-	UnitPawn->AddActorLocalRotation(FRotator(0, limitedRotation, 0));
+	return Moving;
 }
 
-void UUnitMovementComponent::MoveTo(const FVector& MoveToLocation, bool bForceMove)
-{
-	if (LastTimeOfMoveAssign + 1.f > GetWorld()->GetTimeSeconds() && !bForceMove)
-		return;
-
-	FVector moveToLocation = ProjectPointToMap(MoveToLocation);
-
-	if (TargetLocation == moveToLocation)
-		return OnMovementEnd.Broadcast();
-
-	TargetLocation = moveToLocation;
-
-	CheckMovementStart();
-
-	if (bIsMoving)
-	{
-		UpdatePath();
-		LastTimeOfMoveAssign = GetWorld()->GetTimeSeconds();
-	}
-	else
-	{
-		OnMovementEnd.Broadcast();
-	}
-}
-
-void UUnitMovementComponent::StopMoving()
-{
-	TargetLocation = ProjectPointToMap(UnitPawn->GetActorLocation());
-
-	if (bIsMoving)
-		OnMovementEnd.Broadcast();
-
-	bIsMoving = false;
-}
-
-FVector UUnitMovementComponent::ProjectPointToMap(const FVector& Point)
-{
+void UUnitMovementComponent::SetTargetLocation(FVector NewTargetLocation)
+{ 
 	FHitResult hit;
 
-	GetWorld()->LineTraceSingleByChannel(hit, Point, Point - FVector(0, 0, 4000.f), ECollisionChannel::ECC_GameTraceChannel1);
+	GetWorld()->LineTraceSingleByChannel(hit, NewTargetLocation, NewTargetLocation - FVector(0, 0, 2000.0f), ECollisionChannel::ECC_GameTraceChannel1);
 
-	if (!hit.bBlockingHit)
-		return Point;
+	if (!hit.bBlockingHit) 
+		return;
+	
+	TargetLocation = hit.Location;
 
-	return hit.Location;
+	Moving = true;
+	UpdatePath();
+
+	CheckMovementComplete();
 }
 
 void UUnitMovementComponent::UpdatePath()
 {
-	CurrentFollowingSegmentIndex = 0;
 	Path = UNavigationSystemV1::FindPathToLocationSynchronously(UnitPawn, UnitPawn->GetActorLocation(), TargetLocation, UnitPawn);
 }
 
-void UUnitMovementComponent::CheckMovementStart()
+void UUnitMovementComponent::CheckMovementComplete()
 {
-	if (FVector::DistSquaredXY(TargetLocation, UnitPawn->GetActorLocation()) < 10.f)
-		return;
+	if (FVector::DistSquaredXY(GetLastPathPoint(), UnitPawn->GetActorLocation()) < 10.0f)
+	{
+		Moving = false;
 
-	bIsMoving = true;
-	OnMovementStart.Broadcast();
-}
-
-void UUnitMovementComponent::CheckMovementEnd()
-{
-	if (FVector::DistSquaredXY(GetLastPathPoint(), UnitPawn->GetActorLocation()) > 10.f)
-		return;
-
-	bIsMoving = false;
-	OnMovementEnd.Broadcast();
+		if (OnMovementComplete.IsBound())
+			OnMovementComplete.Execute();
+	}
 }
 
 FVector UUnitMovementComponent::GetNextPathPoint()
 {
-	if (!Path || Path->PathPoints.IsEmpty())
-		return UnitPawn->GetActorLocation();
-
-	if (!Path->PathPoints.IsValidIndex(CurrentFollowingSegmentIndex))
+	if (!Path)
 	{
-		CurrentFollowingSegmentIndex = 0;
 		return UnitPawn->GetActorLocation();
 	}
 
-	if (FVector::DistSquaredXY(Path->PathPoints[CurrentFollowingSegmentIndex], UnitPawn->GetActorLocation()) < 10.f)
+	for (FVector point : Path->PathPoints) 
 	{
-		if ((Path->PathPoints.Num() - 1) != CurrentFollowingSegmentIndex)
-			CurrentFollowingSegmentIndex++;
+		if (!(FVector::DistSquared2D(UnitPawn->GetActorLocation(), point) < FMath::Pow(100.f, 2.f))) 
+			return point;
 	}
 
-	return Path->PathPoints[CurrentFollowingSegmentIndex];
+	return TargetLocation;
 }
 
 FVector UUnitMovementComponent::GetLastPathPoint() 
@@ -194,15 +155,6 @@ FVector UUnitMovementComponent::GetLastPathPoint()
 	if (!Path || Path->PathPoints.IsEmpty())
 		return UnitPawn->GetActorLocation();
 
+	
 	return Path->PathPoints.Last();
-}
-
-FVector UUnitMovementComponent::GetTargetLocation() const
-{
-	return TargetLocation;
-}
-
-bool UUnitMovementComponent::IsMoving()
-{
-	return bIsMoving;
 }

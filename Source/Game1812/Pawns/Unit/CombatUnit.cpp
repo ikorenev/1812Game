@@ -3,103 +3,52 @@
 #include "UnitOrder.h"
 
 #include "Components/UnitMovementComponent.h"
-#include "Components/UnitCombatComponent.h"
-#include "Controllers/EnemyUnitController.h"
-#include "CombatUnitDataAsset.h"
+#include "Components/CombatComponent.h"
 
 #include "../../CossacksGameInstance.h"
 
 ACombatUnit::ACombatUnit()
 {
-	MovementComponent = CreateDefaultSubobject<UUnitMovementComponent>(TEXT("Movement Component"));
+	MovementComponent = CreateDefaultSubobject<UUnitMovementComponent>(FName("Movement Component"));
 
-	CombatComponent = CreateDefaultSubobject<UUnitCombatComponent>(TEXT("Combat Component"));
+	CombatComponent = CreateDefaultSubobject<UCombatComponent>(FName("Combat Component"));
 
-	CombatUnitData = nullptr;
+	CombatUnitType = ECombatUnitType::NONE;
 }
 
-void ACombatUnit::BeginPlay()
+void ACombatUnit::BeginPlay() 
 {
 	Super::BeginPlay();
 
-	if (!CombatUnitData)
+	SetCombatUnitType(CombatUnitType);
+}
+
+void ACombatUnit::OnOrderAssign(const FUnitOrder& NewOrder)
+{
+	MovementComponent->SetTargetLocation(CurrentOrder.Location);
+}
+
+void ACombatUnit::SetCombatUnitType(ECombatUnitType NewCombatUnitType)
+{
+	CombatUnitType = NewCombatUnitType;
+
+	UCossacksGameInstance* gameInstance = GetGameInstance<UCossacksGameInstance>();
+
+	if (!gameInstance)
 		return;
 
-	CombatComponent->Init(CombatUnitData->GetCombatUnitStats());
+	FCombatUnitContainer combatUnitContainer = gameInstance->GetTeamUnitsTable(Team)->FindUnitStatsByType(CombatUnitType);
+	CombatUnitStats = combatUnitContainer.UnitStats;
+	CombatComponent->Init(CombatUnitStats);
 }
 
-void ACombatUnit::OnConstruction(const FTransform& Transform)
-{
-	Super::OnConstruction(Transform);
 
-	if (!CurrentOrder) 
-	{
-		CurrentOrder = NewObject<UCombatUnitOrder>();
-		CurrentOrder->UnitEnemyReaction = EUnitEnemyReaction::Attack;
-	}
-
-	CurrentOrder->Location = GetActorLocation();
-}
-
-void ACombatUnit::SpawnDefaultController()
-{
-	if (GetTeam() == ETeam::France)
-	{
-		AEnemyUnitController* enemyUnitController = GetWorld()->SpawnActor<AEnemyUnitController>();
-
-		if (enemyUnitController)
-			enemyUnitController->Possess(this);
-	}
-}
 
 void ACombatUnit::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
 
-}
-
-void ACombatUnit::AssignOrder(UUnitOrder* NewOrder)
-{
-	CurrentOrder = Cast<UCombatUnitOrder>(NewOrder);
-
-	if (CurrentOrder)
-		MovementComponent->MoveTo(CurrentOrder->Location, true);
-}
-
-void ACombatUnit::SetCombatUnitData(UCombatUnitDataAsset* NewCombatUnitData)
-{
-	CombatUnitData = NewCombatUnitData;
-
-	if (!CombatUnitData)
-		return;
-
-	CombatComponent->Init(CombatUnitData->GetCombatUnitStats());
-}
-
-FUnitReport& ACombatUnit::GetUnitReport()
-{
-	return UnitReport;
-}
-
-FUnitReport ACombatUnit::RequestUnitReport()
-{
-	FUnitReport newUnitReport(UnitReport);
-	UnitReport.Clear();
-
-	newUnitReport.SetMorale(CombatComponent->GetMorale());
-
-	return newUnitReport;
-}
-
-FCombatUnitStats* ACombatUnit::GetCombatUnitStats()
-{
-	return CombatUnitData ? CombatUnitData->GetCombatUnitStats() : nullptr;
-}
-
-UUnitOrder* ACombatUnit::GetCurrentOrder()
-{
-	return CurrentOrder;
 }
 
 UUnitMovementComponent* ACombatUnit::GetMovementComponent()
@@ -109,17 +58,22 @@ UUnitMovementComponent* ACombatUnit::GetMovementComponent()
 
 float ACombatUnit::GetMovementSpeed()
 {
-	return CombatComponent->CalculateMovementSpeed();
+	return CombatUnitStats.MovementSpeed;
 }
 
 float ACombatUnit::GetRotationSpeed()
 {
-	return CombatComponent->CalculateRotationSpeed();
+	return CombatUnitStats.RotationSpeed;
 }
 
-float ACombatUnit::ApplyDamage(IDamageable* Attacker, float Amount)
+FCombatUnitStats ACombatUnit::GetUnitStats()
 {
-	return CombatComponent->ApplyDamage(Attacker, Amount);
+	return CombatUnitStats;
+}
+
+void ACombatUnit::ApplyDamage(UCombatComponent* Attacker, float Amount)
+{
+	CombatComponent->ApplyDamage(Attacker, Amount);
 }
 
 ETeam ACombatUnit::GetTeam()
@@ -127,17 +81,12 @@ ETeam ACombatUnit::GetTeam()
 	return Team;
 }
 
-ECombatUnitType ACombatUnit::GetUnitType()
+bool ACombatUnit::IsDead()
 {
-	return GetCombatUnitStats()->GetUnitType();
+	return CombatComponent->IsDead();
 }
 
 FVector ACombatUnit::GetLocation()
 {
 	return GetActorLocation();
-}
-
-bool ACombatUnit::IsValidTarget()
-{
-	return true;
 }

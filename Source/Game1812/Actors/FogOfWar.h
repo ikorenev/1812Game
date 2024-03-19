@@ -43,7 +43,7 @@ protected:
 	float RevealTime;
 
 	UPROPERTY(EditAnywhere)
-	bool AffectActors;
+	bool HideAffectedActors;
 
 	UPROPERTY(EditAnywhere)
 	TArray<class UNiagaraComponent*> FogComponents;

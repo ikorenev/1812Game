@@ -2,12 +2,12 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
-#include "../../Actors/FogAffected.h"
+#include "UnitOrder.h"
 #include "TeamEnum.h"
 #include "BaseUnit.generated.h"
 
 UCLASS(Abstract, Blueprintable)
-class GAME1812_API ABaseUnit : public APawn, public IFogAffected
+class GAME1812_API ABaseUnit : public APawn
 {
 	GENERATED_BODY()
 
@@ -21,33 +21,19 @@ protected:
 	class UBoxComponent* BoxComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TWeakObjectPtr<class APiece> OwnerPiece;
+	ETeam Team;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	ETeam Team;
+	FUnitOrder CurrentOrder;
 
 	virtual void BeginPlay() override;
 
+	virtual void OnOrderAssign(const FUnitOrder& NewOrder);
+
 public:	
 
-	void SetOwnerPiece(class APiece* NewOwnerPiece);
-
-	virtual void OnUnitDeath();
-
-	virtual class UUnitMovementComponent* GetMovementComponent();
-
-	virtual float GetMovementSpeed();
-	virtual float GetRotationSpeed();
-
 	ETeam GetTeam();
+	FUnitOrder GetCurrentOrder();
 
-	//IFogAffected Interface
-	void OnBeingCoveredInFog() override;
-	void OnBeingRevealedFromFog() override;
-	bool IsCoveredInFog() override;
-	//
-
-
-	virtual class UUnitOrder* GetCurrentOrder();
-	virtual void AssignOrder(class UUnitOrder* NewOrder);
+	void AssignOrder(const FUnitOrder& NewOrder);
 };
