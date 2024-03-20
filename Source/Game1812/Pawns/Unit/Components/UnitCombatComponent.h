@@ -5,6 +5,8 @@
 #include "../CombatUnitType.h"
 #include "UnitCombatComponent.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnDamageTakenDelegate, class ACombatUnit*, Unit, float, TakenDamage);
+
 UCLASS(Blueprintable, BlueprintType)
 class GAME1812_API UUnitCombatComponent : public UActorComponent
 {
@@ -63,6 +65,8 @@ protected:
 	bool IsTargetInAttackRange(IDamageable* Target);
 	
 public:	
+
+	FOnDamageTakenDelegate OnDamageTaken;
 
 	void Init(struct FCombatUnitStats* UnitCombatStats);
 

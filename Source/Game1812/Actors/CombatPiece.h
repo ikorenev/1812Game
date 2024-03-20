@@ -24,6 +24,7 @@ protected:
 
 public:
 
+	class UCombatUnitDataAsset* GetCombatUnitData() const;
 	void SetCombatUnitData(class UCombatUnitDataAsset* NewCombatUnitData);
 
 	virtual void AssignOrder(class UUnitOrder* UnitOrder) override;

@@ -19,13 +19,6 @@ void ACombatPiece::SpawnUnit()
 		combatUnit->SetCombatUnitData(CombatUnitData);
 }
 
-void ACombatPiece::SetCombatUnitData(UCombatUnitDataAsset* NewCombatUnitData)
-{
-	CombatUnitData = NewCombatUnitData;
-
-	UpdatePieceMesh();
-}
-
 void ACombatPiece::UpdatePieceMesh()
 {
 	if (!CombatUnitData)
@@ -46,4 +39,16 @@ void ACombatPiece::AssignOrder(UUnitOrder* UnitOrder)
 
 	if (AHeadQuarters::GetInstance() && Unit.IsValid())
 		AHeadQuarters::GetInstance()->AddOrderToAssign(combatUnitOrder, Unit.Get());
+}
+
+UCombatUnitDataAsset* ACombatPiece::GetCombatUnitData() const
+{
+	return CombatUnitData;
+}
+
+void ACombatPiece::SetCombatUnitData(UCombatUnitDataAsset* NewCombatUnitData)
+{
+	CombatUnitData = NewCombatUnitData;
+
+	UpdatePieceMesh();
 }

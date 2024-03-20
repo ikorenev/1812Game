@@ -216,9 +216,11 @@ float UUnitCombatComponent::ApplyDamage(IDamageable* Attacker, float DamageAmoun
 	{
 		CombatUnitPawn->OnUnitDeath();
 		CombatUnitPawn->Destroy();
-
+		
 		//Return applied damage
-		return totalDamage - HealthPoints;
+		const float totalPossibleDamage = totalDamage + HealthPoints;
+		OnDamageTaken.Broadcast(CombatUnitPawn, totalPossibleDamage);
+		return totalPossibleDamage;
 	}
 
 	//Reduce morale
@@ -238,6 +240,7 @@ float UUnitCombatComponent::ApplyDamage(IDamageable* Attacker, float DamageAmoun
 	OnBeingAttackedBehaviour(Attacker);
 
 	//Return applied damage
+	OnDamageTaken.Broadcast(CombatUnitPawn, totalDamage);
 	return totalDamage;
 }
 
@@ -416,6 +419,3 @@ void UUnitCombatComponent::SetTargetedEnemy(IDamageable* NewTarget)
 {
 	TargetedEnemy = NewTarget;
 }
-
-
-

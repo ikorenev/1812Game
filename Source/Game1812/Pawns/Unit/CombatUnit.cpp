@@ -52,6 +52,11 @@ void ACombatUnit::SpawnDefaultController()
 	}
 }
 
+UUnitCombatComponent* ACombatUnit::GetCombatComponent()
+{
+	return CombatComponent;
+}
+
 void ACombatUnit::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);

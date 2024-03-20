@@ -42,6 +42,8 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void SpawnDefaultController() override;
 
+	class UUnitCombatComponent* GetCombatComponent();
+
 	FUnitReport& GetUnitReport();
 	FUnitReport RequestUnitReport();
 
