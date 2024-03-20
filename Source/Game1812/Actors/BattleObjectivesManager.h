@@ -15,7 +15,6 @@ enum class EBattleState : uint8
 	Lose
 };
 
-
 UCLASS()
 class GAME1812_API ABattleObjectivesManager : public AActor
 {
@@ -26,6 +25,8 @@ public:
 	ABattleObjectivesManager();
 
 protected:
+
+	static ABattleObjectivesManager* Instance;
 
 	UPROPERTY(EditAnywhere, Instanced, BlueprintReadOnly)
 	class UBattleCondition* WinCondition;
@@ -57,12 +58,13 @@ protected:
 
 public:	
 
-	UPROPERTY(BlueprintAssignable)
-	FOnBattleObjectivesFinishDelegate OnWin;
+	static ABattleObjectivesManager* GetInstance();
 
 	UPROPERTY(BlueprintAssignable)
-	FOnBattleObjectivesFinishDelegate OnLose;
+	FOnBattleObjectivesFinishDelegate OnBattleWin;
 
+	UPROPERTY(BlueprintAssignable)
+	FOnBattleObjectivesFinishDelegate OnBattleLost;
 
 	virtual void Tick(float DeltaTime) override;
 

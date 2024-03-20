@@ -7,6 +7,14 @@
 #include "../Pawns/Unit/CombatUnitDataAsset.h"
 #include "../Pawns/Unit/Components/UnitCombatComponent.h"
 
+ABattleObjectivesManager* ABattleObjectivesManager::Instance = nullptr;
+
+ABattleObjectivesManager* ABattleObjectivesManager::GetInstance()
+{
+	return Instance;
+}
+
+
 ABattleObjectivesManager::ABattleObjectivesManager()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -23,7 +31,9 @@ ABattleObjectivesManager::ABattleObjectivesManager()
 void ABattleObjectivesManager::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	Instance = this;
+
 	GetWorld()->AddOnActorSpawnedHandler(FOnActorSpawned::FDelegate::CreateUObject(this, &ABattleObjectivesManager::OnActorSpawn));
 
 	TArray<AActor*> actors;
@@ -82,13 +92,13 @@ void ABattleObjectivesManager::Tick(float DeltaTime)
 	if (LoseCondition && LoseCondition->GetState())
 	{
 		GEngine->AddOnScreenDebugMessage(100, 15.f, FColor::Red, "Lose");
-		OnLose.Broadcast();
+		OnBattleLost.Broadcast();
 		BattleState = EBattleState::Lose;
 	}
 	else if (WinCondition && WinCondition->GetState())
 	{
 		GEngine->AddOnScreenDebugMessage(100, 15.f, FColor::Red, "Win");
-		OnWin.Broadcast();
+		OnBattleWin.Broadcast();
 		BattleState = EBattleState::Win;
 	}
 
@@ -122,6 +132,7 @@ void ABattleObjectivesManager::OnUnitDamageTaken(ACombatUnit* Unit, float TakenD
 		break;
 	}
 }
+
 
 float ABattleObjectivesManager::GetStartHP() const
 {

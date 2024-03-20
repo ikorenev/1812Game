@@ -1,7 +1,8 @@
 #include "BattleCondition.h"
 
 #include "BattleObjectivesManager.h"
-
+#include "Kismet/GameplayStatics.h"
+#include "../CossacksGameMode.h"
 
 bool UBattleCondition::Condition(ABattleObjectivesManager* BattleObjectivesManager)
 {
@@ -63,8 +64,6 @@ bool UOrLogicBattleCondition::Condition(ABattleObjectivesManager* BattleObjectiv
 	return newState;
 }
 
-
-
 UTimerBattleCondition::UTimerBattleCondition()
 {
 	Time = 60.f;
@@ -72,10 +71,10 @@ UTimerBattleCondition::UTimerBattleCondition()
 
 bool UTimerBattleCondition::Condition(ABattleObjectivesManager* BattleObjectivesManager)
 {
-	return false;
+	ACossacksGameMode* gameMode = Cast<ACossacksGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+
+	return gameMode->GetGameTimeMinutes() > Time;
 }
-
-
 
 UDefeatEnemyBattleCondition::UDefeatEnemyBattleCondition()
 {
