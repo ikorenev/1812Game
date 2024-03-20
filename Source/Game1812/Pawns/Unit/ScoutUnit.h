@@ -2,13 +2,13 @@
 
 #include "CoreMinimal.h"
 #include "BaseUnit.h"
-#include "Components/MoveableUnit.h"
+#include "Components/Damageable.h"
 #include "ScoutUnit.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FScoutMovementStateDelegate);
 
 UCLASS()
-class GAME1812_API AScoutUnit : public ABaseUnit, public IMoveableUnit
+class GAME1812_API AScoutUnit : public ABaseUnit, public IDamageable
 {
 	GENERATED_BODY()
 
@@ -17,13 +17,17 @@ public:
 	AScoutUnit();
 
 	TQueue<FVector> ExplorationLocations;
-
+	
+	UFUNCTION()
 	void OnMovementComplete();
 
 protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class UUnitMovementComponent* MovementComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	class UScoutUnitOrder* CurrentOrder;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float MovementSpeed;
@@ -42,18 +46,29 @@ protected:
 
 	virtual void BeginPlay() override;
 
-	void OnOrderAssign(const FUnitOrder& NewOrder) override;
-
 public:
-
-	class UUnitMovementComponent* GetMovementComponent() override;
-
-	float GetMovementSpeed() override;
-	float GetRotationSpeed() override;
 
 	virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	float PredictMovementTime();
 
+	//ABaseUnit class override
+	class UUnitMovementComponent* GetMovementComponent() override;
+
+	float GetMovementSpeed() override;
+	float GetRotationSpeed() override;
+
+	class UUnitOrder* GetCurrentOrder();
+	void AssignOrder(class UUnitOrder* NewOrder);
+	//
+
+	//IDamageable Interface
+	float ApplyDamage(IDamageable* Attacker, float Amount) override;
+
+	ETeam GetTeam() override;
+	ECombatUnitType GetUnitType() override;
+	FVector GetLocation() override;
+	bool IsValidTarget() override;
+	//
 };

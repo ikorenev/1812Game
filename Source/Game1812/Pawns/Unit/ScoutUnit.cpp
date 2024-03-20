@@ -19,7 +19,7 @@ void AScoutUnit::BeginPlay()
 {
 	Super::BeginPlay();
 
-	MovementComponent->OnMovementComplete.BindUObject(this, &AScoutUnit::OnMovementComplete);
+	MovementComponent->OnMovementEnd.AddDynamic(this, &AScoutUnit::OnMovementComplete);
 }
 
 void AScoutUnit::OnMovementComplete() 
@@ -36,11 +36,13 @@ void AScoutUnit::OnMovementComplete()
 
 		fogOfWarActor->RevealChunks(ChunksToReveal.Array());
 		ChunksToReveal.Empty();
+
+		return;
 	}
 
 	FVector location;
 	ExplorationLocations.Dequeue(location);
-	MovementComponent->SetTargetLocation(location);
+	MovementComponent->MoveTo(location, true);
 }
 
 void AScoutUnit::Tick(float DeltaTime)
@@ -103,12 +105,14 @@ float AScoutUnit::PredictMovementTime()
 	return totalDistance / GetMovementSpeed();
 }
 
-void AScoutUnit::OnOrderAssign(const FUnitOrder& NewOrder)
+void AScoutUnit::AssignOrder(UUnitOrder* NewOrder)
 {
+	CurrentOrder = Cast<UScoutUnitOrder>(NewOrder);
+
 	if (MovementComponent->IsMoving())
 		return;
 
-	for (const FVector& location : CurrentOrder.ExplorationLocations)
+	for (const FVector& location : CurrentOrder->ExplorationLocations)
 	{
 		ExplorationLocations.Enqueue(location);
 	}
@@ -120,7 +124,42 @@ void AScoutUnit::OnOrderAssign(const FUnitOrder& NewOrder)
 
 	FVector firstLocation;
 	ExplorationLocations.Dequeue(firstLocation);
-	MovementComponent->SetTargetLocation(firstLocation);
+	MovementComponent->MoveTo(firstLocation, true);
+}
+
+float AScoutUnit::ApplyDamage(IDamageable* Attacker, float Amount)
+{
+	if (Amount < 1.f)
+		return 0.f;
+	
+	OnUnitDeath();
+	Destroy();
+	return 1.f;
+}
+
+ETeam AScoutUnit::GetTeam()
+{
+	return Team;
+}
+
+ECombatUnitType AScoutUnit::GetUnitType()
+{
+	return ECombatUnitType::Cavalry;
+}
+
+FVector AScoutUnit::GetLocation()
+{
+	return GetActorLocation();
+}
+
+bool AScoutUnit::IsValidTarget()
+{
+	return true;
+}
+
+UUnitOrder* AScoutUnit::GetCurrentOrder()
+{
+	return CurrentOrder;
 }
 
 UUnitMovementComponent* AScoutUnit::GetMovementComponent()

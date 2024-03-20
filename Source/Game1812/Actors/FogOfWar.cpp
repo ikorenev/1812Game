@@ -1,5 +1,7 @@
 #include "FogOfWar.h"
 
+#include "FogAffected.h"
+
 #include <Components/BoxComponent.h>
 #include <NiagaraComponent.h>
 #include <NiagaraFunctionLibrary.h>
@@ -28,8 +30,6 @@ bool operator==(const FFogTimer& First, const FFogTimer& Second)
 	return First.FogComponent == Second.FogComponent;
 }
 
-
-
 AFogOfWar* AFogOfWar::Singleton = nullptr;
 
 AFogOfWar* AFogOfWar::GetSingleton()
@@ -41,7 +41,7 @@ AFogOfWar::AFogOfWar()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	FogArea = CreateDefaultSubobject<UBoxComponent>(FName("Fog Area"));
+	FogArea = CreateDefaultSubobject<UBoxComponent>(TEXT("Fog Area"));
 	FogArea->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	RootComponent = FogArea;
@@ -50,7 +50,7 @@ AFogOfWar::AFogOfWar()
 	 
 	RevealTime = 15.f;
 
-	HideAffectedActors = true;
+	AffectActors = true;
 }
 
 void AFogOfWar::BeginPlay()
@@ -59,7 +59,8 @@ void AFogOfWar::BeginPlay()
 
 	Singleton = this;
 
-	if (!FogNiagaraSystem) return;
+	if (!FogNiagaraSystem) 
+		return;
 
 	FogComponentsTable.SetNum(Resolution.X, true);
 
@@ -67,7 +68,6 @@ void AFogOfWar::BeginPlay()
 	{
 		FogComponentsTable[x].SetNum(Resolution.Y, true);
 	}
-	
 	
 	const FVector FogBoxExtent = FogArea->GetScaledBoxExtent() * 2;
 	const FVector SystemSize = GetChunkSize();
@@ -93,31 +93,36 @@ void AFogOfWar::Tick(float DeltaTime)
 
 	UpdateFogTimers(DeltaTime);
 
-	if (HideAffectedActors)
-	{
-		CheckActorsInFog();
-	}
+	CheckActorsInFog();
 }
 
 void AFogOfWar::CheckActorsInFog()
 {
 	TArray<AActor*> affectedActors;
-	UGameplayStatics::GetAllActorsWithTag(GetWorld(), "AffectedByFog", affectedActors);
+	UGameplayStatics::GetAllActorsWithInterface(GetWorld(), UFogAffected::StaticClass(), affectedActors);
 
 	for (AActor* actor : affectedActors)
 	{
 		if (!actor)
 			continue;
 
+		IFogAffected* fogAffected = Cast<IFogAffected>(actor);
+
+		if (!fogAffected)
+			continue;
+
 		FIntPoint index = LocationToIndex(actor->GetActorLocation());
 
-		if (FogComponentsTable[index.X][index.Y]->ComponentTags.Contains("Hidden"))
+		const bool isFogDisabled = FogComponentsTable[index.X][index.Y]->ComponentTags.Contains("Hidden");
+		const bool isActorInFog = fogAffected->IsCoveredInFog();
+
+		if (isFogDisabled && isActorInFog || !AffectActors)
 		{
-			actor->SetActorHiddenInGame(false);
+			fogAffected->OnBeingRevealedFromFog();
 		}
-		else
+		else if (!isFogDisabled && !isActorInFog)
 		{
-			actor->SetActorHiddenInGame(true);
+			fogAffected->OnBeingCoveredInFog();
 		}
 	}
 }

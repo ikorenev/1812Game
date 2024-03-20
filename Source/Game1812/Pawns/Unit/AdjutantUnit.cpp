@@ -1,35 +1,52 @@
 #include "AdjutantUnit.h"
 
+#include "CombatUnit.h"
+#include "AssignedUnitOrder.h"
+#include "UnitOrder.h"
 #include "Components/UnitMovementComponent.h"
 #include "../../Actors/HeadQuarters.h"
+#include "../../Actors/ReportSpawner.h"
 
 AAdjutantUnit::AAdjutantUnit()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	MovementComponent = CreateDefaultSubobject<UUnitMovementComponent>(FName("Movement Component"));
+	MovementComponent = CreateDefaultSubobject<UUnitMovementComponent>(TEXT("Movement Component"));
 
-	MovementSpeed = 100;
-	RotationSpeed = 160;
+	MovementSpeed = 100.f;
+	RotationSpeed = 160.f;
 
-	MinDistanceToGiveOrder = 15;
+	MinDistanceToGiveOrder = 15.f;
+
+	DeathCooldown = 15.f;
 }
 
 void AAdjutantUnit::BeginPlay()
 {
 	Super::BeginPlay();
 
-	MovementComponent->OnMovementComplete.BindUObject(this, &AAdjutantUnit::OnMovementComplete);
+	MovementComponent->OnMovementEnd.AddDynamic(this, &AAdjutantUnit::OnMovementComplete);
 }
 
-void AAdjutantUnit::OnOrderAssign(const FUnitOrder& NewOrder)
+void AAdjutantUnit::AssignOrder(UUnitOrder* NewOrder)
 {
-	Orders = TArray<FAssignedUnitOrder>(NewOrder.SentOrdersToUnits);
+	if (IsOnDeathCooldown())
+		return;
+
+	CurrentOrder = Cast<UAdjutantUnitOrder>(NewOrder);
+
+	if (!CurrentOrder)
+		return;
+
+	Orders = TArray<FAssignedCombatUnitOrder>(CurrentOrder->SentOrdersToUnits);
 	MoveToNextTarget();
 }
 
 void AAdjutantUnit::OnMovementComplete()
 {
+	if (IsOnDeathCooldown())
+		return;
+
 	if (Orders.IsEmpty())
 	{
 		AHeadQuarters* headQuarters = AHeadQuarters::GetInstance();
@@ -37,32 +54,31 @@ void AAdjutantUnit::OnMovementComplete()
 		if (!headQuarters)
 			return;
 
-		if (FVector::DistSquared2D(GetActorLocation(), headQuarters->GetActorLocation()) > FMath::Pow(MinDistanceToGiveOrder, 2))
-		{
-			MovementComponent->SetTargetLocation(headQuarters->GetActorLocation());
-		}
-		else 
+		if (IsInReachToInteractWithActor(headQuarters)) 
 		{
 			headQuarters->AddAdjutantUnit(this);
+			GiveReport();
+			return;
 		}
 
+		MovementComponent->MoveTo(headQuarters->GetActorLocation(), true);
 		return;
 	}
 
-	auto closestTarget = FindClosestTarget();
+	FAssignedCombatUnitOrder closestTarget = FindClosestTarget();
 
-	if (FVector::DistSquared2D(GetActorLocation(), closestTarget.GetUnit()->GetActorLocation()) > FMath::Pow(MinDistanceToGiveOrder, 2))
+	if (IsInReachToInteractWithActor(closestTarget.Unit.Get()))
 	{
-		
-		MoveToNextTarget();
-	}
-	else 
-	{
-		closestTarget.GetUnit()->AssignOrder(closestTarget.GetUnitOrder());
+		closestTarget.Unit->AssignOrder(closestTarget.UnitOrder);
 		Orders.Remove(closestTarget);
 
-		MoveToNextTarget();
+		ACombatUnit* combatUnit = Cast<ACombatUnit>(closestTarget.Unit);
+
+		if (combatUnit)
+			CollectedReports = CollectedReports + combatUnit->RequestUnitReport();
 	}
+
+	MoveToNextTarget();
 }
 
 void AAdjutantUnit::MoveToNextTarget()
@@ -74,26 +90,118 @@ void AAdjutantUnit::MoveToNextTarget()
 		if (!headQuarters)
 			return;
 
-		MovementComponent->SetTargetLocation(headQuarters->GetActorLocation());
+		MovementComponent->MoveTo(headQuarters->GetActorLocation(), true);
 		return;
 	}
 
-	MovementComponent->SetTargetLocation(FindClosestTarget().GetUnit()->GetActorLocation());
+	MovementComponent->MoveTo(FindClosestTarget().Unit->GetActorLocation(), true);
 }
 
-FAssignedUnitOrder AAdjutantUnit::FindClosestTarget()
+FAssignedCombatUnitOrder AAdjutantUnit::FindClosestTarget()
 {
-	FAssignedUnitOrder closestUnit = Orders[0];
+	FAssignedCombatUnitOrder closestUnit = Orders[0];
 
-	for (auto el : Orders)
+	for (int i = 0; i < Orders.Num(); i++)
 	{
-		if (FVector::DistSquared2D(GetActorLocation(), el.GetUnit()->GetActorLocation()) < FVector::DistSquared2D(GetActorLocation(), closestUnit.GetUnit()->GetActorLocation()))
+		if (!Orders[i].Unit.IsValid())
 		{
-			closestUnit = el;
+			Orders.RemoveAt(i);
+			i--;
+			continue;
+		}
+
+		if (FVector::DistSquared2D(GetActorLocation(), Orders[i].Unit->GetActorLocation()) < FVector::DistSquared2D(GetActorLocation(), closestUnit.Unit->GetActorLocation()))
+		{
+			closestUnit = Orders[i];
 		}
 	}
 
 	return closestUnit;
+}
+
+bool AAdjutantUnit::IsOnDeathCooldown()
+{
+	return GetWorldTimerManager().IsTimerActive(DeathCooldownTimer);
+}
+
+bool AAdjutantUnit::IsInReachToInteractWithActor(AActor* Actor)
+{
+	if (!Actor)
+		return false;
+
+	return FVector::DistSquared2D(GetActorLocation(), Actor->GetActorLocation()) < FMath::Pow(MinDistanceToGiveOrder, 2);
+}
+
+float AAdjutantUnit::ApplyDamage(IDamageable* Attacker, float Amount)
+{
+	if (Amount < 1.f)
+		return 0.f;
+
+	ForceReturnToHQ();
+	return 1.f;
+}
+
+void AAdjutantUnit::ForceReturnToHQ()
+{
+	AHeadQuarters* headQuarters = AHeadQuarters::GetInstance();
+
+	if (!headQuarters)
+	{
+		Destroy();
+		return;
+	}
+
+	headQuarters->RemoveAdjutantUnit(this);
+	GetWorldTimerManager().SetTimer(DeathCooldownTimer, this, &AAdjutantUnit::OnDeathCooldownEnd, DeathCooldown);
+
+	Orders.Empty();
+	SetActorLocation(headQuarters->GetActorLocation());
+	MovementComponent->StopMoving();
+
+	CollectedReports.Clear();
+}
+
+void AAdjutantUnit::OnDeathCooldownEnd()
+{
+	AHeadQuarters* headQuarters = AHeadQuarters::GetInstance();
+
+	if (headQuarters)
+		headQuarters->AddAdjutantUnit(this);
+}
+
+void AAdjutantUnit::GiveReport()
+{
+	AReportSpawner* reportSpawner = AReportSpawner::GetInstance();
+
+	if (reportSpawner)
+		reportSpawner->AddReport(CollectedReports);
+
+	CollectedReports.Clear();
+}
+
+ETeam AAdjutantUnit::GetTeam()
+{
+	return Team;
+}
+
+ECombatUnitType AAdjutantUnit::GetUnitType()
+{
+	return ECombatUnitType::Cavalry;
+}
+
+FVector AAdjutantUnit::GetLocation()
+{
+	return GetActorLocation();
+}
+
+bool AAdjutantUnit::IsValidTarget()
+{
+	return !IsOnDeathCooldown();
+}
+
+UUnitOrder* AAdjutantUnit::GetCurrentOrder()
+{
+	return nullptr;
 }
 
 UUnitMovementComponent* AAdjutantUnit::GetMovementComponent()
@@ -110,3 +218,5 @@ float AAdjutantUnit::GetRotationSpeed()
 {
 	return RotationSpeed;
 }
+
+

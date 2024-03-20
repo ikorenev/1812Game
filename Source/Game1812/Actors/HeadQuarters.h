@@ -17,33 +17,38 @@ public:
 
 protected:
 
-	virtual void BeginPlay() override;
+	static AHeadQuarters* Instance;
 
-	UPROPERTY(VisibleAnywhere)
-	TArray<FAssignedUnitOrder> UnitOrders;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TArray<FAssignedCombatUnitOrder> UnitOrders;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TArray<class AAdjutantUnit*> AvailableAdjutants;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	int AdjutantsAmount;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float RangeForCloseOrders;
+	
 
-	static AHeadQuarters* Instance;
+	virtual void BeginPlay() override;
 
 public:	
 
-	virtual void Tick(float DeltaTime) override;
+	void AddAdjutantUnit(class AAdjutantUnit* AdjutantUnit);
+	void RemoveAdjutantUnit(class AAdjutantUnit* AdjutantUnit);
 
-	void AddAdjutantUnit(class AAdjutantUnit* AdjutantUnit) { AvailableAdjutants.Add(AdjutantUnit); };
-
-	void AddOrderToAssign(const FUnitOrder& UnitOrder, class ABaseUnit* Unit);
+	void AddOrderToAssign(class UCombatUnitOrder* UnitOrder, class ABaseUnit* Unit);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	static AHeadQuarters* GetInstance();
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	bool HaveAnyOrders();
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	bool HaveAnyAdjutants();
 
 	UFUNCTION(BlueprintCallable)
 	void SendOrders();
