@@ -2,10 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "BaseUnit.h"
-
 #include "Components/Damageable.h"
-#include "UnitReport.h"
-
 #include "CombatUnit.generated.h"
 
 UCLASS()
@@ -26,13 +23,13 @@ protected:
 	class UUnitCombatComponent* CombatComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	class UUnitReportComponent* ReportComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class UCombatUnitOrder* CurrentOrder;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	class UCombatUnitDataAsset* CombatUnitData;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	FUnitReport UnitReport;
 
 	virtual void BeginPlay() override;
 	virtual void OnConstruction(const FTransform& Transform) override;
@@ -44,8 +41,7 @@ public:
 
 	class UUnitCombatComponent* GetCombatComponent();
 
-	FUnitReport& GetUnitReport();
-	FUnitReport RequestUnitReport();
+	class UUnitReportComponent* GetReportComponent();
 
 	struct FCombatUnitStats* GetCombatUnitStats();
 

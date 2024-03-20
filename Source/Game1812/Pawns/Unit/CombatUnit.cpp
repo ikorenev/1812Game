@@ -4,6 +4,7 @@
 
 #include "Components/UnitMovementComponent.h"
 #include "Components/UnitCombatComponent.h"
+#include "Components/UnitReportComponent.h"
 #include "Controllers/EnemyUnitController.h"
 #include "CombatUnitDataAsset.h"
 
@@ -22,15 +23,30 @@ void ACombatUnit::BeginPlay()
 {
 	Super::BeginPlay();
 
+	
+
 	if (!CombatUnitData)
 		return;
 
 	CombatComponent->Init(CombatUnitData->GetCombatUnitStats());
+
+	
 }
 
 void ACombatUnit::OnConstruction(const FTransform& Transform)
 {
 	Super::OnConstruction(Transform);
+
+	if (Team == ETeam::Russia)
+	{
+		ReportComponent = NewObject<UUnitReportComponent>(this, TEXT("Report Component"));
+		ReportComponent->RegisterComponent();
+	}
+	else 
+	{
+		if (ReportComponent)
+			ReportComponent->DestroyComponent();
+	}
 
 	if (!CurrentOrder) 
 	{
@@ -57,6 +73,11 @@ UUnitCombatComponent* ACombatUnit::GetCombatComponent()
 	return CombatComponent;
 }
 
+UUnitReportComponent* ACombatUnit::GetReportComponent()
+{
+	return ReportComponent;
+}
+
 void ACombatUnit::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -80,21 +101,6 @@ void ACombatUnit::SetCombatUnitData(UCombatUnitDataAsset* NewCombatUnitData)
 		return;
 
 	CombatComponent->Init(CombatUnitData->GetCombatUnitStats());
-}
-
-FUnitReport& ACombatUnit::GetUnitReport()
-{
-	return UnitReport;
-}
-
-FUnitReport ACombatUnit::RequestUnitReport()
-{
-	FUnitReport newUnitReport(UnitReport);
-	UnitReport.Clear();
-
-	newUnitReport.SetMorale(CombatComponent->GetMorale());
-
-	return newUnitReport;
 }
 
 FCombatUnitStats* ACombatUnit::GetCombatUnitStats()

@@ -183,7 +183,9 @@ void UUnitCombatComponent::TryAttack(IDamageable* Target)
 
 void UUnitCombatComponent::Attack(IDamageable* Target)
 {
-	Target->ApplyDamage(CombatUnitPawn, CalculateDamage(Target->GetUnitType()));
+	const float damageDealt = Target->ApplyDamage(CombatUnitPawn, CalculateDamage(Target->GetUnitType()));
+
+	OnDamageDealt.Broadcast(CombatUnitPawn, damageDealt);
 }
 
 bool UUnitCombatComponent::CanAttack(IDamageable* Target)
@@ -231,6 +233,7 @@ float UUnitCombatComponent::ApplyDamage(IDamageable* Attacker, float DamageAmoun
 	if (Morale < 0.05f) 
 	{
 		bIsTemporarilyDefeated = true;
+		OnTemporarilyDefeat.Broadcast();
 	}
 
 	//Reset time of last taken damage

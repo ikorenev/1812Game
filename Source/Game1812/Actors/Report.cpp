@@ -10,7 +10,14 @@ AReport::AReport()
 	RootComponent = PaperMeshComponent;
 }
 
-void AReport::SetReportData_Implementation(const FUnitReport& ReportData)
+void AReport::SetReportData(const FUnitReport& ReportData)
+{
+	Report = ReportData;
+
+	DisplayReportData();
+}
+
+void AReport::DisplayReportData_Implementation()
 {
 
 }
@@ -19,6 +26,11 @@ void AReport::StartDragging()
 {
 	PaperMeshComponent->SetSimulatePhysics(false);
 	SetActorEnableCollision(false);
+
+	FRotator rotation = GetActorRotation();
+	rotation.Roll = 0.f;
+	rotation.Pitch = 0.f;
+	SetActorRotation(rotation);
 }
 
 void AReport::StopDragging()

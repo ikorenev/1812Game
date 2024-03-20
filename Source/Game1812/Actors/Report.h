@@ -25,8 +25,11 @@ protected:
 
 public:	
 
-	UFUNCTION(BlueprintNativeEvent)
+	
 	void SetReportData(const FUnitReport& ReportData);
+
+	UFUNCTION(BlueprintNativeEvent)
+	void DisplayReportData();
 
 	//IDraggable Interface
 	void StartDragging() override;
