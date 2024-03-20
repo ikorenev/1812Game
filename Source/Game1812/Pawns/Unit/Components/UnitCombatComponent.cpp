@@ -413,6 +413,16 @@ float UUnitCombatComponent::GetMorale() const
 	return Morale;
 }
 
+float UUnitCombatComponent::GetHPRatio() const
+{
+	return HealthPoints / CombatUnitPawn->GetCombatUnitStats()->GetBaseHP();
+}
+
+float UUnitCombatComponent::GetMoraleRatio() const
+{
+	return Morale;
+}
+
 void UUnitCombatComponent::AddMorale(float Amount)
 {
 	Morale = FMath::Clamp(Morale + Amount, 0.f, 1.f);

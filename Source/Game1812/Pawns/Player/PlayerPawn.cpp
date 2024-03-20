@@ -52,7 +52,7 @@ APlayerPawn::APlayerPawn()
 
 void APlayerPawn::MouseScroll(const FInputActionValue& Value) { PlayerInput.MouseScroll = Value.Get<float>(); };
 void APlayerPawn::MouseLeftClick(const FInputActionValue& Value) { PlayerInput.MouseLeftClick = PlayerInput.MouseLeftHold = Value.Get<bool>(); };
-void APlayerPawn::MouseRightClick(const FInputActionValue& Value) { PlayerInput.MouseRightHold = Value.Get<bool>(); };
+void APlayerPawn::MouseRightClick(const FInputActionValue& Value) { PlayerInput.MouseRightClick = PlayerInput.MouseRightHold = Value.Get<bool>(); };
 void APlayerPawn::MoveForward(const FInputActionValue& Value) { PlayerInput.MoveForward = Value.Get<bool>(); };
 void APlayerPawn::MoveBack(const FInputActionValue& Value) { PlayerInput.MoveBack = Value.Get<bool>(); };
 void APlayerPawn::MoveLeft(const FInputActionValue& Value) { PlayerInput.MoveLeft = Value.Get<bool>(); };

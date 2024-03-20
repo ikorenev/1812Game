@@ -47,6 +47,7 @@ public:
 
 	void SetCombatUnitData(class UCombatUnitDataAsset* NewCombatUnitData);
 
+
 	//ABaseUnit class override
 	class UUnitMovementComponent* GetMovementComponent() override;
 

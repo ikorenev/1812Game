@@ -34,6 +34,9 @@ public:
 
 	virtual void OnUnitDeath();
 
+
+
+
 	virtual class UUnitMovementComponent* GetMovementComponent();
 
 	virtual float GetMovementSpeed();

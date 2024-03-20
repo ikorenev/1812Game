@@ -23,8 +23,6 @@ void ACombatUnit::BeginPlay()
 {
 	Super::BeginPlay();
 
-	
-
 	if (!CombatUnitData)
 		return;
 

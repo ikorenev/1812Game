@@ -31,7 +31,7 @@ APiece::APiece()
 	PieceFigureMeshComponent->SetupAttachment(BoxCollisionComponent);
 
 	OrderWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(FName("Order Widget"));
-	OrderWidgetComponent->SetRelativeLocation(FVector(0, 0, 600));
+	OrderWidgetComponent->SetRelativeLocation(FVector(0, 0, 200));
 	OrderWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
 	OrderWidgetComponent->SetDrawSize(FVector2D(200, 200));
 	OrderWidgetComponent->SetupAttachment(BoxCollisionComponent);
@@ -47,17 +47,12 @@ void APiece::BeginPlay()
 
 	BoxCollisionComponent->OnComponentHit.AddDynamic(this, &APiece::OnHit);
 
-	OrderWidgetComponent->SetVisibility(false);
+	RemoveOrderUI();
 
 	UBaseOrderWidget* orderWidget = Cast<UBaseOrderWidget>(OrderWidgetComponent->GetWidget());
 
-	if (!orderWidget) 
-	{
-		Destroy();
-		return;
-	}
-		
-	orderWidget->Init(this);
+	if (orderWidget)
+		orderWidget->Init(this);
 }
 
 void APiece::Tick(float DeltaTime)
@@ -84,8 +79,6 @@ void APiece::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimi
 
 	if (bWasDragged)
 	{
-		RequestOrder();
-
 		SpawnMapMarker();
 		
 		bWasDragged = false;
@@ -98,15 +91,17 @@ void APiece::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimi
 	bCanSpawnUnit = false;
 }
 
-void APiece::RequestOrder() 
+void APiece::DisplayOrderUI()
 {
-	OrderWidgetComponent->SetVisibility(true);
+	if (!bIsDead && !bCanSpawnUnit)
+		OrderWidgetComponent->SetVisibility(true);
 }
 
-void APiece::RemoveOrder() 
+void APiece::RemoveOrderUI()
 {
 	OrderWidgetComponent->SetVisibility(false);
 }
+
 
 void APiece::SpawnUnit()
 {
@@ -115,6 +110,14 @@ void APiece::SpawnUnit()
 	
 	Unit = AHeadQuarters::GetInstance()->SpawnUnit(UnitClass);
 	Unit->SetOwnerPiece(this);
+
+	CustomUnitSpawn();
+
+	OnUnitSpawn.Broadcast(Unit.Get());
+}
+
+void APiece::CustomUnitSpawn()
+{
 }
 
 void APiece::SpawnMapMarker()
@@ -128,7 +131,7 @@ void APiece::SpawnMapMarker()
 
 void APiece::AssignOrder(UUnitOrder* UnitOrder)
 {
-	RemoveOrder();
+	RemoveOrderUI();
 
 	OnOrderAssign.Broadcast();
 }
@@ -151,11 +154,11 @@ UStaticMesh* APiece::GetPieceFoundationMesh()
 	return PieceFoundationMeshComponent->GetStaticMesh();
 }
 
-void APiece::SetUnitDead()
+void APiece::OnUnitDeath()
 {
 	bIsDead = true;
 
-	RemoveOrder();
+	RemoveOrderUI();
 
 	PieceFoundationMeshComponent->SetMaterial(0, MaterialOnDeath);
 	PieceFigureMeshComponent->SetMaterial(0, MaterialOnDeath);
@@ -167,7 +170,6 @@ void APiece::StartDragging()
 	SetActorEnableCollision(false);
 
 	ResetRotation();
-	RemoveOrder();
 }
 
 void APiece::StopDragging()
@@ -176,6 +178,26 @@ void APiece::StopDragging()
 	SetActorEnableCollision(true);
 
 	bWasDragged = true;
+}
+
+void APiece::StartCursorHover()
+{
+	
+}
+
+void APiece::StopCursorHover()
+{
+	
+}
+
+void APiece::Selected()
+{
+	DisplayOrderUI();
+}
+
+void APiece::SelectionRemoved()
+{
+	RemoveOrderUI();
 }
 
 FVector APiece::GetDragOffset()

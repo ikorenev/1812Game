@@ -34,6 +34,13 @@ public:
 	//IDraggable Interface
 	void StartDragging() override;
 	void StopDragging() override;
+
+	void StartCursorHover() override;
+	void StopCursorHover() override;
+
+	void Selected() override;
+	void SelectionRemoved() override;
+
 	FVector GetDragOffset() override;
 	//
 };

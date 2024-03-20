@@ -96,6 +96,12 @@ public:
 
 	float GetMorale() const;
 
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	float GetHPRatio() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	float GetMoraleRatio() const;
+
 	float GetDamageMultiplier(ECombatUnitType AttackedUnitType) const;
 	float GetDefenseMultiplier(ECombatUnitType AttackerUnitType) const;
 

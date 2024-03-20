@@ -9,11 +9,12 @@ UPlayerInteractionComponent::UPlayerInteractionComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 
 	CurrentDraggable = nullptr;
+	CurrentHovered = nullptr;
 
-	InteractionDistance = 500;
-	DraggingHeight = 100.0f;
-	AltDraggingHeight = 10.0f;
-	RotateSpeed = 100;
+	InteractionDistance = 500.f;
+	DraggingHeight = 100.f;
+	AltDraggingHeight = 100.f;
+	RotateSpeed = 100.f;
 }
 
 void UPlayerInteractionComponent::BeginPlay()
@@ -78,7 +79,20 @@ void UPlayerInteractionComponent::TickComponent(float DeltaTime, ELevelTick Tick
 			if (newDraggable) 
 				SetCurrentDraggable(newDraggable);
 		}
+		else if (PlayerPawn->GetPlayerInput()->MouseRightClick)
+		{
+			PlayerPawn->GetPlayerInput()->MouseRightClick = false;
+
+			IDraggable* newSelected = FindDraggableAtCursor();
+
+			SetCurrentSelected(newSelected);
+		}
 	}
+
+	IDraggable* newHovered = FindDraggableAtCursor();
+
+	if (CurrentHovered != newHovered)
+		SetCurrentHovered(newHovered);
 }
 
 void UPlayerInteractionComponent::SetCurrentDraggable(IDraggable* NewDraggable)
@@ -92,7 +106,29 @@ void UPlayerInteractionComponent::SetCurrentDraggable(IDraggable* NewDraggable)
 	CurrentDraggable = NewDraggable;
 }
 
-FHitResult UPlayerInteractionComponent::SingleCursorTrace() 
+void UPlayerInteractionComponent::SetCurrentHovered(IDraggable* NewHovered)
+{
+	if (CurrentHovered)
+		CurrentHovered->StopCursorHover();
+
+	if (NewHovered)
+		NewHovered->StartCursorHover();
+
+	CurrentHovered = NewHovered;
+}
+
+void UPlayerInteractionComponent::SetCurrentSelected(IDraggable* NewSelected)
+{
+	if (CurrentSelected)
+		CurrentSelected->SelectionRemoved();
+
+	if (NewSelected)
+		NewSelected->Selected();
+
+	CurrentSelected = NewSelected;
+}
+
+FHitResult UPlayerInteractionComponent::SingleCursorTrace()
 {
 	FVector cursorLocation, cursorDirection;
 	PlayerPawn->GetLocalViewingPlayerController()->DeprojectMousePositionToWorld(cursorLocation, cursorDirection);
@@ -100,17 +136,19 @@ FHitResult UPlayerInteractionComponent::SingleCursorTrace()
 	FHitResult hit;
 	FCollisionQueryParams collisionParams;
 
+	collisionParams.bTraceComplex = true;
+
 	AActor* draggableActor = Cast<AActor>(CurrentDraggable);
 
-	if (draggableActor) 
+	if (draggableActor)
 		collisionParams.AddIgnoredActor(draggableActor);
-
-	GetWorld()->LineTraceSingleByProfile(hit, cursorLocation, cursorLocation + cursorDirection * InteractionDistance, "BlockAll", collisionParams);
+	
+	GetWorld()->LineTraceSingleByChannel(hit, cursorLocation, cursorLocation + cursorDirection * InteractionDistance, ECC_Visibility, collisionParams);
 
 	return hit;
 }
 
-IDraggable* UPlayerInteractionComponent::FindDraggableAtCursor() 
+IDraggable* UPlayerInteractionComponent::FindDraggableAtCursor()
 {
 	FHitResult hit = SingleCursorTrace();
 

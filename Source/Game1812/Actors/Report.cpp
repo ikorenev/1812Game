@@ -39,6 +39,22 @@ void AReport::StopDragging()
 	SetActorEnableCollision(true);
 }
 
+void AReport::StartCursorHover()
+{
+}
+
+void AReport::StopCursorHover()
+{
+}
+
+void AReport::Selected()
+{
+}
+
+void AReport::SelectionRemoved()
+{
+}
+
 FVector AReport::GetDragOffset()
 {
 	return FVector(0, 0, 5.f);
