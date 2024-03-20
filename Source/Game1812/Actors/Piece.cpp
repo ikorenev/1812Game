@@ -33,7 +33,7 @@ APiece::APiece()
 	OrderWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(FName("Order Widget"));
 	OrderWidgetComponent->SetRelativeLocation(FVector(0, 0, 600));
 	OrderWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
-	OrderWidgetComponent->SetDrawSize(FVector2D(200, 200));
+	OrderWidgetComponent->SetDrawSize(FVector2D(400, 400));
 	OrderWidgetComponent->SetupAttachment(BoxCollisionComponent);
 	
 	bCanSpawnUnit = true;
