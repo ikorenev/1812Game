@@ -25,12 +25,22 @@ protected:
 
 public:	
 
-	UFUNCTION(BlueprintNativeEvent)
+	
 	void SetReportData(const FUnitReport& ReportData);
+
+	UFUNCTION(BlueprintNativeEvent)
+	void DisplayReportData();
 
 	//IDraggable Interface
 	void StartDragging() override;
 	void StopDragging() override;
+
+	void StartCursorHover() override;
+	void StopCursorHover() override;
+
+	void Selected() override;
+	void SelectionRemoved() override;
+
 	FVector GetDragOffset() override;
 	//
 };

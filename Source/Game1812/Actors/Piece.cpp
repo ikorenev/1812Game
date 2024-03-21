@@ -7,6 +7,7 @@
 #include "HeadQuarters.h"
 #include "PieceMapMarker.h"
 #include "PaperMap.h"
+#include "UnitPathArrow.h"
 
 #include <Kismet/GameplayStatics.h>
 #include <Components/BoxComponent.h>
@@ -31,7 +32,7 @@ APiece::APiece()
 	PieceFigureMeshComponent->SetupAttachment(BoxCollisionComponent);
 
 	OrderWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(FName("Order Widget"));
-	OrderWidgetComponent->SetRelativeLocation(FVector(0, 0, 600));
+	OrderWidgetComponent->SetRelativeLocation(FVector(0, 0, 200));
 	OrderWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
 	OrderWidgetComponent->SetDrawSize(FVector2D(400, 400));
 	OrderWidgetComponent->SetupAttachment(BoxCollisionComponent);
@@ -47,17 +48,12 @@ void APiece::BeginPlay()
 
 	BoxCollisionComponent->OnComponentHit.AddDynamic(this, &APiece::OnHit);
 
-	OrderWidgetComponent->SetVisibility(false);
+	RemoveOrderUI();
 
 	UBaseOrderWidget* orderWidget = Cast<UBaseOrderWidget>(OrderWidgetComponent->GetWidget());
 
-	if (!orderWidget) 
-	{
-		Destroy();
-		return;
-	}
-		
-	orderWidget->Init(this);
+	if (orderWidget)
+		orderWidget->Init(this);
 }
 
 void APiece::Tick(float DeltaTime)
@@ -84,10 +80,11 @@ void APiece::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimi
 
 	if (bWasDragged)
 	{
-		RequestOrder();
-
 		SpawnMapMarker();
 		
+		if (UnitPathArrow.IsValid())
+			UnitPathArrow->SetEndPoint(GetActorLocation());
+
 		bWasDragged = false;
 	}
 	
@@ -98,15 +95,17 @@ void APiece::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimi
 	bCanSpawnUnit = false;
 }
 
-void APiece::RequestOrder() 
+void APiece::DisplayOrderUI()
 {
-	OrderWidgetComponent->SetVisibility(true);
+	if (!bIsDead && !bCanSpawnUnit)
+		OrderWidgetComponent->SetVisibility(true);
 }
 
-void APiece::RemoveOrder() 
+void APiece::RemoveOrderUI()
 {
 	OrderWidgetComponent->SetVisibility(false);
 }
+
 
 void APiece::SpawnUnit()
 {
@@ -115,6 +114,14 @@ void APiece::SpawnUnit()
 	
 	Unit = AHeadQuarters::GetInstance()->SpawnUnit(UnitClass);
 	Unit->SetOwnerPiece(this);
+
+	CustomUnitSpawn();
+
+	OnUnitSpawn.Broadcast(Unit.Get());
+}
+
+void APiece::CustomUnitSpawn()
+{
 }
 
 void APiece::SpawnMapMarker()
@@ -126,9 +133,25 @@ void APiece::SpawnMapMarker()
 	MapMarker->Init(this);
 }
 
+void APiece::SpawnUnitPathArrow()
+{
+	if (UnitPathArrow.IsValid())
+		return;
+
+	UCossacksGameInstance* gameInstance = GetWorld()->GetGameInstance<UCossacksGameInstance>();
+
+	if (!gameInstance)
+		return;
+
+	UnitPathArrow = GetWorld()->SpawnActor<AUnitPathArrow>(gameInstance->GetUnitPathArrowClass(), GetActorLocation(), FRotator::ZeroRotator);
+}
+
 void APiece::AssignOrder(UUnitOrder* UnitOrder)
 {
-	RemoveOrder();
+	RemoveOrderUI();
+
+	if (UnitPathArrow.IsValid())
+		UnitPathArrow->Destroy();
 
 	OnOrderAssign.Broadcast();
 }
@@ -151,11 +174,11 @@ UStaticMesh* APiece::GetPieceFoundationMesh()
 	return PieceFoundationMeshComponent->GetStaticMesh();
 }
 
-void APiece::SetUnitDead()
+void APiece::OnUnitDeath()
 {
 	bIsDead = true;
 
-	RemoveOrder();
+	RemoveOrderUI();
 
 	PieceFoundationMeshComponent->SetMaterial(0, MaterialOnDeath);
 	PieceFigureMeshComponent->SetMaterial(0, MaterialOnDeath);
@@ -167,7 +190,9 @@ void APiece::StartDragging()
 	SetActorEnableCollision(false);
 
 	ResetRotation();
-	RemoveOrder();
+
+	if (!bIsDead && !bCanSpawnUnit)
+		SpawnUnitPathArrow();
 }
 
 void APiece::StopDragging()
@@ -176,6 +201,26 @@ void APiece::StopDragging()
 	SetActorEnableCollision(true);
 
 	bWasDragged = true;
+}
+
+void APiece::StartCursorHover()
+{
+	
+}
+
+void APiece::StopCursorHover()
+{
+	
+}
+
+void APiece::Selected()
+{
+	DisplayOrderUI();
+}
+
+void APiece::SelectionRemoved()
+{
+	RemoveOrderUI();
 }
 
 FVector APiece::GetDragOffset()

@@ -30,8 +30,12 @@ protected:
 	float RotateSpeed;
 
 	class IDraggable* CurrentDraggable;
+	class IDraggable* CurrentHovered;
+	class IDraggable* CurrentSelected;
 
 	void SetCurrentDraggable(class IDraggable* NewDraggable);
+	void SetCurrentHovered(class IDraggable* NewHovered);
+	void SetCurrentSelected(class IDraggable* NewSelected);
 
 	virtual void BeginPlay() override;
 

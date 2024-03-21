@@ -30,6 +30,9 @@ void AReportSpawner::BeginPlay()
 
 void AReportSpawner::AddReport(const FUnitReport& UnitReport)
 {
+	if (!UnitReport.IsReportValid())
+		return;
+
 	const FVector spawnLocation = GetActorLocation();
 
 	const float randomAdditionalRotation = FMath::RandRange(-RandomRotation, RandomRotation);

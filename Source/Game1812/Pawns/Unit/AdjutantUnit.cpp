@@ -4,6 +4,7 @@
 #include "AssignedUnitOrder.h"
 #include "UnitOrder.h"
 #include "Components/UnitMovementComponent.h"
+#include "Components/UnitReportComponent.h"
 #include "../../Actors/HeadQuarters.h"
 #include "../../Actors/ReportSpawner.h"
 
@@ -74,8 +75,8 @@ void AAdjutantUnit::OnMovementComplete()
 
 		ACombatUnit* combatUnit = Cast<ACombatUnit>(closestTarget.Unit);
 
-		if (combatUnit)
-			CollectedReports = CollectedReports + combatUnit->RequestUnitReport();
+		if (combatUnit && combatUnit->GetReportComponent())
+			CollectedReports = CollectedReports + combatUnit->GetReportComponent()->RequestUnitReport();
 	}
 
 	MoveToNextTarget();

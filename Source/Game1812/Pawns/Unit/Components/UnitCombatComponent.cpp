@@ -183,7 +183,9 @@ void UUnitCombatComponent::TryAttack(IDamageable* Target)
 
 void UUnitCombatComponent::Attack(IDamageable* Target)
 {
-	Target->ApplyDamage(CombatUnitPawn, CalculateDamage(Target->GetUnitType()));
+	const float damageDealt = Target->ApplyDamage(CombatUnitPawn, CalculateDamage(Target->GetUnitType()));
+
+	OnDamageDealt.Broadcast(CombatUnitPawn, damageDealt);
 }
 
 bool UUnitCombatComponent::CanAttack(IDamageable* Target)
@@ -216,9 +218,11 @@ float UUnitCombatComponent::ApplyDamage(IDamageable* Attacker, float DamageAmoun
 	{
 		CombatUnitPawn->OnUnitDeath();
 		CombatUnitPawn->Destroy();
-
+		
 		//Return applied damage
-		return totalDamage - HealthPoints;
+		const float totalPossibleDamage = totalDamage + HealthPoints;
+		OnDamageTaken.Broadcast(CombatUnitPawn, totalPossibleDamage);
+		return totalPossibleDamage;
 	}
 
 	//Reduce morale
@@ -229,6 +233,7 @@ float UUnitCombatComponent::ApplyDamage(IDamageable* Attacker, float DamageAmoun
 	if (Morale < 0.05f) 
 	{
 		bIsTemporarilyDefeated = true;
+		OnTemporarilyDefeat.Broadcast();
 	}
 
 	//Reset time of last taken damage
@@ -238,6 +243,7 @@ float UUnitCombatComponent::ApplyDamage(IDamageable* Attacker, float DamageAmoun
 	OnBeingAttackedBehaviour(Attacker);
 
 	//Return applied damage
+	OnDamageTaken.Broadcast(CombatUnitPawn, totalDamage);
 	return totalDamage;
 }
 
@@ -407,6 +413,16 @@ float UUnitCombatComponent::GetMorale() const
 	return Morale;
 }
 
+float UUnitCombatComponent::GetHPRatio() const
+{
+	return HealthPoints / CombatUnitPawn->GetCombatUnitStats()->GetBaseHP();
+}
+
+float UUnitCombatComponent::GetMoraleRatio() const
+{
+	return Morale;
+}
+
 void UUnitCombatComponent::AddMorale(float Amount)
 {
 	Morale = FMath::Clamp(Morale + Amount, 0.f, 1.f);
@@ -416,6 +432,3 @@ void UUnitCombatComponent::SetTargetedEnemy(IDamageable* NewTarget)
 {
 	TargetedEnemy = NewTarget;
 }
-
-
-

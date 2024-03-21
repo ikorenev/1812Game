@@ -25,6 +25,7 @@ public:
 	bool MouseLeftClick;
 	bool MouseLeftHold;
 
+	bool MouseRightClick;
 	bool MouseRightHold;
 
 	bool RotateLeft;

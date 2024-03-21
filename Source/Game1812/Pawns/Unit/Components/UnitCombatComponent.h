@@ -5,6 +5,15 @@
 #include "../CombatUnitType.h"
 #include "UnitCombatComponent.generated.h"
 
+UDELEGATE(BlueprintAuthorityOnly)
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnDamageDealtDelegate, class ACombatUnit*, Unit, float, DealtDamage);
+
+UDELEGATE(BlueprintAuthorityOnly)
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnDamageTakenDelegate, class ACombatUnit*, Unit, float, TakenDamage);
+
+UDELEGATE(BlueprintAuthorityOnly)
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnTemporarilyDefeatDelegate);
+
 UCLASS(Blueprintable, BlueprintType)
 class GAME1812_API UUnitCombatComponent : public UActorComponent
 {
@@ -64,6 +73,15 @@ protected:
 	
 public:	
 
+	UPROPERTY(BlueprintAssignable)
+	FOnDamageDealtDelegate OnDamageDealt;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnDamageTakenDelegate OnDamageTaken;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnTemporarilyDefeatDelegate OnTemporarilyDefeat;
+
 	void Init(struct FCombatUnitStats* UnitCombatStats);
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -77,6 +95,12 @@ public:
 	float GetDetectionRange() const;
 
 	float GetMorale() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	float GetHPRatio() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	float GetMoraleRatio() const;
 
 	float GetDamageMultiplier(ECombatUnitType AttackedUnitType) const;
 	float GetDefenseMultiplier(ECombatUnitType AttackerUnitType) const;

@@ -10,6 +10,9 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOrderAssignDelegate);
 
+UDELEGATE(BlueprintAuthorityOnly)
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUnitSpawnDelegate, class ABaseUnit*, NewUnit);
+
 UCLASS()
 class GAME1812_API APiece : public AActor, public IDraggable
 {
@@ -42,6 +45,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TWeakObjectPtr<class APieceMapMarker> MapMarker;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TWeakObjectPtr<class AUnitPathArrow> UnitPathArrow;
+
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<class ABaseUnit> UnitClass;
 
@@ -59,15 +65,22 @@ protected:
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
-	void RequestOrder();
-	void RemoveOrder();
+	void DisplayOrderUI();
+	void RemoveOrderUI();
 
-	virtual void SpawnUnit();
-	virtual void SpawnMapMarker();
+	void SpawnUnit();
+	virtual void CustomUnitSpawn();
+
+	void SpawnMapMarker();
+	void SpawnUnitPathArrow();
 
 public:
 
 	FOrderAssignDelegate OnOrderAssign;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnUnitSpawnDelegate OnUnitSpawn;
+
 	
 	virtual void Tick(float DeltaTime) override;
 
@@ -76,12 +89,18 @@ public:
 
 	UStaticMesh* GetPieceFoundationMesh();
 
-	void SetUnitDead();
-	
+	virtual void OnUnitDeath();
 
 	//IDraggable Interface
-	void StartDragging() override;
-	void StopDragging() override;
+	virtual void StartDragging() override;
+	virtual void StopDragging() override;
+
+	virtual void StartCursorHover() override;
+	virtual void StopCursorHover() override;
+
+	virtual void Selected() override;
+	virtual void SelectionRemoved() override;
+
 	FVector GetDragOffset() override;
 	//
 

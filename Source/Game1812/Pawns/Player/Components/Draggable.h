@@ -15,8 +15,13 @@ class GAME1812_API IDraggable
 public:
 
     virtual void StartDragging() = 0;
-
     virtual void StopDragging() = 0;
+
+    virtual void StartCursorHover() = 0;
+    virtual void StopCursorHover() = 0;
+
+    virtual void Selected() = 0;
+    virtual void SelectionRemoved() = 0;
 
     virtual FVector GetDragOffset() = 0;
 };
