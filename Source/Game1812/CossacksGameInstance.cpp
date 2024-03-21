@@ -4,6 +4,7 @@
 
 #include "Actors/ScoutPiece.h"
 #include "Actors/CombatPiece.h"
+#include "Actors/UnitPathArrow.h"
 
 UClass* UCossacksGameInstance::GetCombatUnitPieceClass()
 {
@@ -18,4 +19,9 @@ UClass* UCossacksGameInstance::GetScoutUnitPieceClass()
 UMaterial* UCossacksGameInstance::GetPieceMapMarkerMaterial()
 {
 	return PieceMapMarkerMaterial;
+}
+
+TSubclassOf<class AUnitPathArrow> UCossacksGameInstance::GetUnitPathArrowClass()
+{
+	return UnitPathArrowClass;
 }

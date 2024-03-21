@@ -54,6 +54,9 @@ protected:
 	void OnActorSpawn(AActor* Actor);
 
 	UFUNCTION()
+	void ScanForData();
+
+	UFUNCTION()
 	void OnUnitDamageTaken(class ACombatUnit* Unit, float TakenDamage);
 
 public:	

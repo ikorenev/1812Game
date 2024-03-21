@@ -7,6 +7,7 @@
 #include "HeadQuarters.h"
 #include "PieceMapMarker.h"
 #include "PaperMap.h"
+#include "UnitPathArrow.h"
 
 #include <Kismet/GameplayStatics.h>
 #include <Components/BoxComponent.h>
@@ -81,6 +82,9 @@ void APiece::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimi
 	{
 		SpawnMapMarker();
 		
+		if (UnitPathArrow.IsValid())
+			UnitPathArrow->SetEndPoint(GetActorLocation());
+
 		bWasDragged = false;
 	}
 	
@@ -129,9 +133,25 @@ void APiece::SpawnMapMarker()
 	MapMarker->Init(this);
 }
 
+void APiece::SpawnUnitPathArrow()
+{
+	if (UnitPathArrow.IsValid())
+		return;
+
+	UCossacksGameInstance* gameInstance = GetWorld()->GetGameInstance<UCossacksGameInstance>();
+
+	if (!gameInstance)
+		return;
+
+	UnitPathArrow = GetWorld()->SpawnActor<AUnitPathArrow>(gameInstance->GetUnitPathArrowClass(), GetActorLocation(), FRotator::ZeroRotator);
+}
+
 void APiece::AssignOrder(UUnitOrder* UnitOrder)
 {
 	RemoveOrderUI();
+
+	if (UnitPathArrow.IsValid())
+		UnitPathArrow->Destroy();
 
 	OnOrderAssign.Broadcast();
 }
@@ -170,6 +190,9 @@ void APiece::StartDragging()
 	SetActorEnableCollision(false);
 
 	ResetRotation();
+
+	if (!bIsDead && !bCanSpawnUnit)
+		SpawnUnitPathArrow();
 }
 
 void APiece::StopDragging()

@@ -36,43 +36,7 @@ void ABattleObjectivesManager::BeginPlay()
 
 	GetWorld()->AddOnActorSpawnedHandler(FOnActorSpawned::FDelegate::CreateUObject(this, &ABattleObjectivesManager::OnActorSpawn));
 
-	TArray<AActor*> actors;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ACombatUnit::StaticClass(), actors);
-
-	for (AActor* actor : actors) 
-	{
-		ACombatUnit* unit = Cast<ACombatUnit>(actor);
-
-		if (!unit)
-			continue;
-
-		switch (unit->GetTeam())
-		{
-		case ETeam::Russia:
-			StartHP += unit->GetCombatUnitStats()->GetBaseHP();
-			break;
-		case ETeam::France:
-			EnemyStartHP += unit->GetCombatUnitStats()->GetBaseHP();
-			break;
-		default:
-			break;
-		}
-
-		unit->GetCombatComponent()->OnDamageTaken.AddDynamic(this, &ABattleObjectivesManager::OnUnitDamageTaken);
-	}
-
-	actors.Empty();
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ACombatPiece::StaticClass(), actors);
-
-	for (AActor* actor : actors)
-	{
-		ACombatPiece* piece = Cast<ACombatPiece>(actor);
-
-		if (!piece)
-			continue;
-
-		StartHP += piece->GetCombatUnitData()->GetCombatUnitStats()->GetBaseHP();
-	}
+	GetWorld()->GetTimerManager().SetTimerForNextTick(FTimerDelegate::CreateUObject(this, &ABattleObjectivesManager::ScanForData));
 
 }
 
@@ -113,6 +77,47 @@ void ABattleObjectivesManager::OnActorSpawn(AActor* Actor)
 
 	if (combatUnit)
 		combatUnit->GetCombatComponent()->OnDamageTaken.AddDynamic(this, &ABattleObjectivesManager::OnUnitDamageTaken);
+}
+
+void ABattleObjectivesManager::ScanForData()
+{
+	TArray<AActor*> actors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ACombatUnit::StaticClass(), actors);
+
+	for (AActor* actor : actors)
+	{
+		ACombatUnit* unit = Cast<ACombatUnit>(actor);
+
+		if (!unit)
+			continue;
+
+		switch (unit->GetTeam())
+		{
+		case ETeam::Russia:
+			StartHP += unit->GetCombatUnitStats()->GetBaseHP();
+			break;
+		case ETeam::France:
+			EnemyStartHP += unit->GetCombatUnitStats()->GetBaseHP();
+			break;
+		default:
+			break;
+		}
+
+		unit->GetCombatComponent()->OnDamageTaken.AddDynamic(this, &ABattleObjectivesManager::OnUnitDamageTaken);
+	}
+
+	actors.Empty();
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ACombatPiece::StaticClass(), actors);
+
+	for (AActor* actor : actors)
+	{
+		ACombatPiece* piece = Cast<ACombatPiece>(actor);
+
+		if (!piece)
+			continue;
+
+		StartHP += piece->GetCombatUnitData()->GetCombatUnitStats()->GetBaseHP();
+	}
 }
 
 void ABattleObjectivesManager::OnUnitDamageTaken(ACombatUnit* Unit, float TakenDamage)

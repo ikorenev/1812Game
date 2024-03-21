@@ -45,6 +45,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TWeakObjectPtr<class APieceMapMarker> MapMarker;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TWeakObjectPtr<class AUnitPathArrow> UnitPathArrow;
+
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<class ABaseUnit> UnitClass;
 
@@ -69,6 +72,7 @@ protected:
 	virtual void CustomUnitSpawn();
 
 	void SpawnMapMarker();
+	void SpawnUnitPathArrow();
 
 public:
 

@@ -21,6 +21,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	UMaterial* PieceMapMarkerMaterial;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	TSubclassOf<class AUnitPathArrow> UnitPathArrowClass;
+
 public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
@@ -29,4 +32,5 @@ public:
 	UClass* GetCombatUnitPieceClass();
 	UClass* GetScoutUnitPieceClass();
 	UMaterial* GetPieceMapMarkerMaterial();
+	TSubclassOf<class AUnitPathArrow> GetUnitPathArrowClass();
 };
