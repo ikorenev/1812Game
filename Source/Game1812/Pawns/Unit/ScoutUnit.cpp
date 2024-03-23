@@ -4,12 +4,12 @@
 #include "../../Actors/FogOfWar.h"
 #include "../../Actors/HeadQuarters.h"
 #include "Components/UnitMovementComponent.h"
+#include "Components/UnitTerrainModifiersComponent.h"
+
 
 AScoutUnit::AScoutUnit() 
 {
 	PrimaryActorTick.bCanEverTick = true;
-
-	MovementComponent = CreateDefaultSubobject<UUnitMovementComponent>(FName("Movement Component"));
 
 	MovementSpeed = 100;
 	RotationSpeed = 160;
@@ -137,12 +137,7 @@ float AScoutUnit::ApplyDamage(IDamageable* Attacker, float Amount)
 	return 1.f;
 }
 
-ETeam AScoutUnit::GetTeam()
-{
-	return Team;
-}
-
-ECombatUnitType AScoutUnit::GetUnitType()
+ECombatUnitType AScoutUnit::GetUnitType() const
 {
 	return ECombatUnitType::Cavalry;
 }
@@ -167,12 +162,12 @@ UUnitMovementComponent* AScoutUnit::GetMovementComponent()
 	return MovementComponent;
 }
 
-float AScoutUnit::GetMovementSpeed()
+float AScoutUnit::GetMovementSpeed() const
 {
-	return MovementSpeed;
+	return MovementSpeed * GetTerrainModifiers().MovementSpeedModifier;
 }
 
-float AScoutUnit::GetRotationSpeed()
+float AScoutUnit::GetRotationSpeed() const
 {
-	return RotationSpeed;
+	return RotationSpeed * GetTerrainModifiers().RotationSpeedModifier;
 }

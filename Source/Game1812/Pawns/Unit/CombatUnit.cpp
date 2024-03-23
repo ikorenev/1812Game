@@ -5,6 +5,7 @@
 #include "Components/UnitMovementComponent.h"
 #include "Components/UnitCombatComponent.h"
 #include "Components/UnitReportComponent.h"
+#include "Components/UnitTerrainModifiersComponent.h"
 #include "Controllers/EnemyUnitController.h"
 #include "CombatUnitDataAsset.h"
 
@@ -12,8 +13,6 @@
 
 ACombatUnit::ACombatUnit()
 {
-	MovementComponent = CreateDefaultSubobject<UUnitMovementComponent>(TEXT("Movement Component"));
-
 	CombatComponent = CreateDefaultSubobject<UUnitCombatComponent>(TEXT("Combat Component"));
 
 	CombatUnitData = nullptr;
@@ -27,8 +26,6 @@ void ACombatUnit::BeginPlay()
 		return;
 
 	CombatComponent->Init(CombatUnitData->GetCombatUnitStats());
-
-	
 }
 
 void ACombatUnit::OnConstruction(const FTransform& Transform)
@@ -101,7 +98,7 @@ void ACombatUnit::SetCombatUnitData(UCombatUnitDataAsset* NewCombatUnitData)
 	CombatComponent->Init(CombatUnitData->GetCombatUnitStats());
 }
 
-FCombatUnitStats* ACombatUnit::GetCombatUnitStats()
+FCombatUnitStats* ACombatUnit::GetCombatUnitStats() const
 {
 	return CombatUnitData ? CombatUnitData->GetCombatUnitStats() : nullptr;
 }
@@ -116,14 +113,14 @@ UUnitMovementComponent* ACombatUnit::GetMovementComponent()
 	return MovementComponent;
 }
 
-float ACombatUnit::GetMovementSpeed()
+float ACombatUnit::GetMovementSpeed() const
 {
-	return CombatComponent->CalculateMovementSpeed();
+	return CombatComponent->CalculateMovementSpeed() * GetTerrainModifiers().MovementSpeedModifier;
 }
 
-float ACombatUnit::GetRotationSpeed()
+float ACombatUnit::GetRotationSpeed() const
 {
-	return CombatComponent->CalculateRotationSpeed();
+	return CombatComponent->CalculateRotationSpeed() * GetTerrainModifiers().RotationSpeedModifier;
 }
 
 float ACombatUnit::ApplyDamage(IDamageable* Attacker, float Amount)
@@ -131,12 +128,7 @@ float ACombatUnit::ApplyDamage(IDamageable* Attacker, float Amount)
 	return CombatComponent->ApplyDamage(Attacker, Amount);
 }
 
-ETeam ACombatUnit::GetTeam()
-{
-	return Team;
-}
-
-ECombatUnitType ACombatUnit::GetUnitType()
+ECombatUnitType ACombatUnit::GetUnitType() const
 {
 	return GetCombatUnitStats()->GetUnitType();
 }

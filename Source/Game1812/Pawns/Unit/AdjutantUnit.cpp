@@ -5,14 +5,13 @@
 #include "UnitOrder.h"
 #include "Components/UnitMovementComponent.h"
 #include "Components/UnitReportComponent.h"
+#include "Components/UnitTerrainModifiersComponent.h"
 #include "../../Actors/HeadQuarters.h"
 #include "../../Actors/ReportSpawner.h"
 
 AAdjutantUnit::AAdjutantUnit()
 {
 	PrimaryActorTick.bCanEverTick = true;
-
-	MovementComponent = CreateDefaultSubobject<UUnitMovementComponent>(TEXT("Movement Component"));
 
 	MovementSpeed = 100.f;
 	RotationSpeed = 160.f;
@@ -180,12 +179,7 @@ void AAdjutantUnit::GiveReport()
 	CollectedReports.Clear();
 }
 
-ETeam AAdjutantUnit::GetTeam()
-{
-	return Team;
-}
-
-ECombatUnitType AAdjutantUnit::GetUnitType()
+ECombatUnitType AAdjutantUnit::GetUnitType() const
 {
 	return ECombatUnitType::Cavalry;
 }
@@ -210,14 +204,14 @@ UUnitMovementComponent* AAdjutantUnit::GetMovementComponent()
 	return MovementComponent;
 }
 
-float AAdjutantUnit::GetMovementSpeed()
+float AAdjutantUnit::GetMovementSpeed() const
 {
-	return MovementSpeed;
+	return MovementSpeed * GetTerrainModifiers().MovementSpeedModifier;
 }
 
-float AAdjutantUnit::GetRotationSpeed()
+float AAdjutantUnit::GetRotationSpeed() const
 {
-	return RotationSpeed;
+	return RotationSpeed * GetTerrainModifiers().RotationSpeedModifier;
 }
 
 

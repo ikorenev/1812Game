@@ -16,14 +16,13 @@ public:
 
 protected:
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	class UUnitMovementComponent* MovementComponent;
-
+	//Components
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class UUnitCombatComponent* CombatComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class UUnitReportComponent* ReportComponent;
+	//
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class UCombatUnitOrder* CurrentOrder;
@@ -43,7 +42,7 @@ public:
 
 	class UUnitReportComponent* GetReportComponent();
 
-	struct FCombatUnitStats* GetCombatUnitStats();
+	struct FCombatUnitStats* GetCombatUnitStats() const;
 
 	void SetCombatUnitData(class UCombatUnitDataAsset* NewCombatUnitData);
 
@@ -51,8 +50,8 @@ public:
 	//ABaseUnit class override
 	class UUnitMovementComponent* GetMovementComponent() override;
 
-	float GetMovementSpeed() override;
-	float GetRotationSpeed() override;
+	float GetMovementSpeed() const override;
+	float GetRotationSpeed() const override;
 
 	class UUnitOrder* GetCurrentOrder();
 	void AssignOrder(class UUnitOrder* NewOrder);
@@ -60,9 +59,8 @@ public:
 	
 	//IDamageable Interface
 	float ApplyDamage(IDamageable* Attacker, float Amount) override;
-
-	ETeam GetTeam() override;
-	ECombatUnitType GetUnitType() override;
+	ETeam GetTeam() const override { return Team; };
+	ECombatUnitType GetUnitType() const override;
 	FVector GetLocation() override;
 	bool IsValidTarget() override;
 	//

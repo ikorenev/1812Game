@@ -18,25 +18,25 @@ public:
 protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TMap<ECombatUnitType, float> MovementSpeedMultiplier;
+	TMap<ECombatUnitType, float> MovementSpeedModifier;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TMap<ECombatUnitType, float> MovementRotationMultiplier;
+	TMap<ECombatUnitType, float> RotationSpeedModifier;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TMap<ECombatUnitType, float> DamageMultiplier;
+	TMap<ECombatUnitType, float> DamageModifier;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TMap<ECombatUnitType, float> DefenseMultiplier;
+	TMap<ECombatUnitType, float> DefenseModifier;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSubclassOf<UNavArea_CustomTerrain> TerrainNavAreaClass;
 
 public:
 
-	float GetMovementSpeedMultiplier(ECombatUnitType CombatUnitType) const;
-	float GetMovementRotationMultiplier(ECombatUnitType CombatUnitType) const;
-	float GetDamageMultiplier(ECombatUnitType CombatUnitType) const;
-	float GetDefenseMultiplier(ECombatUnitType CombatUnitType) const;
+	float GetMovementSpeedModifier(ECombatUnitType CombatUnitType) const;
+	float GetRotationSpeedModifier(ECombatUnitType CombatUnitType) const;
+	float GetDamageModifier(ECombatUnitType CombatUnitType) const;
+	float GetDefenseModifier(ECombatUnitType CombatUnitType) const;
 	const TSubclassOf<UNavArea_CustomTerrain>& GetTerrainNavAreaClass() const;
 };
