@@ -142,3 +142,8 @@ bool ACombatUnit::IsValidTarget()
 {
 	return true;
 }
+
+float ACombatUnit::GetDefense()
+{
+	return CombatComponent->CalculateDefense();
+}

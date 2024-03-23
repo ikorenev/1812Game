@@ -103,10 +103,9 @@ public:
 	float GetMoraleRatio() const;
 
 	float GetDamageMultiplier(ECombatUnitType AttackedUnitType) const;
-	float GetDefenseMultiplier(ECombatUnitType AttackerUnitType) const;
 
-	float CalculateDamage(ECombatUnitType AttackedUnitType) const;
-	float CalculateDefense(ECombatUnitType AttackerUnitType) const;
+	float CalculateDamage(IDamageable* AttackedTarget) const;
+	float CalculateDefense() const;
 
 	float CalculateMovementSpeed();
 	float CalculateRotationSpeed();

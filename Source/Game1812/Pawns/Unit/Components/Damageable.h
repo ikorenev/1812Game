@@ -25,6 +25,7 @@ public:
     virtual ECombatUnitType GetUnitType() const = 0;
     virtual FVector GetLocation() = 0;
     virtual bool IsValidTarget() = 0;
+    virtual float GetDefense() = 0;
 
     virtual bool IsEnemy(ETeam Team) { return GetTeam() != Team; }
     

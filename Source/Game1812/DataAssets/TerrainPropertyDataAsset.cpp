@@ -35,16 +35,6 @@ float UTerrainPropertyDataAsset::GetDamageModifier(ECombatUnitType CombatUnitTyp
 	return 1.f;
 }
 
-float UTerrainPropertyDataAsset::GetDefenseModifier(ECombatUnitType CombatUnitType) const
-{
-	const float* value = DefenseModifier.Find(CombatUnitType);
-
-	if (value)
-		return *value;
-
-	return 1.f;
-}
-
 const TSubclassOf<UNavArea_CustomTerrain>& UTerrainPropertyDataAsset::GetTerrainNavAreaClass() const
 {
 	return TerrainNavAreaClass;

@@ -11,7 +11,6 @@ void FUnitTerrainModifiers::Reset(float Value)
 	MovementSpeedModifier = Value;
 	RotationSpeedModifier = Value;
 	DamageModifier = Value;
-	DefenseModifier = Value;
 }
 
 
@@ -51,7 +50,6 @@ void UUnitTerrainModifiersComponent::UpdateModifiers()
 		Modifiers.MovementSpeedModifier = FMath::Min(Modifiers.MovementSpeedModifier, data->GetMovementSpeedModifier(OwnerUnit->GetUnitType()));
 		Modifiers.RotationSpeedModifier = FMath::Min(Modifiers.RotationSpeedModifier, data->GetRotationSpeedModifier(OwnerUnit->GetUnitType()));
 		Modifiers.DamageModifier = FMath::Min(Modifiers.DamageModifier, data->GetDamageModifier(OwnerUnit->GetUnitType()));
-		Modifiers.DefenseModifier = FMath::Min(Modifiers.DefenseModifier, data->GetDefenseModifier(OwnerUnit->GetUnitType()));
 	}
 }
 

@@ -152,6 +152,11 @@ bool AScoutUnit::IsValidTarget()
 	return true;
 }
 
+float AScoutUnit::GetDefense()
+{
+	return 0.0f;
+}
+
 UUnitOrder* AScoutUnit::GetCurrentOrder()
 {
 	return CurrentOrder;
