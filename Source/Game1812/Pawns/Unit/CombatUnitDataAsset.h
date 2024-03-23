@@ -40,9 +40,6 @@ protected:
 	float BaseDefense = 0.1f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TMap<ECombatUnitType, float> DefenseMultipliers;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float MoraleRestorationSpeed = 0.1f;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
@@ -68,7 +65,6 @@ public:
 	float GetBaseDamage() const;
 	const TMap<ECombatUnitType, float>& GetDamageMultipliers() const;
 	float GetBaseDefense() const;
-	const TMap<ECombatUnitType, float>& GetDefenseMultipliers() const;
 	float GetMoraleRestorationSpeed() const;
 	float GetMoraleLossDueToLosses() const;
 	float GetDistanceForFullMoraleLoss() const;

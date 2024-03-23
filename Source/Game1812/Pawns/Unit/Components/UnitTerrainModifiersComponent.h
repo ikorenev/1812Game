@@ -20,9 +20,6 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float DamageModifier = 1.f;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	float DefenseModifier = 1.f;
 
 	void Reset(float Value = 1.f);
 };

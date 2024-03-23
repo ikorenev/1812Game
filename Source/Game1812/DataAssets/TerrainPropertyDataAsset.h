@@ -27,9 +27,6 @@ protected:
 	TMap<ECombatUnitType, float> DamageModifier;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TMap<ECombatUnitType, float> DefenseModifier;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSubclassOf<UNavArea_CustomTerrain> TerrainNavAreaClass;
 
 public:
@@ -37,6 +34,5 @@ public:
 	float GetMovementSpeedModifier(ECombatUnitType CombatUnitType) const;
 	float GetRotationSpeedModifier(ECombatUnitType CombatUnitType) const;
 	float GetDamageModifier(ECombatUnitType CombatUnitType) const;
-	float GetDefenseModifier(ECombatUnitType CombatUnitType) const;
 	const TSubclassOf<UNavArea_CustomTerrain>& GetTerrainNavAreaClass() const;
 };

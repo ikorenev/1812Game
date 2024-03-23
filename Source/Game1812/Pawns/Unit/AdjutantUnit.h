@@ -78,5 +78,6 @@ public:
 	ECombatUnitType GetUnitType() const override;
 	FVector GetLocation() override;
 	bool IsValidTarget() override;
+	float GetDefense() override { return 0.f; };
 	//
 };

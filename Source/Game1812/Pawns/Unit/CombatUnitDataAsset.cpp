@@ -45,11 +45,6 @@ float FCombatUnitStats::GetBaseDefense() const
 	return BaseDefense;
 }
 
-const TMap<ECombatUnitType, float>& FCombatUnitStats::GetDefenseMultipliers() const
-{
-	return DefenseMultipliers;
-}
-
 float FCombatUnitStats::GetMoraleRestorationSpeed() const
 {
 	return MoraleRestorationSpeed;
