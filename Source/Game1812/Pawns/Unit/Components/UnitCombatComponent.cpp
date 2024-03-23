@@ -1,6 +1,7 @@
 #include "UnitCombatComponent.h"
 
 #include "UnitMovementComponent.h"
+#include "UnitTerrainModifiersComponent.h"
 #include "Damageable.h"
 
 #include "../CombatUnitDataAsset.h"
@@ -176,13 +177,13 @@ void UUnitCombatComponent::TryAttack(IDamageable* Target)
 	if (CanAttack(Target))
 	{
 		Attack(Target);
-
-		TimeOfLastAttack = GetWorld()->GetTimeSeconds();
 	}
 }
 
 void UUnitCombatComponent::Attack(IDamageable* Target)
 {
+	TimeOfLastAttack = GetWorld()->GetTimeSeconds();
+
 	const float damageDealt = Target->ApplyDamage(CombatUnitPawn, CalculateDamage(Target->GetUnitType()));
 
 	OnDamageDealt.Broadcast(CombatUnitPawn, damageDealt);
@@ -191,10 +192,10 @@ void UUnitCombatComponent::Attack(IDamageable* Target)
 bool UUnitCombatComponent::CanAttack(IDamageable* Target)
 {
 	const bool closeEnoughToEnemy = IsTargetInAttackRange(Target);
-	const bool standing = !CombatUnitPawn->GetMovementComponent()->IsMoving();
+	//const bool standing = !CombatUnitPawn->GetMovementComponent()->IsMoving();
 	const bool cooldownFinished = GetAttackCooldown() + TimeOfLastAttack < GetWorld()->GetTimeSeconds();
 
-	return closeEnoughToEnemy && standing && cooldownFinished;
+	return closeEnoughToEnemy  && cooldownFinished ;//&& standing;
 }
 
 bool UUnitCombatComponent::IsTargetInDetectionRange(IDamageable* Target)
@@ -209,6 +210,9 @@ bool UUnitCombatComponent::IsTargetInAttackRange(IDamageable* Target)
 
 float UUnitCombatComponent::ApplyDamage(IDamageable* Attacker, float DamageAmount)
 {
+	//Attack back
+	TryAttack(Attacker);
+
 	//Calculate total damage with defense
 	const float totalDamage = FMath::Max(1, DamageAmount - CalculateDefense(Attacker->GetUnitType()));
 	HealthPoints -= totalDamage;
@@ -249,12 +253,12 @@ float UUnitCombatComponent::ApplyDamage(IDamageable* Attacker, float DamageAmoun
 
 float UUnitCombatComponent::CalculateDamage(ECombatUnitType AttackedUnitType) const
 {
-	return FMath::Pow(Morale, 2) * GetBaseDamage() * HealthPoints * GetDamageMultiplier(AttackedUnitType);
+	return FMath::Sqrt(Morale) * GetBaseDamage() * HealthPoints * GetDamageMultiplier(AttackedUnitType) * CombatUnitPawn->GetTerrainModifiers().DamageModifier;
 }
 
 float UUnitCombatComponent::CalculateDefense(ECombatUnitType AttackerUnitType) const
 {
-	return FMath::Pow(Morale, 2) * GetBaseDefense() * HealthPoints * GetDefenseMultiplier(AttackerUnitType);
+	return FMath::Sqrt(Morale) * GetBaseDefense() * HealthPoints * GetDefenseMultiplier(AttackerUnitType) * CombatUnitPawn->GetTerrainModifiers().DefenseModifier;
 }
 
 float UUnitCombatComponent::GetDamageMultiplier(ECombatUnitType AttackedUnitType) const

@@ -24,9 +24,6 @@ public:
 protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	class UUnitMovementComponent* MovementComponent;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class UScoutUnitOrder* CurrentOrder;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
@@ -56,8 +53,8 @@ public:
 	//ABaseUnit class override
 	class UUnitMovementComponent* GetMovementComponent() override;
 
-	float GetMovementSpeed() override;
-	float GetRotationSpeed() override;
+	float GetMovementSpeed() const override;
+	float GetRotationSpeed() const override;
 
 	class UUnitOrder* GetCurrentOrder();
 	void AssignOrder(class UUnitOrder* NewOrder);
@@ -65,9 +62,8 @@ public:
 
 	//IDamageable Interface
 	float ApplyDamage(IDamageable* Attacker, float Amount) override;
-
-	ETeam GetTeam() override;
-	ECombatUnitType GetUnitType() override;
+	ETeam GetTeam() const override { return Team; };
+	ECombatUnitType GetUnitType() const override;
 	FVector GetLocation() override;
 	bool IsValidTarget() override;
 	//

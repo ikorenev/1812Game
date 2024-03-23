@@ -26,6 +26,8 @@ protected:
 
 public:
 
+	const class UTerrainPropertyDataAsset* GetTerrainPropertyDataAsset() const { return TerrainPropertyDataAsset; };
+
 #if WITH_EDITOR
 	void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 #endif

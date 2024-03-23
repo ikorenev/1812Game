@@ -1,30 +1,48 @@
 #include "TerrainPropertyDataAsset.h"
 
-
-
 UTerrainPropertyDataAsset::UTerrainPropertyDataAsset()
 {
 	
 }
 
-float UTerrainPropertyDataAsset::GetMovementSpeedMultiplier(ECombatUnitType CombatUnitType) const
+float UTerrainPropertyDataAsset::GetMovementSpeedModifier(ECombatUnitType CombatUnitType) const
 {
-	return 0.0f;
+	const float* value = MovementSpeedModifier.Find(CombatUnitType);
+
+	if (value)
+		return *value;
+
+	return 1.f;
 }
 
-float UTerrainPropertyDataAsset::GetMovementRotationMultiplier(ECombatUnitType CombatUnitType) const
+float UTerrainPropertyDataAsset::GetRotationSpeedModifier(ECombatUnitType CombatUnitType) const
 {
-	return 0.0f;
+	const float* value = RotationSpeedModifier.Find(CombatUnitType);
+
+	if (value)
+		return *value;
+
+	return 1.f;
 }
 
-float UTerrainPropertyDataAsset::GetDamageMultiplier(ECombatUnitType CombatUnitType) const
+float UTerrainPropertyDataAsset::GetDamageModifier(ECombatUnitType CombatUnitType) const
 {
-	return 0.0f;
+	const float* value = DamageModifier.Find(CombatUnitType);
+
+	if (value)
+		return *value;
+
+	return 1.f;
 }
 
-float UTerrainPropertyDataAsset::GetDefenseMultiplier(ECombatUnitType CombatUnitType) const
+float UTerrainPropertyDataAsset::GetDefenseModifier(ECombatUnitType CombatUnitType) const
 {
-	return 0.0f;
+	const float* value = DefenseModifier.Find(CombatUnitType);
+
+	if (value)
+		return *value;
+
+	return 1.f;
 }
 
 const TSubclassOf<UNavArea_CustomTerrain>& UTerrainPropertyDataAsset::GetTerrainNavAreaClass() const

@@ -21,8 +21,8 @@ public:
 
     virtual float ApplyDamage(IDamageable* Attacker, float DamageAmount) = 0;
 
-    virtual ETeam GetTeam() = 0;
-    virtual ECombatUnitType GetUnitType() = 0;
+    virtual ETeam GetTeam() const = 0;
+    virtual ECombatUnitType GetUnitType() const = 0;
     virtual FVector GetLocation() = 0;
     virtual bool IsValidTarget() = 0;
 

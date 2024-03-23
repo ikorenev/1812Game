@@ -2,6 +2,7 @@
 
 #include "UnitOrder.h"
 #include "Components/UnitMovementComponent.h"
+#include "Components/UnitTerrainModifiersComponent.h"
 #include "../../Actors/Piece.h"
 #include "../../Actors/HeadQuarters.h"
 #include "../../Actors/UnitDeathNotifier.h"
@@ -12,16 +13,20 @@ ABaseUnit::ABaseUnit()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	BoxComponent = CreateDefaultSubobject<UBoxComponent>(FName("Collision"));
+	BoxComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("Collision"));
 	BoxComponent->InitBoxExtent(FVector(10, 10, 5));
 	BoxComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	BoxComponent->SetCollisionObjectType(ECC_Pawn);
 	BoxComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel2, ECollisionResponse::ECR_Block);
+	BoxComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Overlap);
 	BoxComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	RootComponent = BoxComponent;
 
-	Team = ETeam::Russia;
+	MovementComponent = CreateDefaultSubobject<UUnitMovementComponent>(TEXT("Movement Component"));
 
-	Tags.Add("AffectedByFog");
+	TerrainModifiersComponent = CreateDefaultSubobject<UUnitTerrainModifiersComponent>(TEXT("Terrain Modifiers Component"));
+
+	Team = ETeam::Russia;
 }
 
 void ABaseUnit::BeginPlay()
@@ -32,35 +37,10 @@ void ABaseUnit::BeginPlay()
 	AddActorWorldOffset(FVector(0, 0, -20), true);
 }
 
-void ABaseUnit::SetOwnerPiece(APiece* NewOwnerPiece)
-{
-	OwnerPiece = NewOwnerPiece;
-}
-
 void ABaseUnit::OnUnitDeath()
 {
 	AUnitDeathNotifier* notifier = GetWorld()->SpawnActor<AUnitDeathNotifier>(AUnitDeathNotifier::StaticClass(), GetActorLocation(), FRotator::ZeroRotator);
 	notifier->SetPiece(OwnerPiece.Get());
-}
-
-UUnitMovementComponent* ABaseUnit::GetMovementComponent()
-{
-	return nullptr;
-}
-
-float ABaseUnit::GetMovementSpeed()
-{
-	return 0.0f;
-}
-
-float ABaseUnit::GetRotationSpeed()
-{
-	return 0.0f;
-}
-
-ETeam ABaseUnit::GetTeam()
-{
-	return Team;
 }
 
 void ABaseUnit::OnBeingCoveredInFog()
@@ -78,12 +58,9 @@ bool ABaseUnit::IsCoveredInFog()
 	return IsHidden();
 }
 
-UUnitOrder* ABaseUnit::GetCurrentOrder()
+const FUnitTerrainModifiers& ABaseUnit::GetTerrainModifiers() const
 {
-	return nullptr;
+	return TerrainModifiersComponent->GetTerrainModifiers();
 }
 
-void ABaseUnit::AssignOrder(UUnitOrder* NewOrder)
-{
-
-}
+void ABaseUnit::SetOwnerPiece(APiece* NewOwnerPiece) { OwnerPiece = NewOwnerPiece; }
