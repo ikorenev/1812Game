@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "../CombatUnitType.h"
+#include "../UnitTypeEnum.h"
 #include "UnitCombatComponent.generated.h"
 
 UDELEGATE(BlueprintAuthorityOnly)

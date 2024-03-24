@@ -1,14 +1,14 @@
 #pragma once
 
-#include "Draggable.generated.h"
+#include "Interactable.generated.h"
 
 UINTERFACE()
-class GAME1812_API UDraggable : public UInterface
+class GAME1812_API UInteractable : public UInterface
 {
     GENERATED_BODY()
 };
 
-class GAME1812_API IDraggable
+class GAME1812_API IInteractable
 {
     GENERATED_BODY()
 

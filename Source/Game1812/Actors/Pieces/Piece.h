@@ -2,9 +2,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "../Pawns/Player/Components/Draggable.h"
-#include "../Pawns/Unit/BaseUnit.h"
-
+#include "../../Pawns/Player/Components/Interactable.h"
+#include "../../Pawns/Unit/BaseUnit.h"
 #include <Blueprint/UserWidget.h>
 #include "Piece.generated.h"
 
@@ -14,7 +13,7 @@ UDELEGATE(BlueprintAuthorityOnly)
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUnitSpawnDelegate, class ABaseUnit*, NewUnit);
 
 UCLASS()
-class GAME1812_API APiece : public AActor, public IDraggable
+class GAME1812_API APiece : public AActor, public IInteractable
 {
 	GENERATED_BODY()
 

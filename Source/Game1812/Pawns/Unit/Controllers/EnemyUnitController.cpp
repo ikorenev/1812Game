@@ -1,7 +1,7 @@
 #include "EnemyUnitController.h"
 
-#include "../CombatUnit.h"
-#include "../UnitOrder.h"
+#include "../Units/CombatUnit.h"
+#include "../Orders/UnitOrder.h"
 
 AEnemyUnitController::AEnemyUnitController()
 {

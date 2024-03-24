@@ -1,10 +1,10 @@
 #include "ScoutUnit.h"
 
-#include "UnitOrder.h"
-#include "../../Actors/FogOfWar.h"
-#include "../../Actors/HeadQuarters.h"
-#include "Components/UnitMovementComponent.h"
-#include "Components/UnitTerrainModifiersComponent.h"
+#include "../Orders/UnitOrder.h"
+#include "../../../FogSystem/FogOfWar.h"
+#include "../../../Actors/HeadQuarters.h"
+#include "../Components/UnitMovementComponent.h"
+#include "../Components/UnitTerrainModifiersComponent.h"
 
 
 AScoutUnit::AScoutUnit() 

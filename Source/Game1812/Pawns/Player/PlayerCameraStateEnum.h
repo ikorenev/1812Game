@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "PlayerCameraState.generated.h"
+#include "PlayerCameraStateEnum.generated.h"
 
 UENUM(BlueprintType)
 enum class EPlayerCameraState : uint8

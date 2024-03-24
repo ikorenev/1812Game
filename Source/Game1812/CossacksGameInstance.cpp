@@ -1,9 +1,9 @@
 #include "CossacksGameInstance.h"
 
-#include "Pawns/Unit/AdjutantUnit.h"
+#include "Pawns/Unit/Units/AdjutantUnit.h"
 
-#include "Actors/ScoutPiece.h"
-#include "Actors/CombatPiece.h"
+#include "Actors/Pieces/ScoutPiece.h"
+#include "Actors/Pieces/CombatPiece.h"
 #include "Actors/UnitPathArrow.h"
 
 UClass* UCossacksGameInstance::GetCombatUnitPieceClass()

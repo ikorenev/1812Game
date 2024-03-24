@@ -2,8 +2,8 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
-#include "../Pawns/Unit/CombatUnitType.h"
-#include "../Actors/NavArea_CustomTerrain.h"
+#include "../Pawns/Unit/UnitTypeEnum.h"
+#include "../Actors/Tools/NavArea_CustomTerrain.h"
 #include "TerrainPropertyDataAsset.generated.h"
 
 UCLASS()

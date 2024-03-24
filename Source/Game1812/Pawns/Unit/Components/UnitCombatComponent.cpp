@@ -4,9 +4,9 @@
 #include "UnitTerrainModifiersComponent.h"
 #include "Damageable.h"
 
-#include "../CombatUnitDataAsset.h"
-#include "../CombatUnit.h"
-#include "../UnitOrder.h"
+#include "../../../DataAssets/CombatUnitDataAsset.h"
+#include "../Units/CombatUnit.h"
+#include "../Orders/UnitOrder.h"
 
 #include <Kismet/GameplayStatics.h>
 

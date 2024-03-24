@@ -3,7 +3,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 
-#include "../PlayerCameraState.h"
+#include "../PlayerCameraStateEnum.h"
 
 #include "PlayerMovementComponent.generated.h"
 

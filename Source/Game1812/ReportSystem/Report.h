@@ -2,12 +2,12 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "../Pawns/Player/Components/Draggable.h"
-#include "../Pawns/Unit/UnitReport.h"
+#include "../Pawns/Player/Components/Interactable.h"
+#include "../Pawns/Unit/Reports/UnitReport.h"
 #include "Report.generated.h"
 
 UCLASS()
-class GAME1812_API AReport : public AActor, public IDraggable
+class GAME1812_API AReport : public AActor, public IInteractable
 {
 	GENERATED_BODY()
 	

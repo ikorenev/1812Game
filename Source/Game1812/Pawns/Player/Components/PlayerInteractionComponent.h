@@ -29,18 +29,18 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Drag and Drop")
 	float RotateSpeed;
 
-	class IDraggable* CurrentDraggable;
-	class IDraggable* CurrentHovered;
-	class IDraggable* CurrentSelected;
+	class IInteractable* CurrentDraggable;
+	class IInteractable* CurrentHovered;
+	class IInteractable* CurrentSelected;
 
-	void SetCurrentDraggable(class IDraggable* NewDraggable);
-	void SetCurrentHovered(class IDraggable* NewHovered);
-	void SetCurrentSelected(class IDraggable* NewSelected);
+	void SetCurrentDraggable(class IInteractable* NewDraggable);
+	void SetCurrentHovered(class IInteractable* NewHovered);
+	void SetCurrentSelected(class IInteractable* NewSelected);
 
 	virtual void BeginPlay() override;
 
 	FHitResult SingleCursorTrace();
-	class IDraggable* FindDraggableAtCursor();
+	class IInteractable* FindDraggableAtCursor();
 
 public:	
 

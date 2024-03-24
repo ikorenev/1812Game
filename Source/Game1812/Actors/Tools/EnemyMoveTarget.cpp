@@ -1,9 +1,9 @@
 #include "EnemyMoveTarget.h"
 
 #include "Kismet/GameplayStatics.h"
-#include "../CossacksGameMode.h"
-#include "../Pawns/Unit/CombatUnit.h"
-#include "../Pawns/Unit/UnitOrder.h"
+#include "../../CossacksGameMode.h"
+#include "../../Pawns/Unit/Units/CombatUnit.h"
+#include "../../Pawns/Unit/Orders/UnitOrder.h"
 
 AEnemyMoveTarget::AEnemyMoveTarget()
 {

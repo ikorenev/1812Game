@@ -1,9 +1,9 @@
 #include "BaseUnit.h"
 
-#include "UnitOrder.h"
+#include "Orders/UnitOrder.h"
 #include "Components/UnitMovementComponent.h"
 #include "Components/UnitTerrainModifiersComponent.h"
-#include "../../Actors/Piece.h"
+#include "../../Actors/Pieces/Piece.h"
 #include "../../Actors/HeadQuarters.h"
 #include "../../Actors/UnitDeathNotifier.h"
 

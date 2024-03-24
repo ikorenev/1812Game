@@ -2,8 +2,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "../Pawns/Unit/UnitOrder.h"
-#include "../Pawns/Unit/AssignedUnitOrder.h"
+#include "../Pawns/Unit/Orders/UnitOrder.h"
+#include "../Pawns/Unit/Orders/AssignedUnitOrder.h"
 #include "HeadQuarters.generated.h"
 
 UCLASS()

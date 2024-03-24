@@ -2,7 +2,7 @@
 
 #include "../PlayerPawn.h"
 #include "PlayerMovementComponent.h"
-#include "Draggable.h"
+#include "Interactable.h"
 
 UPlayerInteractionComponent::UPlayerInteractionComponent()
 {
@@ -74,7 +74,7 @@ void UPlayerInteractionComponent::TickComponent(float DeltaTime, ELevelTick Tick
 		{
 			PlayerPawn->GetPlayerInput()->MouseLeftClick = false;
 
-			IDraggable* newDraggable = FindDraggableAtCursor();
+			IInteractable* newDraggable = FindDraggableAtCursor();
 
 			if (newDraggable) 
 				SetCurrentDraggable(newDraggable);
@@ -83,19 +83,19 @@ void UPlayerInteractionComponent::TickComponent(float DeltaTime, ELevelTick Tick
 		{
 			PlayerPawn->GetPlayerInput()->MouseRightClick = false;
 
-			IDraggable* newSelected = FindDraggableAtCursor();
+			IInteractable* newSelected = FindDraggableAtCursor();
 
 			SetCurrentSelected(newSelected);
 		}
 	}
 
-	IDraggable* newHovered = FindDraggableAtCursor();
+	IInteractable* newHovered = FindDraggableAtCursor();
 
 	if (CurrentHovered != newHovered)
 		SetCurrentHovered(newHovered);
 }
 
-void UPlayerInteractionComponent::SetCurrentDraggable(IDraggable* NewDraggable)
+void UPlayerInteractionComponent::SetCurrentDraggable(IInteractable* NewDraggable)
 {
 	if (CurrentDraggable) 
 		CurrentDraggable->StopDragging();
@@ -106,7 +106,7 @@ void UPlayerInteractionComponent::SetCurrentDraggable(IDraggable* NewDraggable)
 	CurrentDraggable = NewDraggable;
 }
 
-void UPlayerInteractionComponent::SetCurrentHovered(IDraggable* NewHovered)
+void UPlayerInteractionComponent::SetCurrentHovered(IInteractable* NewHovered)
 {
 	if (CurrentHovered)
 		CurrentHovered->StopCursorHover();
@@ -117,7 +117,7 @@ void UPlayerInteractionComponent::SetCurrentHovered(IDraggable* NewHovered)
 	CurrentHovered = NewHovered;
 }
 
-void UPlayerInteractionComponent::SetCurrentSelected(IDraggable* NewSelected)
+void UPlayerInteractionComponent::SetCurrentSelected(IInteractable* NewSelected)
 {
 	if (CurrentSelected)
 		CurrentSelected->SelectionRemoved();
@@ -148,7 +148,7 @@ FHitResult UPlayerInteractionComponent::SingleCursorTrace()
 	return hit;
 }
 
-IDraggable* UPlayerInteractionComponent::FindDraggableAtCursor()
+IInteractable* UPlayerInteractionComponent::FindDraggableAtCursor()
 {
 	FHitResult hit = SingleCursorTrace();
 
@@ -158,7 +158,7 @@ IDraggable* UPlayerInteractionComponent::FindDraggableAtCursor()
 	if (!hit.GetActor()) 
 		return nullptr;
 
-	IDraggable* draggable = Cast<IDraggable>(hit.GetActor());
+	IInteractable* draggable = Cast<IInteractable>(hit.GetActor());
 
 	if (!draggable) 
 		return nullptr;

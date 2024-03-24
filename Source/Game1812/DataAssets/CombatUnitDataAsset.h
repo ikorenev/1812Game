@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
-#include "CombatUnitType.h"
+#include "../Pawns/Unit/UnitTypeEnum.h"
 #include "CombatUnitDataAsset.generated.h"
 
 USTRUCT(BlueprintType)

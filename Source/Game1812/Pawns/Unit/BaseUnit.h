@@ -2,9 +2,9 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
-#include "../../Actors/FogAffected.h"
+#include "../../FogSystem/FogAffected.h"
 #include "TeamEnum.h"
-#include "CombatUnitType.h"
+#include "UnitTypeEnum.h"
 #include "BaseUnit.generated.h"
 
 UCLASS(Abstract, Blueprintable)

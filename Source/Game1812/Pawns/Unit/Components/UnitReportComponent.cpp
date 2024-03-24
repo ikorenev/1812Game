@@ -1,7 +1,7 @@
 #include "UnitReportComponent.h"
 
 #include "UnitCombatComponent.h"
-#include "../CombatUnit.h"
+#include "../Units/CombatUnit.h"
 
 UUnitReportComponent::UUnitReportComponent()
 {

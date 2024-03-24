@@ -2,9 +2,9 @@
 
 #include <Kismet/GameplayStatics.h>
 #include "BattleCondition.h"
-#include "CombatPiece.h"
-#include "../Pawns/Unit/CombatUnit.h"
-#include "../Pawns/Unit/CombatUnitDataAsset.h"
+#include "../Actors/Pieces/CombatPiece.h"
+#include "../Pawns/Unit/Units/CombatUnit.h"
+#include "../DataAssets/CombatUnitDataAsset.h"
 #include "../Pawns/Unit/Components/UnitCombatComponent.h"
 
 ABattleObjectivesManager* ABattleObjectivesManager::Instance = nullptr;

@@ -1,12 +1,12 @@
 #include "PiecesReturner.h"
 
-#include "Piece.h"
+#include "../Pieces/Piece.h"
 
 #include <Components/BoxComponent.h>
 
 APiecesReturner::APiecesReturner()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	BoxComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("Box Component"));
 	BoxComponent->SetGenerateOverlapEvents(true);

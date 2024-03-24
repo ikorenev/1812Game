@@ -1,6 +1,6 @@
 #include "TerrainPropertyVolume.h"
 
-#include "../DataAssets/TerrainPropertyDataAsset.h"
+#include "../../DataAssets/TerrainPropertyDataAsset.h"
 #include "NavArea_CustomTerrain.h"
 #include <Components/BoxComponent.h>
 #include <NavModifierComponent.h>

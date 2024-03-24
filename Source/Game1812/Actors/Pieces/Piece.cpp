@@ -1,13 +1,13 @@
 #include "Piece.h"
 
-#include "../Pawns/Unit/UnitOrder.h"
-#include "../Pawns/Unit/CombatUnit.h"
-#include "../UI/BaseOrderWidget.h"
-#include "../CossacksGameInstance.h"
-#include "HeadQuarters.h"
-#include "PieceMapMarker.h"
-#include "PaperMap.h"
-#include "UnitPathArrow.h"
+#include "../../Pawns/Unit/Orders/UnitOrder.h"
+#include "../../Pawns/Unit/Units/CombatUnit.h"
+#include "../../UI/BaseOrderWidget.h"
+#include "../../CossacksGameInstance.h"
+#include "../HeadQuarters.h"
+#include "../PieceMapMarker.h"
+#include "../PaperMap.h"
+#include "../UnitPathArrow.h"
 
 #include <Kismet/GameplayStatics.h>
 #include <Components/BoxComponent.h>

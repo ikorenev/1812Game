@@ -3,7 +3,7 @@
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 #include "../TeamEnum.h"
-#include "../CombatUnitType.h"
+#include "../UnitTypeEnum.h"
 #include "Damageable.generated.h"
 
 

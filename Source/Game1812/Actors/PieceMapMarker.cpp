@@ -1,6 +1,6 @@
 #include "PieceMapMarker.h"
 
-#include "Piece.h"
+#include "Pieces/Piece.h"
 #include "../CossacksGameInstance.h"
 
 APieceMapMarker::APieceMapMarker()

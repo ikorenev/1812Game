@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "FogAffected.h"
+#include "../FogSystem/FogAffected.h"
 #include "UnitDeathNotifier.generated.h"
 
 UCLASS()

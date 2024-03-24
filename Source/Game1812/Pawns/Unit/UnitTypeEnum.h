@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "CombatUnitType.generated.h"
+#include "UnitTypeEnum.generated.h"
 
 UENUM()
 enum class ECombatUnitType : uint8

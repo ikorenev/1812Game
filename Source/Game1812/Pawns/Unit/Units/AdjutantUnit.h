@@ -1,9 +1,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "BaseUnit.h"
-#include "UnitReport.h"
-#include "Components/Damageable.h"
+#include "../BaseUnit.h"
+#include "../Reports/UnitReport.h"
+#include "../Components/Damageable.h"
 #include "AdjutantUnit.generated.h"
 
 UCLASS()

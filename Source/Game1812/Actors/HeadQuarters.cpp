@@ -1,7 +1,7 @@
 #include "HeadQuarters.h"
 
 #include "../Pawns/Unit/BaseUnit.h"
-#include "../Pawns/Unit/AdjutantUnit.h"
+#include "../Pawns/Unit/Units/AdjutantUnit.h"
 #include "../CossacksGameInstance.h"
 
 AHeadQuarters* AHeadQuarters::Instance = nullptr;

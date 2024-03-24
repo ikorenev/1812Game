@@ -3,7 +3,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
 
-#include "PlayerCameraState.h"
+#include "PlayerCameraStateEnum.h"
 
 #include "PlayerPawn.generated.h"
 

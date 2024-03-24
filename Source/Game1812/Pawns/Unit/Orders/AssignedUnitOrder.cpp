@@ -1,6 +1,6 @@
 #include "AssignedUnitOrder.h"
 
-#include "BaseUnit.h"
+#include "../BaseUnit.h"
 #include "UnitOrder.h" 
 
 FAssignedCombatUnitOrder::FAssignedCombatUnitOrder()

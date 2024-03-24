@@ -1,8 +1,8 @@
 #include "PiecesSpawner.h"
 
-#include "../CossacksGameInstance.h"
-#include "ScoutPiece.h"
-#include "CombatPiece.h"
+#include "../../CossacksGameInstance.h"
+#include "../Pieces/ScoutPiece.h"
+#include "../Pieces/CombatPiece.h"
 
 APiecesSpawner::APiecesSpawner()
 {

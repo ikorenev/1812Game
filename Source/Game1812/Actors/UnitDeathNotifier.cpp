@@ -1,6 +1,6 @@
 #include "UnitDeathNotifier.h"
 
-#include "Piece.h"
+#include "Pieces/Piece.h"
 
 AUnitDeathNotifier::AUnitDeathNotifier()
 {

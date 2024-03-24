@@ -1,10 +1,10 @@
 #include "CombatPiece.h"
 
-#include "../Pawns/Unit/CombatUnit.h"
-#include "../Pawns/Unit/CombatUnitDataAsset.h"
-#include "../UI/BaseOrderWidget.h"
-#include "../CossacksGameInstance.h"
-#include "HeadQuarters.h"
+#include "../../Pawns/Unit/Units/CombatUnit.h"
+#include "../../DataAssets/CombatUnitDataAsset.h"
+#include "../../UI/BaseOrderWidget.h"
+#include "../../CossacksGameInstance.h"
+#include "../HeadQuarters.h"
 
 #include <Components/BoxComponent.h>
 #include <Components/WidgetComponent.h>

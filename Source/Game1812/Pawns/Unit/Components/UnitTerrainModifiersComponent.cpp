@@ -1,7 +1,7 @@
 #include "UnitTerrainModifiersComponent.h"
 
 #include "../BaseUnit.h"
-#include "../../../Actors/TerrainPropertyVolume.h"
+#include "../../../Actors/Tools/TerrainPropertyVolume.h"
 #include "../../../DataAssets/TerrainPropertyDataAsset.h"
 
 #include <Components/BoxComponent.h>

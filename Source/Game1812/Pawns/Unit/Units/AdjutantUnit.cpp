@@ -1,13 +1,13 @@
 #include "AdjutantUnit.h"
 
 #include "CombatUnit.h"
-#include "AssignedUnitOrder.h"
-#include "UnitOrder.h"
-#include "Components/UnitMovementComponent.h"
-#include "Components/UnitReportComponent.h"
-#include "Components/UnitTerrainModifiersComponent.h"
-#include "../../Actors/HeadQuarters.h"
-#include "../../Actors/ReportSpawner.h"
+#include "../Orders/AssignedUnitOrder.h"
+#include "../Orders/UnitOrder.h"
+#include "../Components/UnitMovementComponent.h"
+#include "../Components/UnitReportComponent.h"
+#include "../Components/UnitTerrainModifiersComponent.h"
+#include "../../../Actors/HeadQuarters.h"
+#include "../../../ReportSystem/ReportSpawner.h"
 
 AAdjutantUnit::AAdjutantUnit()
 {

@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "../UnitReport.h"
+#include "../Reports/UnitReport.h"
 #include "UnitReportComponent.generated.h"
 
 

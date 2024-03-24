@@ -1,8 +1,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "BaseUnit.h"
-#include "Components/Damageable.h"
+#include "../BaseUnit.h"
+#include "../Components/Damageable.h"
 #include "CombatUnit.generated.h"
 
 UCLASS()

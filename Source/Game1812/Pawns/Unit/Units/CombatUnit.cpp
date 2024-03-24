@@ -1,15 +1,15 @@
 #include "CombatUnit.h"
 
-#include "UnitOrder.h"
+#include "../Orders/UnitOrder.h"
 
-#include "Components/UnitMovementComponent.h"
-#include "Components/UnitCombatComponent.h"
-#include "Components/UnitReportComponent.h"
-#include "Components/UnitTerrainModifiersComponent.h"
-#include "Controllers/EnemyUnitController.h"
-#include "CombatUnitDataAsset.h"
+#include "../Components/UnitMovementComponent.h"
+#include "../Components/UnitCombatComponent.h"
+#include "../Components/UnitReportComponent.h"
+#include "../Components/UnitTerrainModifiersComponent.h"
+#include "../Controllers/EnemyUnitController.h"
+#include "../../../DataAssets/CombatUnitDataAsset.h"
 
-#include "../../CossacksGameInstance.h"
+#include "../../../CossacksGameInstance.h"
 
 ACombatUnit::ACombatUnit()
 {
