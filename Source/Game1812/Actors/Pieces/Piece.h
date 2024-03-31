@@ -23,6 +23,7 @@ public:
 
 protected:
 
+	//Scene Components
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class UBoxComponent* BoxCollisionComponent;
 
@@ -31,6 +32,8 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class UStaticMeshComponent* PieceFigureMeshComponent;
+	//
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UMaterialInterface* MaterialOnDeath;

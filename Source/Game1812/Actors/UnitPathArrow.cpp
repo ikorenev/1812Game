@@ -20,11 +20,6 @@ AUnitPathArrow::AUnitPathArrow()
 	ArrowLocationHeight = 0.f;
 }
 
-void AUnitPathArrow::OnConstruction(const FTransform& Transform)
-{
-	//BuildArrow();
-}
-
 void AUnitPathArrow::BeginPlay()
 {
 	Super::BeginPlay();
@@ -105,11 +100,15 @@ void AUnitPathArrow::UpdateSplineWithPath()
 	for (int i = Path->PathPoints.Num() - 1; i >= 0; i--)
 	{
 		FVector point = Path->PathPoints[i];
-
 		point.Z = ArrowLocationHeight;
 
-		SplinePathComponent->AddSplinePoint(point, ESplineCoordinateSpace::World);
+		SplinePathComponent->AddSplinePoint(point, ESplineCoordinateSpace::World, false);
+
+		const int reverseIter = Path->PathPoints.Num() - 1 - i;
+		SplinePathComponent->SetTangentAtSplinePoint(reverseIter, FVector::ZeroVector, ESplineCoordinateSpace::World);
 	}
+
+	SplinePathComponent->UpdateSpline();
 }
 
 FVector AUnitPathArrow::ProjectPointToMap(const FVector& Point)

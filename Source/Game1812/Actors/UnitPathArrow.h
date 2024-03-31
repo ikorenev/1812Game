@@ -54,8 +54,6 @@ protected:
 
 public:	
 
-	virtual void OnConstruction(const FTransform& Transform) override;
-
 	virtual void Tick(float DeltaTime) override;
 
 	void SetEndPoint(const FVector& NewEndPoint);
