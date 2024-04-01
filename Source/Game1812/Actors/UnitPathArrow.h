@@ -30,8 +30,11 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	UStaticMesh* ArrowOutlineEndStaticMesh;
 
-	UPROPERTY()
-	class UNavigationPath* Path;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TArray<FVector> PathPoints;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TArray<FVector> TempPathPoints;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float SegmentLength;
@@ -49,7 +52,7 @@ protected:
 
 	void BuildArrow();
 
-	void UpdatePath();
+	void GetPathPoints(TArray<FVector>& PointsArray, const FVector& From, const FVector& To);
 
 	void UpdateSplineWithPath();
 
@@ -60,6 +63,5 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	void SetStartPoint(const FVector& NewStartPoint);
-	void SetEndPoint(const FVector& NewEndPoint);
-
+	void SetEndPoint(const FVector& NewEndPoint, bool ClearPoints = true, bool IsTemp = false);
 };

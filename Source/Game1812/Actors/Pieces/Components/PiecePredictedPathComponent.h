@@ -4,7 +4,6 @@
 #include "Components/ActorComponent.h"
 #include "PiecePredictedPathComponent.generated.h"
 
-
 UCLASS()
 class GAME1812_API UPiecePredictedPathComponent : public UActorComponent
 {
@@ -24,11 +23,14 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	FVector PathStartPoint;
 
+	bool bIsScout;
+
 	virtual void BeginPlay() override;
 
 	void SpawnArrow();
 
 	void BuildArrow();
+	void ScoutBuildArrow();
 	
 	void DestroyArrow();
 
@@ -36,5 +38,5 @@ public:
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-		
+	void SetScout(bool NewScout);
 };

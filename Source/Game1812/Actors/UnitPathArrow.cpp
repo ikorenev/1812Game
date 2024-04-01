@@ -82,29 +82,32 @@ void AUnitPathArrow::BuildArrow()
 	}
 }
 
-void AUnitPathArrow::UpdatePath()
+void AUnitPathArrow::GetPathPoints(TArray<FVector>& PointsArray, const FVector& From, const FVector& To)
 {
-	const FVector start = ProjectPointToMap(StartPoint);
-	const FVector end = ProjectPointToMap(EndPoint);
+	const FVector start = ProjectPointToMap(From);
+	const FVector end = ProjectPointToMap(To);
 
-	Path = UNavigationSystemV1::FindPathToLocationSynchronously(this, start, end);
+	UNavigationPath* path = UNavigationSystemV1::FindPathToLocationSynchronously(this, start, end);
+
+	if (path)
+		PointsArray.Append(path->PathPoints);
 }
 
 void AUnitPathArrow::UpdateSplineWithPath()
 {
 	SplinePathComponent->ClearSplinePoints();
 
-	if (!Path)
-		return;
+	TArray<FVector> points = TArray<FVector>(PathPoints);
+	points.Append(TempPathPoints);
 
-	for (int i = Path->PathPoints.Num() - 1; i >= 0; i--)
+	for (int i = points.Num() - 1; i >= 0; i--)
 	{
-		FVector point = Path->PathPoints[i];
+		FVector point = points[i];
 		point.Z = ArrowLocationHeight;
 
 		SplinePathComponent->AddSplinePoint(point, ESplineCoordinateSpace::World, false);
 
-		const int reverseIter = Path->PathPoints.Num() - 1 - i;
+		const int reverseIter = points.Num() - 1 - i;
 		SplinePathComponent->SetTangentAtSplinePoint(reverseIter, FVector::ZeroVector, ESplineCoordinateSpace::World);
 	}
 
@@ -132,16 +135,26 @@ void AUnitPathArrow::Tick(float DeltaTime)
 void AUnitPathArrow::SetStartPoint(const FVector& NewStartPoint)
 {
 	StartPoint = NewStartPoint;
+	EndPoint = NewStartPoint;
 }
 
-void AUnitPathArrow::SetEndPoint(const FVector& NewEndPoint)
+void AUnitPathArrow::SetEndPoint(const FVector& NewEndPoint, bool ClearPoints, bool IsTemp)
 {
-	EndPoint = NewEndPoint;
+	TempPathPoints.Empty();
 
-	UpdatePath();
+	if (ClearPoints)
+		PathPoints.Empty();
+
+	TArray<FVector>& arr = (IsTemp) ? TempPathPoints : PathPoints;
+
+	FVector startPoint = (ClearPoints) ? StartPoint : EndPoint;
+
+	GetPathPoints(arr, startPoint, NewEndPoint);
+
+	if (!IsTemp)
+		EndPoint = NewEndPoint;
 
 	UpdateSplineWithPath();
 
 	BuildArrow();
 }
-

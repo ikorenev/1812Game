@@ -1,8 +1,10 @@
 #include "ScoutPiece.h"
 
+#include "Components/PiecePredictedPathComponent.h"
+
 AScoutPiece::AScoutPiece()
 {
-
+	PredictedPathComponent->SetScout(true);
 }
 
 void AScoutPiece::AssignOrder(UUnitOrder* UnitOrder)
@@ -13,4 +15,9 @@ void AScoutPiece::AssignOrder(UUnitOrder* UnitOrder)
 		return;
 
 	Unit->AssignOrder(UnitOrder);
+}
+
+void AScoutPiece::OnOrderPointAdded()
+{
+	OnOrderPointAdd.Broadcast();
 }

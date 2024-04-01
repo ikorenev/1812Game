@@ -1,6 +1,7 @@
 #include "PiecePredictedPathComponent.h"
 
 #include "../Piece.h"
+#include "../ScoutPiece.h"
 #include "../../../CossacksGameInstance.h"
 #include "../../UnitPathArrow.h"
 #include "../../HeadQuarters.h"
@@ -9,6 +10,7 @@ UPiecePredictedPathComponent::UPiecePredictedPathComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 
+	bIsScout = false;
 }
 
 void UPiecePredictedPathComponent::BeginPlay()
@@ -53,19 +55,51 @@ void UPiecePredictedPathComponent::SpawnArrow()
 
 void UPiecePredictedPathComponent::BuildArrow()
 {
-	if (UnitPathArrow.IsValid())
-		UnitPathArrow->SetEndPoint(OwnerPiece->GetActorLocation());
+	if (!UnitPathArrow.IsValid())
+		return;
+
+	if (bIsScout)
+	{
+		UnitPathArrow->SetEndPoint(OwnerPiece->GetActorLocation(), false, true);
+	}
+	else 
+	{
+		UnitPathArrow->SetEndPoint(OwnerPiece->GetActorLocation(), true);
+	}
+}
+
+void UPiecePredictedPathComponent::ScoutBuildArrow()
+{
+	if (!UnitPathArrow.IsValid())
+		return;
+
+	UnitPathArrow->SetEndPoint(OwnerPiece->GetActorLocation(), false);
 }
 
 void UPiecePredictedPathComponent::DestroyArrow()
 {
 	UnitPathArrow->Destroy();
 	UnitPathArrow = nullptr;
+
+	if (!bIsScout)
+		PathStartPoint = OwnerPiece->GetActorLocation();
 }
 
 void UPiecePredictedPathComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+}
+
+void UPiecePredictedPathComponent::SetScout(bool NewScout)
+{
+	bIsScout = NewScout;
+
+	AScoutPiece* scoutPiece = Cast<AScoutPiece>(GetOwner());
+
+	if (!scoutPiece)
+		return;
+
+	scoutPiece->AddOnOrderPointAddHandler(FOnPieceChangeDelegate::FDelegate::CreateUObject(this, &UPiecePredictedPathComponent::ScoutBuildArrow));
 }
 

@@ -15,7 +15,14 @@ public:
 
 protected:
 
+	FOnPieceChangeDelegate OnOrderPointAdd;
+
 public:
 
 	virtual void AssignOrder(class UUnitOrder* UnitOrder) override;
+
+	UFUNCTION(BlueprintCallable)
+	void OnOrderPointAdded();
+
+	void AddOnOrderPointAddHandler(const FOnPieceChangeDelegate::FDelegate& Handler) { OnOrderPointAdd.Add(Handler); };
 };
