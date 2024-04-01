@@ -19,18 +19,27 @@ protected:
 	TSubclassOf<class AScoutPiece> ScoutUnitPieceClass;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	UMaterial* PieceMapMarkerMaterial;
+	TSubclassOf<class AAdjutantUnit> AdjutantUnitClass;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	TSubclassOf<class AUnitPathArrow> UnitPathArrowClass;
 
-public:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	UMaterialInterface* PieceMapMarkerMaterial;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	TSubclassOf<class AAdjutantUnit> AdjutantUnitClass;
+	UMaterialInterface* DeadPieceMaterial;
+
+public:
+
+	UClass* GetCombatUnitPieceClass() const;
+	UClass* GetScoutUnitPieceClass() const;
+
+	UClass* GetAdjutantUnitClass() const;
+
+	UClass* GetUnitPathArrowClass() const;
+
+	UMaterialInterface* GetPieceMapMarkerMaterial() const { return PieceMapMarkerMaterial; }
+	UMaterialInterface* GetDeadPieceMaterial() const { return DeadPieceMaterial; };
 	
-	UClass* GetCombatUnitPieceClass();
-	UClass* GetScoutUnitPieceClass();
-	UMaterial* GetPieceMapMarkerMaterial();
-	TSubclassOf<class AUnitPathArrow> GetUnitPathArrowClass();
 };

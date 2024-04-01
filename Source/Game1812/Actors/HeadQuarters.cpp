@@ -34,7 +34,7 @@ void AHeadQuarters::BeginPlay()
 
 	for (int i = 0; i < AdjutantsAmount; i++) 
 	{
-		ABaseUnit* unit = SpawnUnit(gameInstance->AdjutantUnitClass);
+		ABaseUnit* unit = SpawnUnit(gameInstance->GetAdjutantUnitClass());
 
 		AAdjutantUnit* adjutantUnit = Cast<AAdjutantUnit>(unit);
 

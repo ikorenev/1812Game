@@ -30,9 +30,9 @@ void ACombatPiece::BeginPlay()
 		statsWidget->Init(this);
 }
 
-void ACombatPiece::CustomUnitSpawn()
+void ACombatPiece::OnSpawnUnit()
 {
-	Super::CustomUnitSpawn();
+	Super::OnSpawnUnit();
 
 	ACombatUnit* combatUnit = Cast<ACombatUnit>(Unit);
 
@@ -68,9 +68,9 @@ bool ACombatPiece::CanDisplayStats()
 	return !Unit->IsCoveredInFog();
 }
 
-void ACombatPiece::OnUnitDeath()
+void ACombatPiece::OnDeathUnit()
 {
-	Super::OnUnitDeath();
+	Super::OnDeathUnit();
 
 	RemoveStatsUI();
 }

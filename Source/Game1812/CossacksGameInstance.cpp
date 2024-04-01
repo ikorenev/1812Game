@@ -6,22 +6,22 @@
 #include "Actors/Pieces/CombatPiece.h"
 #include "Actors/UnitPathArrow.h"
 
-UClass* UCossacksGameInstance::GetCombatUnitPieceClass()
+UClass* UCossacksGameInstance::GetCombatUnitPieceClass() const
 {
 	return CombatUnitPieceClass.Get();
 }
 
-UClass* UCossacksGameInstance::GetScoutUnitPieceClass()
+UClass* UCossacksGameInstance::GetScoutUnitPieceClass() const
 {
 	return ScoutUnitPieceClass.Get();
 }
 
-UMaterial* UCossacksGameInstance::GetPieceMapMarkerMaterial()
+UClass* UCossacksGameInstance::GetAdjutantUnitClass() const
 {
-	return PieceMapMarkerMaterial;
+	return AdjutantUnitClass.Get();
 }
 
-TSubclassOf<class AUnitPathArrow> UCossacksGameInstance::GetUnitPathArrowClass()
+UClass* UCossacksGameInstance::GetUnitPathArrowClass() const
 {
-	return UnitPathArrowClass;
+	return UnitPathArrowClass.Get();
 }

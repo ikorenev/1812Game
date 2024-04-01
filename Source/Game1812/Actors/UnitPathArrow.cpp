@@ -84,7 +84,7 @@ void AUnitPathArrow::BuildArrow()
 
 void AUnitPathArrow::UpdatePath()
 {
-	const FVector start = ProjectPointToMap(GetActorLocation());
+	const FVector start = ProjectPointToMap(StartPoint);
 	const FVector end = ProjectPointToMap(EndPoint);
 
 	Path = UNavigationSystemV1::FindPathToLocationSynchronously(this, start, end);
@@ -127,6 +127,11 @@ void AUnitPathArrow::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+void AUnitPathArrow::SetStartPoint(const FVector& NewStartPoint)
+{
+	StartPoint = NewStartPoint;
 }
 
 void AUnitPathArrow::SetEndPoint(const FVector& NewEndPoint)

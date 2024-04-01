@@ -5,9 +5,12 @@
 #include "../../UI/BaseOrderWidget.h"
 #include "../../CossacksGameInstance.h"
 #include "../HeadQuarters.h"
-#include "../PieceMapMarker.h"
 #include "../PaperMap.h"
 #include "../UnitPathArrow.h"
+
+#include "Components/PieceMapMarkerComponent.h"
+#include "Components/PieceOrderWidgetComponent.h"
+#include "Components/PiecePredictedPathComponent.h"
 
 #include <Kismet/GameplayStatics.h>
 #include <Components/BoxComponent.h>
@@ -18,25 +21,27 @@ APiece::APiece()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	BoxCollisionComponent = CreateDefaultSubobject<UBoxComponent>(FName("Piece Collision"));
-	BoxCollisionComponent->InitBoxExtent(FVector(20, 20, 60));
+	BoxCollisionComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("Piece Collision"));
+	BoxCollisionComponent->InitBoxExtent(FVector(20.f, 20.f, 60.f));
 	BoxCollisionComponent->SetSimulatePhysics(true);
 	BoxCollisionComponent->SetNotifyRigidBodyCollision(true);
 	BoxCollisionComponent->SetGenerateOverlapEvents(true);
 	RootComponent = BoxCollisionComponent;
 
-	PieceFoundationMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(FName("Piece Foundation"));
+	PieceFoundationMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Piece Foundation"));
 	PieceFoundationMeshComponent->SetupAttachment(BoxCollisionComponent);
 	
-	PieceFigureMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(FName("Piece Figure"));
+	PieceFigureMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Piece Figure"));
 	PieceFigureMeshComponent->SetupAttachment(BoxCollisionComponent);
 
-	OrderWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(FName("Order Widget"));
-	OrderWidgetComponent->SetRelativeLocation(FVector(0, 0, 200));
-	OrderWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
-	OrderWidgetComponent->SetDrawSize(FVector2D(200, 200));
+	OrderWidgetComponent = CreateDefaultSubobject<UPieceOrderWidgetComponent>(TEXT("Order Widget"));
+	OrderWidgetComponent->SetRelativeLocation(FVector(0.f, 0.f, 200.f));
 	OrderWidgetComponent->SetupAttachment(BoxCollisionComponent);
-	
+
+	MapMarkerComponent = CreateDefaultSubobject<UPieceMapMarkerComponent>(TEXT("Map Marker"));
+
+	PredictedPathComponent = CreateDefaultSubobject<UPiecePredictedPathComponent>(TEXT("Path Arrow"));
+
 	bCanSpawnUnit = true;
 	bWasDragged = false;
 	bIsDead = false;
@@ -48,12 +53,6 @@ void APiece::BeginPlay()
 
 	BoxCollisionComponent->OnComponentHit.AddDynamic(this, &APiece::OnHit);
 
-	RemoveOrderUI();
-
-	UBaseOrderWidget* orderWidget = Cast<UBaseOrderWidget>(OrderWidgetComponent->GetWidget());
-
-	if (orderWidget)
-		orderWidget->Init(this);
 }
 
 void APiece::Tick(float DeltaTime)
@@ -78,14 +77,12 @@ void APiece::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimi
 	if (bIsDead)
 		return;
 
-	if (bWasDragged)
-	{
-		SpawnMapMarker();
-		
-		if (UnitPathArrow.IsValid())
-			UnitPathArrow->SetEndPoint(GetActorLocation());
+	OnMapHit.Broadcast();
 
+	if (bWasDragged) 
+	{
 		bWasDragged = false;
+		OnMapHitWasDragged.Broadcast();
 	}
 	
 	if (!bCanSpawnUnit)
@@ -95,18 +92,6 @@ void APiece::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimi
 	bCanSpawnUnit = false;
 }
 
-void APiece::DisplayOrderUI()
-{
-	if (!bIsDead && !bCanSpawnUnit)
-		OrderWidgetComponent->SetVisibility(true);
-}
-
-void APiece::RemoveOrderUI()
-{
-	OrderWidgetComponent->SetVisibility(false);
-}
-
-
 void APiece::SpawnUnit()
 {
 	if (!AHeadQuarters::GetInstance())
@@ -115,44 +100,18 @@ void APiece::SpawnUnit()
 	Unit = AHeadQuarters::GetInstance()->SpawnUnit(UnitClass);
 	Unit->SetOwnerPiece(this);
 
-	CustomUnitSpawn();
+	OnSpawnUnit();
 
-	OnUnitSpawn.Broadcast(Unit.Get());
+	OnUnitSpawn.Broadcast();
 }
 
-void APiece::CustomUnitSpawn()
+void APiece::OnSpawnUnit()
 {
-}
 
-void APiece::SpawnMapMarker()
-{
-	if (MapMarker.IsValid())
-		return;
-
-	MapMarker = GetWorld()->SpawnActor<APieceMapMarker>();
-	MapMarker->Init(this);
-}
-
-void APiece::SpawnUnitPathArrow()
-{
-	if (UnitPathArrow.IsValid())
-		return;
-
-	UCossacksGameInstance* gameInstance = GetWorld()->GetGameInstance<UCossacksGameInstance>();
-
-	if (!gameInstance)
-		return;
-
-	UnitPathArrow = GetWorld()->SpawnActor<AUnitPathArrow>(gameInstance->GetUnitPathArrowClass(), GetActorLocation(), FRotator::ZeroRotator);
 }
 
 void APiece::AssignOrder(UUnitOrder* UnitOrder)
 {
-	RemoveOrderUI();
-
-	if (UnitPathArrow.IsValid())
-		UnitPathArrow->Destroy();
-
 	OnOrderAssign.Broadcast();
 }
 
@@ -174,29 +133,35 @@ UStaticMesh* APiece::GetPieceFoundationMesh()
 	return PieceFoundationMeshComponent->GetStaticMesh();
 }
 
-void APiece::OnUnitDeath()
+void APiece::OnDeathUnit()
 {
 	bIsDead = true;
 
-	RemoveOrderUI();
+	UCossacksGameInstance* gameInstance = GetWorld()->GetGameInstance<UCossacksGameInstance>();
 
-	PieceFoundationMeshComponent->SetMaterial(0, MaterialOnDeath);
-	PieceFigureMeshComponent->SetMaterial(0, MaterialOnDeath);
+	if (!gameInstance)
+		return;
+
+	PieceFoundationMeshComponent->SetMaterial(0, gameInstance->GetDeadPieceMaterial());
+	PieceFigureMeshComponent->SetMaterial(0, gameInstance->GetDeadPieceMaterial());
+
+	OnUnitDeath.Broadcast();
 }
 
 void APiece::StartDragging()
 {
+	OnStartDragging.Broadcast();
+
 	BoxCollisionComponent->SetSimulatePhysics(false);
 	SetActorEnableCollision(false);
 
 	ResetRotation();
-
-	if (!bIsDead && !bCanSpawnUnit)
-		SpawnUnitPathArrow();
 }
 
 void APiece::StopDragging()
 {
+	OnStopDragging.Broadcast();
+
 	BoxCollisionComponent->SetSimulatePhysics(true);
 	SetActorEnableCollision(true);
 
@@ -205,22 +170,22 @@ void APiece::StopDragging()
 
 void APiece::StartCursorHover()
 {
-	
+	OnStartCursorHover.Broadcast();
 }
 
 void APiece::StopCursorHover()
 {
-	
+	OnStopCursorHover.Broadcast();
 }
 
 void APiece::Selected()
 {
-	DisplayOrderUI();
+	OnSelected.Broadcast();
 }
 
 void APiece::SelectionRemoved()
 {
-	RemoveOrderUI();
+	OnSelectionRemoved.Broadcast();
 }
 
 FVector APiece::GetDragOffset()

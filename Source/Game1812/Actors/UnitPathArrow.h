@@ -40,6 +40,9 @@ protected:
 	float ArrowLocationHeight;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FVector StartPoint;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	FVector EndPoint;
 
 	virtual void BeginPlay() override;
@@ -56,6 +59,7 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 
+	void SetStartPoint(const FVector& NewStartPoint);
 	void SetEndPoint(const FVector& NewEndPoint);
 
 };

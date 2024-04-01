@@ -23,7 +23,7 @@ void AUnitDeathNotifier::OnBeingRevealedFromFog()
 {
 	if (PieceToNotify.IsValid())
 		//HEAVY IS DEAD
-		PieceToNotify->OnUnitDeath();
+		PieceToNotify->OnDeathUnit();
 
 	Destroy();
 }

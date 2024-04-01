@@ -23,7 +23,7 @@ protected:
 
 	virtual void BeginPlay() override;
 
-	void CustomUnitSpawn() override;
+	void OnSpawnUnit() override;
 
 	void UpdatePieceMesh();
 
@@ -35,7 +35,7 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	bool CanDisplayStats();
 
-	void OnUnitDeath() override;
+	void OnDeathUnit() override;
 
 	class UCombatUnitDataAsset* GetCombatUnitData() const;
 	void SetCombatUnitData(class UCombatUnitDataAsset* NewCombatUnitData);

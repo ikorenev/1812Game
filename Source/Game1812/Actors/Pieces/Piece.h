@@ -7,10 +7,7 @@
 #include <Blueprint/UserWidget.h>
 #include "Piece.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOrderAssignDelegate);
-
-UDELEGATE(BlueprintAuthorityOnly)
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUnitSpawnDelegate, class ABaseUnit*, NewUnit);
+DECLARE_MULTICAST_DELEGATE(FOnPieceChangeDelegate);
 
 UCLASS()
 class GAME1812_API APiece : public AActor, public IInteractable
@@ -32,23 +29,21 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class UStaticMeshComponent* PieceFigureMeshComponent;
+
+	///
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	class UPieceMapMarkerComponent* MapMarkerComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	class UPieceOrderWidgetComponent* OrderWidgetComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	class UPiecePredictedPathComponent* PredictedPathComponent;
 	//
-
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UMaterialInterface* MaterialOnDeath;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	class UWidgetComponent* OrderWidgetComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TWeakObjectPtr<class ABaseUnit> Unit;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	TWeakObjectPtr<class APieceMapMarker> MapMarker;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	TWeakObjectPtr<class AUnitPathArrow> UnitPathArrow;
 
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<class ABaseUnit> UnitClass;
@@ -62,36 +57,49 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	bool bIsDead;
 
+	FOnPieceChangeDelegate OnUnitSpawn;
+	FOnPieceChangeDelegate OnUnitDeath;
+
+	FOnPieceChangeDelegate OnOrderAssign;
+
+	FOnPieceChangeDelegate OnMapHit;
+	FOnPieceChangeDelegate OnMapHitWasDragged;
+
+	FOnPieceChangeDelegate OnStartDragging;
+	FOnPieceChangeDelegate OnStopDragging;
+	FOnPieceChangeDelegate OnStartCursorHover;
+	FOnPieceChangeDelegate OnStopCursorHover;
+	FOnPieceChangeDelegate OnSelected;
+	FOnPieceChangeDelegate OnSelectionRemoved;
+
 	virtual void BeginPlay() override;
 
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
-	void DisplayOrderUI();
-	void RemoveOrderUI();
-
 	void SpawnUnit();
-	virtual void CustomUnitSpawn();
 
-	void SpawnMapMarker();
-	void SpawnUnitPathArrow();
+	virtual void OnSpawnUnit();
+
 
 public:
 
-	FOrderAssignDelegate OnOrderAssign;
-
-	UPROPERTY(BlueprintAssignable)
-	FOnUnitSpawnDelegate OnUnitSpawn;
-
-	
 	virtual void Tick(float DeltaTime) override;
+
+	bool IsDead() const { return bIsDead; }
+
+	//Return true if has related unit and it's not dead
+	bool IsPlayed() const { return !bCanSpawnUnit && !bIsDead; }
 
 	UFUNCTION(BlueprintCallable)
 	virtual void AssignOrder(class UUnitOrder* UnitOrder);
 
+	virtual void OnDeathUnit();
+
 	UStaticMesh* GetPieceFoundationMesh();
 
-	virtual void OnUnitDeath();
+	FRotator GetResetRotation();
+	void ResetRotation();
 
 	//IDraggable Interface
 	virtual void StartDragging() override;
@@ -106,8 +114,15 @@ public:
 	FVector GetDragOffset() override;
 	//
 
-	FRotator GetResetRotation();
-	void ResetRotation();
+	void AddOnOrderAssignHandler(const FOnPieceChangeDelegate::FDelegate& Handler) { OnOrderAssign.Add(Handler); };
 
+	void AddOnMapHitHandler(const FOnPieceChangeDelegate::FDelegate& Handler) { OnMapHit.Add(Handler); };
+	void AddOnMapHitWasDraggedHandler(const FOnPieceChangeDelegate::FDelegate& Handler) { OnMapHitWasDragged.Add(Handler); };
 
+	void AddOnStartDraggingHandler(const FOnPieceChangeDelegate::FDelegate& Handler) { OnStartDragging.Add(Handler); };
+	void AddOnStopDraggingHandler(const FOnPieceChangeDelegate::FDelegate& Handler) { OnStopDragging.Add(Handler); };
+	void AddOnStartCursorHoverHandler(const FOnPieceChangeDelegate::FDelegate& Handler) { OnStartCursorHover.Add(Handler); };
+	void AddOnStopCursorHoverHandler(const FOnPieceChangeDelegate::FDelegate& Handler) { OnStopCursorHover.Add(Handler); };
+	void AddOnSelectedHandler(const FOnPieceChangeDelegate::FDelegate& Handler) { OnSelected.Add(Handler); };
+	void AddOnSelectionRemovedHandler(const FOnPieceChangeDelegate::FDelegate& Handler) { OnSelectionRemoved.Add(Handler); };
 };
