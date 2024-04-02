@@ -27,6 +27,7 @@ void UPiecePredictedPathComponent::BeginPlay()
 	OwnerPiece->AddOnMapHitWasDraggedHandler(FOnPieceChangeDelegate::FDelegate::CreateUObject(this, &UPiecePredictedPathComponent::BuildArrow));
 	
 	OwnerPiece->AddOnOrderAssignHandler(FOnPieceChangeDelegate::FDelegate::CreateUObject(this, &UPiecePredictedPathComponent::DestroyArrow));
+	OwnerPiece->AddOnUnitDeathHandler(FOnPieceChangeDelegate::FDelegate::CreateUObject(this, &UPiecePredictedPathComponent::DestroyArrow));
 
 	AHeadQuarters* hq = AHeadQuarters::GetInstance();
 

@@ -59,7 +59,7 @@ void UPieceCombatStatsComponent::UpdateUnitStats()
 		return;
 
 	UnitHPRatio = CombatUnit->GetCombatComponent()->GetHPRatio();
-	UnitMoraleRatio = CombatUnit->GetCombatComponent()->GetHPRatio();
+	UnitMoraleRatio = CombatUnit->GetCombatComponent()->GetMorale();
 }
 
 bool UPieceCombatStatsComponent::CanUpdateStats()

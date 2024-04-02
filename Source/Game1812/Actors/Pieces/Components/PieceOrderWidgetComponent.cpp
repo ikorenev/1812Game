@@ -24,6 +24,7 @@ void UPieceOrderWidgetComponent::BeginPlay()
 
 	OwnerPiece->AddOnSelectionRemovedHandler(FOnPieceChangeDelegate::FDelegate::CreateUObject(this, &UPieceOrderWidgetComponent::OnDisable));
 	OwnerPiece->AddOnOrderAssignHandler(FOnPieceChangeDelegate::FDelegate::CreateUObject(this, &UPieceOrderWidgetComponent::OnDisable));
+	OwnerPiece->AddOnUnitDeathHandler(FOnPieceChangeDelegate::FDelegate::CreateUObject(this, &UPieceOrderWidgetComponent::OnDisable));
 
 	UBaseOrderWidget* orderWidget = Cast<UBaseOrderWidget>(GetWidget());
 

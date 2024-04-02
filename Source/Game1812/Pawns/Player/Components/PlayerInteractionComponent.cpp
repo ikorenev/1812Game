@@ -85,7 +85,14 @@ void UPlayerInteractionComponent::TickComponent(float DeltaTime, ELevelTick Tick
 
 			IInteractable* newSelected = FindDraggableAtCursor();
 
-			SetCurrentSelected(newSelected);
+			if (CurrentSelected == newSelected)
+			{
+				SetCurrentSelected(nullptr);
+			}
+			else 
+			{
+				SetCurrentSelected(newSelected);
+			}
 		}
 	}
 

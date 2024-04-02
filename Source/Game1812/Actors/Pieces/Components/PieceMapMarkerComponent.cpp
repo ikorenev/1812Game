@@ -34,6 +34,7 @@ void UPieceMapMarkerComponent::BeginPlay()
 
 	OwnerPiece->AddOnSelectionRemovedHandler(FOnPieceChangeDelegate::FDelegate::CreateUObject(this, &UPieceMapMarkerComponent::OnDisable));
 	OwnerPiece->AddOnOrderAssignHandler(FOnPieceChangeDelegate::FDelegate::CreateUObject(this, &UPieceMapMarkerComponent::OnDisable));
+	OwnerPiece->AddOnUnitDeathHandler(FOnPieceChangeDelegate::FDelegate::CreateUObject(this, &UPieceMapMarkerComponent::OnDisable));
 }
 
 void UPieceMapMarkerComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -47,7 +48,7 @@ void UPieceMapMarkerComponent::TickComponent(float DeltaTime, ELevelTick TickTyp
 
 void UPieceMapMarkerComponent::OnEnable()
 {
-	if (!OwnerPiece->IsPlayed())
+	if (OwnerPiece->IsDead())
 		return;
 
 	SetActive(true);
