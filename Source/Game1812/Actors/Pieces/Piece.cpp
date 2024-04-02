@@ -110,6 +110,7 @@ void APiece::OnSpawnUnit()
 
 }
 
+
 void APiece::AssignOrder(UUnitOrder* UnitOrder)
 {
 	OnOrderAssign.Broadcast();
@@ -193,3 +194,7 @@ FVector APiece::GetDragOffset()
 	return FVector(0, 0, BoxCollisionComponent->GetScaledBoxExtent().Z);
 }
 
+ABaseUnit* APiece::GetUnit()
+{
+	return Unit.Get();
+}

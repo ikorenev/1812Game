@@ -91,6 +91,11 @@ public:
 	//Return true if has related unit and it's not dead
 	bool IsPlayed() const { return !bCanSpawnUnit && !bIsDead; }
 
+	UStaticMeshComponent* GetPieceFoundationMeshComponent() const { return PieceFoundationMeshComponent; }
+	UStaticMeshComponent* GetPieceFigureMeshComponent() const { return PieceFigureMeshComponent; }
+
+	class ABaseUnit* GetUnit();
+
 	UFUNCTION(BlueprintCallable)
 	virtual void AssignOrder(class UUnitOrder* UnitOrder);
 
@@ -113,6 +118,9 @@ public:
 
 	FVector GetDragOffset() override;
 	//
+
+	void AddOnUnitSpawnHandler(const FOnPieceChangeDelegate::FDelegate& Handler) { OnUnitSpawn.Add(Handler); };
+	void AddOnUnitDeathHandler(const FOnPieceChangeDelegate::FDelegate& Handler) { OnUnitDeath.Add(Handler); };
 
 	void AddOnOrderAssignHandler(const FOnPieceChangeDelegate::FDelegate& Handler) { OnOrderAssign.Add(Handler); };
 

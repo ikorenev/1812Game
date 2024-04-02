@@ -30,6 +30,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	UMaterialInterface* DeadPieceMaterial;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	UMaterialInterface* CombatStatsPieceMaterial;
+
 public:
 
 	UClass* GetCombatUnitPieceClass() const;
@@ -41,5 +44,6 @@ public:
 
 	UMaterialInterface* GetPieceMapMarkerMaterial() const { return PieceMapMarkerMaterial; }
 	UMaterialInterface* GetDeadPieceMaterial() const { return DeadPieceMaterial; };
+	UMaterialInterface* GetCombatStatsPieceMaterial() const { return CombatStatsPieceMaterial; };
 	
 };

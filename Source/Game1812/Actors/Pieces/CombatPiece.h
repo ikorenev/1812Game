@@ -15,8 +15,8 @@ public:
 
 protected:
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	class UWidgetComponent* StatsWidgetComponent;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	class UPieceCombatStatsComponent* StatsComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	class UCombatUnitDataAsset* CombatUnitData;
@@ -27,23 +27,10 @@ protected:
 
 	void UpdatePieceMesh();
 
-	void DisplayStatsUI();
-	void RemoveStatsUI();
-
 public:
-
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-	bool CanDisplayStats();
-
-	void OnDeathUnit() override;
 
 	class UCombatUnitDataAsset* GetCombatUnitData() const;
 	void SetCombatUnitData(class UCombatUnitDataAsset* NewCombatUnitData);
 
 	virtual void AssignOrder(class UUnitOrder* UnitOrder) override;
-
-	//IDraggable Interface
-	void StartCursorHover() override;
-	void StopCursorHover() override;
-	//
 };
