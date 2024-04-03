@@ -21,6 +21,9 @@ protected:
 	TWeakObjectPtr<class AUnitPathArrow> UnitPathArrow;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TArray<class AGhostPiece*> GhostPieces;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	FVector PathStartPoint;
 
 	bool bIsScout;
@@ -28,6 +31,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	void SpawnArrow();
+	void SpawnGhostPiece(const FVector& Location);
 
 	void BuildArrow();
 	void ScoutBuildArrow();

@@ -25,6 +25,9 @@ protected:
 	TSubclassOf<class AUnitPathArrow> UnitPathArrowClass;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	TSubclassOf<class AGhostPiece> GhostPieceClass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	UMaterialInterface* PieceMapMarkerMaterial;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
@@ -41,6 +44,7 @@ public:
 	UClass* GetAdjutantUnitClass() const;
 
 	UClass* GetUnitPathArrowClass() const;
+	UClass* GetGhostPieceClass() const;
 
 	UMaterialInterface* GetPieceMapMarkerMaterial() const { return PieceMapMarkerMaterial; }
 	UMaterialInterface* GetDeadPieceMaterial() const { return DeadPieceMaterial; };

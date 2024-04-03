@@ -5,6 +5,7 @@
 #include "../../../CossacksGameInstance.h"
 #include "../../UnitPathArrow.h"
 #include "../../HeadQuarters.h"
+#include "../../GhostPiece.h"
 
 UPiecePredictedPathComponent::UPiecePredictedPathComponent()
 {
@@ -43,21 +44,38 @@ void UPiecePredictedPathComponent::SpawnArrow()
 	if (UnitPathArrow.IsValid())
 		return;
 
-	UCossacksGameInstance* gameInstance = GetWorld()->GetGameInstance<UCossacksGameInstance>();
-
-	if (!gameInstance)
-		return;
-
+	const UCossacksGameInstance* gameInstance = GetWorld()->GetGameInstanceChecked<UCossacksGameInstance>();
 	UnitPathArrow = GetWorld()->SpawnActor<AUnitPathArrow>(gameInstance->GetUnitPathArrowClass(), FVector::ZeroVector, FRotator::ZeroRotator);
 
-	if (UnitPathArrow.IsValid())
-		UnitPathArrow->SetStartPoint(PathStartPoint);
+	if (!UnitPathArrow.IsValid())
+		return;
+
+	UnitPathArrow->SetStartPoint(PathStartPoint);
+}
+
+void UPiecePredictedPathComponent::SpawnGhostPiece(const FVector& Location)
+{
+	const UCossacksGameInstance* gameInstance = GetWorld()->GetGameInstanceChecked<UCossacksGameInstance>();
+	AGhostPiece* ghostPiece = GetWorld()->SpawnActor<AGhostPiece>(gameInstance->GetGhostPieceClass(), Location, FRotator::ZeroRotator);
+
+	if (!ghostPiece)
+		return;
+
+	ghostPiece->CopyPiece(OwnerPiece);
+	GhostPieces.Add(ghostPiece);
 }
 
 void UPiecePredictedPathComponent::BuildArrow()
 {
 	if (!UnitPathArrow.IsValid())
 		return;
+
+	if (GhostPieces.IsEmpty()) 
+	{
+		FVector location = PathStartPoint;
+		location.Z = OwnerPiece->GetActorLocation().Z;
+		SpawnGhostPiece(location);
+	}
 
 	if (bIsScout)
 	{
@@ -75,12 +93,19 @@ void UPiecePredictedPathComponent::ScoutBuildArrow()
 		return;
 
 	UnitPathArrow->SetEndPoint(OwnerPiece->GetActorLocation(), false);
+	SpawnGhostPiece(OwnerPiece->GetActorLocation());
 }
 
 void UPiecePredictedPathComponent::DestroyArrow()
 {
 	UnitPathArrow->Destroy();
 	UnitPathArrow = nullptr;
+
+	for (AGhostPiece* piece : GhostPieces) 
+	{
+		piece->Destroy();
+	}
+	GhostPieces.Empty();
 
 	if (!bIsScout)
 		PathStartPoint = OwnerPiece->GetActorLocation();
