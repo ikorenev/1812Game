@@ -98,8 +98,11 @@ void UPiecePredictedPathComponent::ScoutBuildArrow()
 
 void UPiecePredictedPathComponent::DestroyArrow()
 {
-	UnitPathArrow->Destroy();
-	UnitPathArrow = nullptr;
+	if (UnitPathArrow.IsValid())
+	{
+		UnitPathArrow->Destroy();
+		UnitPathArrow = nullptr;
+	}
 
 	for (AGhostPiece* piece : GhostPieces) 
 	{

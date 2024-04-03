@@ -61,6 +61,7 @@ protected:
 
 public:	
 
+	UFUNCTION(BlueprintCallable, BlueprintPure)
 	static ABattleObjectivesManager* GetInstance();
 
 	UPROPERTY(BlueprintAssignable)

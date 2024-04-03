@@ -27,7 +27,10 @@ bool UBattleCondition::GetState()
 	return bState;
 }
 
-
+UAndLogicBattleCondition::UAndLogicBattleCondition()
+{
+	UIText = FText::FromString("All of: ");
+}
 
 bool UAndLogicBattleCondition::Condition(ABattleObjectivesManager* BattleObjectivesManager)
 {
@@ -47,7 +50,10 @@ bool UAndLogicBattleCondition::Condition(ABattleObjectivesManager* BattleObjecti
 	return newState;
 }
 
-
+UOrLogicBattleCondition::UOrLogicBattleCondition()
+{
+	UIText = FText::FromString("One of: ");
+}
 
 bool UOrLogicBattleCondition::Condition(ABattleObjectivesManager* BattleObjectivesManager)
 {
@@ -67,6 +73,7 @@ bool UOrLogicBattleCondition::Condition(ABattleObjectivesManager* BattleObjectiv
 UTimerBattleCondition::UTimerBattleCondition()
 {
 	Time = 60.f;
+	UIText = FText::FromString("Hold out for {0} minutes");
 }
 
 bool UTimerBattleCondition::Condition(ABattleObjectivesManager* BattleObjectivesManager)
@@ -76,9 +83,12 @@ bool UTimerBattleCondition::Condition(ABattleObjectivesManager* BattleObjectives
 	return gameMode->GetGameTimeMinutes() > Time;
 }
 
+
+
 UDefeatEnemyBattleCondition::UDefeatEnemyBattleCondition()
 {
 	EnemyCasualtyPercentage = 50.f;
+	UIText = FText::FromString("Inflict {0}% losses on the enemy army");
 }
 
 bool UDefeatEnemyBattleCondition::Condition(ABattleObjectivesManager* BattleObjectivesManager)
@@ -102,6 +112,7 @@ bool UDefeatEnemyBattleCondition::Condition(ABattleObjectivesManager* BattleObje
 UCasualtiesBattleCondition::UCasualtiesBattleCondition()
 {
 	CasualtyPercentage = 50.f;
+	UIText = FText::FromString("Lose {0}% of army");
 }
 
 bool UCasualtiesBattleCondition::Condition(ABattleObjectivesManager* BattleObjectivesManager)
