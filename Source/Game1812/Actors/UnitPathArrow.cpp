@@ -40,11 +40,15 @@ void AUnitPathArrow::BuildArrow()
 	SplineMeshComponents.Empty();
 
 	const float splineLength = SplinePathComponent->GetSplineLength();
-	const int amountOfSegments = (int)(splineLength / SegmentLength);
+	const float middleSplineLength = splineLength - (2 * SegmentLength);
+	const int amountOfSegments = (int)(middleSplineLength / SegmentLength);
+	const float middleSegmentLength = middleSplineLength / amountOfSegments;
 
 	for (int i = 0; i < amountOfSegments + 1; i++) 
 	{
 		USplineMeshComponent* splineMeshComponent = NewObject<USplineMeshComponent>(this);
+
+		float segmentLength = SegmentLength;
 
 		if (i == 0) 
 		{
@@ -57,6 +61,7 @@ void AUnitPathArrow::BuildArrow()
 		else 
 		{
 			splineMeshComponent->SetStaticMesh(ArrowOutlineMiddleStaticMesh);
+			segmentLength = middleSegmentLength;
 		}
 		
 		splineMeshComponent->SetMobility(EComponentMobility::Stationary);
