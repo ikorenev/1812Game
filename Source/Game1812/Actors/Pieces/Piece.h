@@ -101,8 +101,6 @@ public:
 
 	virtual void OnDeathUnit();
 
-	UStaticMesh* GetPieceFoundationMesh();
-
 	FRotator GetResetRotation();
 	void ResetRotation();
 

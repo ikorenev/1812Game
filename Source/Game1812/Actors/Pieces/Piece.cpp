@@ -129,11 +129,6 @@ void APiece::ResetRotation()
 	SetActorRotation(GetResetRotation());
 }
 
-UStaticMesh* APiece::GetPieceFoundationMesh()
-{
-	return PieceFoundationMeshComponent->GetStaticMesh();
-}
-
 void APiece::OnDeathUnit()
 {
 	bIsDead = true;

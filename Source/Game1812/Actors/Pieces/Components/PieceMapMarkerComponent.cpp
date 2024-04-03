@@ -22,8 +22,6 @@ void UPieceMapMarkerComponent::BeginPlay()
 	if (!OwnerPiece)
 		return DestroyComponent();
 
-	SetStaticMesh(OwnerPiece->GetPieceFoundationMesh());
-
 	UCossacksGameInstance* gameInstance = Cast<UCossacksGameInstance>(GetWorld()->GetGameInstance());
 
 	if (gameInstance)
@@ -50,6 +48,8 @@ void UPieceMapMarkerComponent::OnEnable()
 {
 	if (OwnerPiece->IsDead())
 		return;
+
+	SetStaticMesh(OwnerPiece->GetPieceFoundationMeshComponent()->GetStaticMesh());
 
 	SetActive(true);
 	SetVisibility(true);

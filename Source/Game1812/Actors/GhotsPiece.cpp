@@ -35,5 +35,6 @@ void AGhostPiece::CopyPiece(APiece* Piece)
 	FoundationMeshComponent->SetStaticMesh(pieceFoundation->GetStaticMesh());
 	FigureMeshComponent->SetStaticMesh(figureFoundation->GetStaticMesh());
 
+	AddActorWorldOffset(pieceFoundation->GetRelativeLocation());
 	SetActorRotation(FRotator(0.f, Piece->GetActorRotation().Yaw, 0.f));
 }
