@@ -1,17 +1,33 @@
 #include "CossacksGameInstance.h"
 
-#include "Pawns/CombatUnitStats.h"
-#include "Pawns/AdjutantUnit.h"
+#include "Pawns/Unit/Units/AdjutantUnit.h"
 
-UCombatUnitsTable* UCossacksGameInstance::GetTeamUnitsTable(ETeam Team)
+#include "Actors/Pieces/ScoutPiece.h"
+#include "Actors/Pieces/CombatPiece.h"
+#include "Actors/UnitPathArrow.h"
+#include "Actors/GhostPiece.h"
+
+UClass* UCossacksGameInstance::GetCombatUnitPieceClass() const
 {
-	switch (Team)
-	{
-	case ETeam::RUSSIA:
-		return RussianUnitsTable;
-	case ETeam::FRANCE:
-		return FrenchUnitsTable;
-	}
+	return CombatUnitPieceClass.Get();
+}
 
-	return nullptr;
+UClass* UCossacksGameInstance::GetScoutUnitPieceClass() const
+{
+	return ScoutUnitPieceClass.Get();
+}
+
+UClass* UCossacksGameInstance::GetAdjutantUnitClass() const
+{
+	return AdjutantUnitClass.Get();
+}
+
+UClass* UCossacksGameInstance::GetUnitPathArrowClass() const
+{
+	return UnitPathArrowClass.Get();
+}
+
+UClass* UCossacksGameInstance::GetGhostPieceClass() const
+{
+	return GhostPieceClass.Get();
 }
