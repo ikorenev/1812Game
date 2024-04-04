@@ -18,7 +18,15 @@ protected:
 
 	TWeakObjectPtr<class ACombatUnit> CombatUnit;
 
+	static TArray<TWeakObjectPtr<AEnemyUnitController>> EnemyControllers;
+
+	void BeginPlay() override;
+	void BeginDestroy() override;
+
 	void OnPossess(APawn* InPawn) override;
+
+
+	void FindAlliesInRange(TArray<AEnemyUnitController*> Allies, float Range);
 
 public:
 
