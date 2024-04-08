@@ -11,6 +11,7 @@ UUnitMovementComponent::UUnitMovementComponent()
 
 	TargetLocation = FVector::ZeroVector;
 	bIsMoving = false;
+	bMustRotateToTargetRotation = false;
 
 	Path = nullptr;
 	CurrentFollowingSegmentIndex = 0;
@@ -33,8 +34,23 @@ void UUnitMovementComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (!bIsMoving)
+	if (!bIsMoving) 
+	{
+		if (bMustRotateToTargetRotation) 
+		{
+			const float rotation = (FRotator(0.f, TargetRotation, 0.f) - UnitPawn->GetActorRotation()).Yaw;
+
+			if (FMath::Abs(rotation) < 0.1f) 
+			{
+				bMustRotateToTargetRotation = false;
+				return;
+			}
+
+			RotatePawn(DeltaTime, rotation);
+		}
+
 		return;
+	}
 	
 	MoveAlongPath(DeltaTime);
 }
@@ -103,6 +119,7 @@ void UUnitMovementComponent::MoveTo(const FVector& MoveToLocation, bool bForceMo
 	if (LastTimeOfMoveAssign + 1.f > GetWorld()->GetTimeSeconds() && !bForceMove)
 		return;
 
+	bMustRotateToTargetRotation = false;
 	FVector moveToLocation = ProjectPointToMap(MoveToLocation);
 
 	if (TargetLocation == moveToLocation)
@@ -121,6 +138,12 @@ void UUnitMovementComponent::MoveTo(const FVector& MoveToLocation, bool bForceMo
 	{
 		OnMovementEnd.Broadcast();
 	}
+}
+
+void UUnitMovementComponent::RotateTo(float FinishRotation)
+{
+	TargetRotation = FinishRotation;
+	bMustRotateToTargetRotation = true;
 }
 
 void UUnitMovementComponent::StopMoving()
@@ -153,7 +176,7 @@ void UUnitMovementComponent::UpdatePath()
 
 void UUnitMovementComponent::CheckMovementStart()
 {
-	if (FVector::DistSquaredXY(TargetLocation, UnitPawn->GetActorLocation()) < 10.f)
+	if (FVector::DistSquaredXY(TargetLocation, UnitPawn->GetActorLocation()) < 5.f)
 		return;
 
 	bIsMoving = true;
@@ -162,7 +185,7 @@ void UUnitMovementComponent::CheckMovementStart()
 
 void UUnitMovementComponent::CheckMovementEnd()
 {
-	if (FVector::DistSquaredXY(GetLastPathPoint(), UnitPawn->GetActorLocation()) > 10.f)
+	if (FVector::DistSquaredXY(GetLastPathPoint(), UnitPawn->GetActorLocation()) > 5.f)
 		return;
 
 	bIsMoving = false;

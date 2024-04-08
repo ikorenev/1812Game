@@ -95,8 +95,11 @@ void ACombatUnit::AssignOrder(UUnitOrder* NewOrder)
 {
 	CurrentOrder = Cast<UCombatUnitOrder>(NewOrder);
 
-	if (CurrentOrder)
-		MovementComponent->MoveTo(CurrentOrder->Location, true);
+	if (!CurrentOrder)
+		return;
+
+	MovementComponent->MoveTo(CurrentOrder->Location, true);
+	MovementComponent->RotateTo(CurrentOrder->YawRotation);
 }
 
 void ACombatUnit::SetCombatUnitData(UCombatUnitDataAsset* NewCombatUnitData)

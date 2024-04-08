@@ -62,14 +62,14 @@ AEnemyAI::AEnemyAI()
 
 	FormationUnitOffsets = TArray<FFormationUnitOffset> {
 		FFormationUnitOffset({ FVector2D(0.f, 0.f) }),
-		FFormationUnitOffset({ FVector2D(0.f, -10.f), FVector2D(0.f, 10.f) }),
-		FFormationUnitOffset({ FVector2D(0.f, -20.f), FVector2D(0.f, 0.f), FVector2D(0.f, 20.f) }),
-		FFormationUnitOffset({ FVector2D(10.f, -10.f), FVector2D(10.f, 10.f), FVector2D(-10.f, -10.f), FVector2D(-10.f, 10.f) }),
-		FFormationUnitOffset({ FVector2D(10.f, -20.f), FVector2D(10.f, 0.f), FVector2D(10.f, 20.f), FVector2D(-10.f, -10.f), FVector2D(-10.f, 10.f) }),
-		FFormationUnitOffset({ FVector2D(10.f, -20.f), FVector2D(10.f, 0.f), FVector2D(10.f, 20.f), FVector2D(-10.f, -20.f), FVector2D(-10.f, 0.f), FVector2D(-10.f, 20.f) }),
-		FFormationUnitOffset({ FVector2D(10.f, -30.f), FVector2D(10.f, -10.f), FVector2D(10.f, 10.f), FVector2D(10.f, 30.f), FVector2D(-10.f, -20.f), FVector2D(-10.f, 0.f), FVector2D(-10.f, 20.f) }),
-		FFormationUnitOffset({ FVector2D(10.f, -30.f), FVector2D(10.f, -10.f), FVector2D(10.f, 10.f), FVector2D(10.f, 30.f),  FVector2D(-10.f, -30.f), FVector2D(-10.f, -10.f), FVector2D(-10.f, 10.f), FVector2D(-10.f, 30.f) }),
-		FFormationUnitOffset({ FVector2D(20.f, -20.f), FVector2D(20.f, 0.f), FVector2D(20.f, 20.f), FVector2D(0.f, -20.f), FVector2D(0.f, 0.f), FVector2D(0.f, 20.f), FVector2D(-20.f, -20.f), FVector2D(-20.f, 0.f), FVector2D(-20.f, 20.f) }),
+		FFormationUnitOffset({ FVector2D(0.f, -15.f), FVector2D(0.f, 15.f) }),
+		FFormationUnitOffset({ FVector2D(0.f, -30.f), FVector2D(0.f, 0.f), FVector2D(0.f, 30.f) }),
+		FFormationUnitOffset({ FVector2D(15.f, -15.f), FVector2D(15.f, 15.f), FVector2D(-15.f, -15.f), FVector2D(-15.f, 15.f) }),
+		FFormationUnitOffset({ FVector2D(15.f, -30.f), FVector2D(15.f, 0.f), FVector2D(15.f, 30.f), FVector2D(-15.f, -15.f), FVector2D(-15.f, 15.f) }),
+		FFormationUnitOffset({ FVector2D(15.f, -30.f), FVector2D(15.f, 0.f), FVector2D(15.f, 30.f), FVector2D(-15.f, -30.f), FVector2D(-15.f, 0.f), FVector2D(-15.f, 30.f) }),
+		FFormationUnitOffset({ FVector2D(15.f, -45.f), FVector2D(15.f, -15.f), FVector2D(15.f, 15.f), FVector2D(15.f, 45.f), FVector2D(-15.f, -30.f), FVector2D(-15.f, 0.f), FVector2D(-15.f, 30.f) }),
+		FFormationUnitOffset({ FVector2D(15.f, -45.f), FVector2D(15.f, -15.f), FVector2D(15.f, 15.f), FVector2D(15.f, 45.f),  FVector2D(-15.f, -45.f), FVector2D(-15.f, -15.f), FVector2D(-15.f, 15.f), FVector2D(-15.f, 45.f) }),
+		FFormationUnitOffset({ FVector2D(30.f, -30.f), FVector2D(30.f, 0.f), FVector2D(30.f, 30.f), FVector2D(0.f, -30.f), FVector2D(0.f, 0.f), FVector2D(0.f, 30.f), FVector2D(-30.f, -30.f), FVector2D(-30.f, 0.f), FVector2D(-30.f, 30.f) }),
 	};
 }
 
@@ -105,6 +105,8 @@ void AEnemyAI::Tick(float DeltaTime)
 
 const FVector2D& AEnemyAI::GetFormationUnitOffset(int Amount, int Index) const
 {
+	Amount -= 1;
+
 	if (Amount < 0 || Index < 0)
 		return FVector2D::ZeroVector;
 
