@@ -3,11 +3,11 @@
 #include "../Units/CombatUnit.h"
 #include "../Orders/UnitOrder.h"
 
-TArray<TWeakObjectPtr<AEnemyUnitController>> AEnemyUnitController::EnemyControllers = TArray<TWeakObjectPtr<AEnemyUnitController>>();
+TArray<AEnemyUnitController*> AEnemyUnitController::EnemyControllers = TArray<AEnemyUnitController*>();
 
 AEnemyUnitController::AEnemyUnitController()
 {
-	
+	CombatFormation = nullptr;
 }
 
 void AEnemyUnitController::BeginPlay()
@@ -24,7 +24,6 @@ void AEnemyUnitController::BeginDestroy()
 	EnemyControllers.Remove(this);
 }
 
-
 void AEnemyUnitController::OnPossess(APawn* InPawn)
 {
 	if (!InPawn)
@@ -35,11 +34,15 @@ void AEnemyUnitController::OnPossess(APawn* InPawn)
 
 void AEnemyUnitController::FindAlliesInRange(TArray<AEnemyUnitController*> Allies, float Range)
 {
-	for (TWeakObjectPtr<AEnemyUnitController> controller : EnemyControllers) 
+	for (AEnemyUnitController* controller : EnemyControllers) 
 	{
-		if (!controller.IsValid())
+		if (!controller)
 			continue;
 	}
+}
 
+ACombatUnit* AEnemyUnitController::GetCombatUnit() const
+{
+	return CombatUnit.Get();
 }
 
