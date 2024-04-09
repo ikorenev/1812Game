@@ -11,6 +11,8 @@
 
 #include "../../../CossacksGameInstance.h"
 
+TMap<ETeam, TArray<ACombatUnit*>> ACombatUnit::CombatUnits = TMap<ETeam, TArray<ACombatUnit*>>();
+
 ACombatUnit::ACombatUnit()
 {
 	CombatComponent = CreateDefaultSubobject<UUnitCombatComponent>(TEXT("Combat Component"));
@@ -26,6 +28,15 @@ void ACombatUnit::BeginPlay()
 		return;
 
 	CombatComponent->Init(CombatUnitData->GetCombatUnitStats());
+
+	CombatUnits.FindOrAdd(Team).Add(this);
+}
+
+void ACombatUnit::BeginDestroy()
+{
+	Super::BeginDestroy();
+
+	CombatUnits.FindOrAdd(Team).Remove(this);
 }
 
 void ACombatUnit::OnConstruction(const FTransform& Transform)
@@ -84,8 +95,11 @@ void ACombatUnit::AssignOrder(UUnitOrder* NewOrder)
 {
 	CurrentOrder = Cast<UCombatUnitOrder>(NewOrder);
 
-	if (CurrentOrder)
-		MovementComponent->MoveTo(CurrentOrder->Location, true);
+	if (!CurrentOrder)
+		return;
+
+	MovementComponent->MoveTo(CurrentOrder->Location, true);
+	MovementComponent->RotateTo(CurrentOrder->YawRotation);
 }
 
 void ACombatUnit::SetCombatUnitData(UCombatUnitDataAsset* NewCombatUnitData)

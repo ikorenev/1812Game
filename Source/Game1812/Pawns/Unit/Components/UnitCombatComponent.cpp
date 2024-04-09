@@ -108,6 +108,7 @@ void UUnitCombatComponent::UpdateOrderBehaviour()
 			if (!enemy)
 			{
 				CombatUnitPawn->GetMovementComponent()->MoveTo(order->Location, true);
+				CombatUnitPawn->GetMovementComponent()->RotateTo(order->YawRotation);
 				return;
 			}
 
