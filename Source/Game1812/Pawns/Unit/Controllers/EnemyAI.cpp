@@ -14,7 +14,7 @@ void UCombatFormation::ValidateControllers()
 	UnitControllers = UnitControllers.FilterByPredicate([](const TWeakObjectPtr<class AEnemyUnitController>& el) { return el.IsValid() && el->GetCombatUnit(); });
 }
 
-void UCombatFormation::MoveFormationTo(const FVector& Location, bool SkipValidation)
+void UCombatFormation::MoveFormationTo(const FVector& Location, float YawRotation, bool SkipValidation)
 {
 	if (!SkipValidation)
 		ValidateControllers();
@@ -25,8 +25,12 @@ void UCombatFormation::MoveFormationTo(const FVector& Location, bool SkipValidat
 	{
 		UCombatUnitOrder* unitOrder = UnitControllers[i]->GetCombatUnit()->GetCombatUnitOrder();
 
-		unitOrder->Location = Location + FVector(ai->GetFormationUnitOffset(UnitControllers.Num(), i), 50.f);
-		
+		FVector offset(ai->GetFormationUnitOffset(UnitControllers.Num(), i), 0.f);
+		offset = offset.RotateAngleAxis(YawRotation, FVector::UpVector);
+
+		unitOrder->Location = Location + FVector(0.f, 0.f, 50.f) + offset;
+		unitOrder->YawRotation = YawRotation;
+
 		UnitControllers[i]->GetCombatUnit()->AssignOrder(unitOrder);
 	}
 }
@@ -47,7 +51,7 @@ void UCombatFormation::AssembleFormation()
 
 	meanLocation /= UnitControllers.Num();
 
-	MoveFormationTo(meanLocation, true);
+	MoveFormationTo(meanLocation, 45.f, true);
 }
 
 AEnemyAI* AEnemyAI::Instance = nullptr;
@@ -76,7 +80,7 @@ AEnemyAI::AEnemyAI()
 void AEnemyAI::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	Instance = this;
 
 	CombatFormations.Empty();
@@ -129,7 +133,7 @@ void AEnemyAI::CreateFormations(const TArray<AEnemyUnitController*>& Controllers
 	if (FormationsAmount < 0)
 		return;
 
-	const static float RandomRange = 1500.f;
+	const static float RandomRange = 500.f;
 
 	//K-Means clustering
 
