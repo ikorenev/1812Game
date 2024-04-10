@@ -83,14 +83,17 @@ void UUnitCombatComponent::UpdateTempDefeat()
 		return;
 	}
 
+	UUnitMovementComponent* movementComponent = CombatUnitPawn->GetMovementComponent();
+
+	if (movementComponent->IsMoving())
+		return;
+
 	const FVector retreatDirection = FindRetreatDirection();
 
 	if (retreatDirection.IsNearlyZero())
 		return;
 
-	UUnitMovementComponent* movementComponent = CombatUnitPawn->GetMovementComponent();
-
-	const FVector moveToLocation = CombatUnitPawn->GetActorLocation() + retreatDirection * 100.f + FVector(0, 0, 100.f);
+	const FVector moveToLocation = CombatUnitPawn->GetActorLocation() + retreatDirection * 200.f + FVector(0, 0, 100.f);
 	movementComponent->MoveTo(moveToLocation);
 }
 
@@ -140,6 +143,8 @@ void UUnitCombatComponent::UpdateTargetAttack()
 	//Stop when enemy is close
 	if (movementComponent->IsMoving())
 		movementComponent->StopMoving();
+
+	movementComponent->RotateTo(FRotator(FQuat::FindBetween(FVector::XAxisVector, TargetedEnemy->GetLocation() - CombatUnitPawn->GetLocation())).Yaw);
 
 	//TF2 soldier: ATTACK!
 	TryAttack(TargetedEnemy.Get());

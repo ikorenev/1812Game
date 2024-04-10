@@ -34,7 +34,7 @@ public:
 
 	void ValidateControllers();
 
-	FVector GetCenterLocation();
+	FVector GetCenterLocation(bool SkipValidation = false);
 
 	void MoveFormationTo(const FVector& Location, float YawRotation, bool SkipValidation = false);
 	void AssembleFormation(float YawRotation);

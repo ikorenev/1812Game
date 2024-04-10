@@ -16,8 +16,11 @@ void UCombatFormation::ValidateControllers()
 	UnitControllers = UnitControllers.FilterByPredicate([](const TWeakObjectPtr<class AEnemyUnitController>& el) { return el.IsValid() && el->GetCombatUnit(); });
 }
 
-FVector UCombatFormation::GetCenterLocation()
+FVector UCombatFormation::GetCenterLocation(bool SkipValidation)
 {
+	if (!SkipValidation)
+		ValidateControllers();
+
 	if (UnitControllers.IsEmpty())
 		return FVector::ZeroVector;
 
@@ -61,7 +64,7 @@ void UCombatFormation::AssembleFormation(float YawRotation)
 	if (UnitControllers.IsEmpty())
 		return;
 
-	MoveFormationTo(GetCenterLocation(), YawRotation, true);
+	MoveFormationTo(GetCenterLocation(true), YawRotation, true);
 }
 
 AEnemyAI* AEnemyAI::Instance = nullptr;
