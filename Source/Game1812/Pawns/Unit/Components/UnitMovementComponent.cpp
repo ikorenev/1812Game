@@ -40,12 +40,6 @@ void UUnitMovementComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 		{
 			const float rotation = (FRotator(0.f, TargetRotation, 0.f) - UnitPawn->GetActorRotation()).Yaw;
 
-			if (FMath::Abs(rotation) < 0.1f) 
-			{
-				bMustRotateToTargetRotation = false;
-				return;
-			}
-
 			RotatePawn(DeltaTime, rotation);
 		}
 

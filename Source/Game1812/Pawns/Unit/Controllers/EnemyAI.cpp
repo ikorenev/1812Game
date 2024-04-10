@@ -3,6 +3,8 @@
 #include "EnemyUnitController.h"
 #include "../Units/CombatUnit.h"
 #include "../Orders/UnitOrder.h"
+#include "../../../Actors/HeadQuarters.h"
+#include "../../../CossacksGameMode.h"
 
 UCombatFormation::UCombatFormation()
 {
@@ -12,6 +14,23 @@ UCombatFormation::UCombatFormation()
 void UCombatFormation::ValidateControllers()
 {
 	UnitControllers = UnitControllers.FilterByPredicate([](const TWeakObjectPtr<class AEnemyUnitController>& el) { return el.IsValid() && el->GetCombatUnit(); });
+}
+
+FVector UCombatFormation::GetCenterLocation()
+{
+	if (UnitControllers.IsEmpty())
+		return FVector::ZeroVector;
+
+	FVector meanLocation = FVector::ZeroVector;
+
+	for (TWeakObjectPtr<AEnemyUnitController> controller : UnitControllers)
+	{
+		meanLocation += controller->GetCombatUnit()->GetActorLocation();
+	}
+
+	meanLocation /= UnitControllers.Num();
+
+	return meanLocation;
 }
 
 void UCombatFormation::MoveFormationTo(const FVector& Location, float YawRotation, bool SkipValidation)
@@ -35,23 +54,14 @@ void UCombatFormation::MoveFormationTo(const FVector& Location, float YawRotatio
 	}
 }
 
-void UCombatFormation::AssembleFormation()
+void UCombatFormation::AssembleFormation(float YawRotation)
 {
 	ValidateControllers();
 
 	if (UnitControllers.IsEmpty())
 		return;
 
-	FVector meanLocation = FVector::ZeroVector;
-
-	for (TWeakObjectPtr<AEnemyUnitController> controller : UnitControllers)
-	{
-		meanLocation += controller->GetCombatUnit()->GetActorLocation();
-	}
-
-	meanLocation /= UnitControllers.Num();
-
-	MoveFormationTo(meanLocation, 45.f, true);
+	MoveFormationTo(GetCenterLocation(), YawRotation, true);
 }
 
 AEnemyAI* AEnemyAI::Instance = nullptr;
@@ -60,6 +70,11 @@ AEnemyAI::AEnemyAI()
 {
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.TickInterval = 1.f;
+
+	MoveDistance = 100.f;
+	MoveTimeout = 5.f;
+	MoveRotationOffset = 25.f;
+	NextTimeForMove = 0.f;
 
 	CombatFormationsAmount = 3;
 	AIState = EEnemyAIState::PreparingForBattle;
@@ -81,12 +96,16 @@ void AEnemyAI::BeginPlay()
 {
 	Super::BeginPlay();
 
+	NextTimeForMove = MoveTimeout;
+
 	Instance = this;
 
 	CombatFormations.Empty();
 
 	FTimerHandle handler;
 	GetWorld()->GetTimerManager().SetTimerForNextTick(FTimerDelegate::CreateUObject(this, &AEnemyAI::CreateFormationsTimeout));
+
+	GameMode = Cast<ACossacksGameMode>(GetWorld()->GetAuthGameMode());
 }
 
 void AEnemyAI::Tick(float DeltaTime)
@@ -100,10 +119,32 @@ void AEnemyAI::Tick(float DeltaTime)
 
 		for (UCombatFormation* formation : CombatFormations) 
 		{
-			formation->AssembleFormation();
+			const float rotation = GetRotationToHQ(formation->GetCenterLocation());
+			formation->AssembleFormation(rotation);
 		}
 
-		AIState = EEnemyAIState::WaitingForAssembly;
+		AIState = EEnemyAIState::Attacking;
+	}
+	else if (AIState == EEnemyAIState::Attacking) 
+	{
+		if (!GameMode)
+			return;
+
+		if (GameMode->GetGameTimeMinutes() < NextTimeForMove)
+			return;
+
+		NextTimeForMove += MoveTimeout;
+
+		for (UCombatFormation* formation : CombatFormations) 
+		{
+			const FVector center = formation->GetCenterLocation();
+			float rotation = GetRotationToHQ(center);
+
+			rotation += FMath::RandRange(-MoveRotationOffset, MoveRotationOffset);
+
+			FVector deltaMove = FVector::XAxisVector.RotateAngleAxis(rotation, FVector::UpVector) * MoveDistance;
+			formation->MoveFormationTo(deltaMove + center, rotation);
+		}
 	}
 }
 
@@ -233,6 +274,16 @@ void AEnemyAI::CreateFormations(const TArray<AEnemyUnitController*>& Controllers
 	}
 
 	CombatFormations = CombatFormations.FilterByPredicate([](const UCombatFormation* el) { return !(el->UnitControllers.IsEmpty()); });
+}
+
+float AEnemyAI::GetRotationToHQ(const FVector& Location)
+{
+	AHeadQuarters* hq = AHeadQuarters::GetInstance();
+
+	if (!hq)
+		return 180.f;
+
+	return FRotator(FQuat::FindBetween(FVector::XAxisVector, hq->GetActorLocation() - Location)).Yaw;
 }
 
 
