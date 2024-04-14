@@ -4,11 +4,13 @@
 #include "UnitTerrainModifiersComponent.h"
 #include "Damageable.h"
 
+
 #include "../../../DataAssets/CombatUnitDataAsset.h"
 #include "../Units/CombatUnit.h"
 #include "../Orders/UnitOrder.h"
 
 #include <Kismet/GameplayStatics.h>
+#include <Math/Quat.h>
 
 UUnitCombatComponent::UUnitCombatComponent()
 {
@@ -101,6 +103,9 @@ void UUnitCombatComponent::UpdateOrderBehaviour()
 {
 	UCombatUnitOrder* order = GetCombatUnitOrder();
 
+	if (!order)
+		return;
+
 	if (order->UnitEnemyReaction == EUnitEnemyReaction::Attack)
 	{
 		//Try to find enemy
@@ -144,7 +149,8 @@ void UUnitCombatComponent::UpdateTargetAttack()
 	if (movementComponent->IsMoving())
 		movementComponent->StopMoving();
 
-	movementComponent->RotateTo(FRotator(FQuat::FindBetween(FVector::XAxisVector, TargetedEnemy->GetLocation() - CombatUnitPawn->GetLocation())).Yaw);
+	const FQuat quat = FQuat::FindBetween(FVector::XAxisVector, TargetedEnemy->GetLocation() - CombatUnitPawn->GetLocation());
+	movementComponent->RotateTo(FRotator(quat).Yaw);
 
 	//TF2 soldier: ATTACK!
 	TryAttack(TargetedEnemy.Get());

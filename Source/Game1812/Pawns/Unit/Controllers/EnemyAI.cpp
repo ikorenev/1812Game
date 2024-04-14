@@ -47,6 +47,9 @@ void UCombatFormation::MoveFormationTo(const FVector& Location, float YawRotatio
 	{
 		UCombatUnitOrder* unitOrder = UnitControllers[i]->GetCombatUnit()->GetCombatUnitOrder();
 
+		if (!unitOrder)
+			unitOrder = NewObject<UCombatUnitOrder>(this);
+
 		FVector offset(ai->GetFormationUnitOffset(UnitControllers.Num(), i), 0.f);
 		offset = offset.RotateAngleAxis(YawRotation, FVector::UpVector);
 

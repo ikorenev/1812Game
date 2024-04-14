@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "../UnitTypeEnum.h"
+#include "UObject/WeakInterfacePtr.h"
 #include "UnitCombatComponent.generated.h"
 
 UDELEGATE(BlueprintAuthorityOnly)
