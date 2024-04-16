@@ -30,6 +30,11 @@ void UPiecePredictedPathComponent::BeginPlay()
 	OwnerPiece->AddOnOrderAssignHandler(FOnPieceChangeDelegate::FDelegate::CreateUObject(this, &UPiecePredictedPathComponent::DestroyArrow));
 	OwnerPiece->AddOnUnitDeathHandler(FOnPieceChangeDelegate::FDelegate::CreateUObject(this, &UPiecePredictedPathComponent::DestroyArrow));
 
+	GetWorld()->GetTimerManager().SetTimerForNextTick(FTimerDelegate::CreateUObject(this, &UPiecePredictedPathComponent::InitStartPoint));
+}
+
+void UPiecePredictedPathComponent::InitStartPoint()
+{
 	AHeadQuarters* hq = AHeadQuarters::GetInstance();
 
 	if (hq)
@@ -113,6 +118,7 @@ void UPiecePredictedPathComponent::DestroyArrow()
 	if (!bIsScout)
 		PathStartPoint = OwnerPiece->GetActorLocation();
 }
+
 
 void UPiecePredictedPathComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {

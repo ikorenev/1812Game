@@ -34,15 +34,16 @@ public:
 
 	void ValidateControllers();
 
+	FVector GetCenterLocation(bool SkipValidation = false);
+
 	void MoveFormationTo(const FVector& Location, float YawRotation, bool SkipValidation = false);
-	void AssembleFormation();
+	void AssembleFormation(float YawRotation);
 };
 
 UENUM()
 enum class EEnemyAIState : uint8 
 {
 	PreparingForBattle,
-	WaitingForAssembly,
 	Attacking
 };
 
@@ -65,16 +66,32 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	EEnemyAIState AIState;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float MoveDistance;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float MoveTimeout;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float MoveRotationOffset;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float NextTimeForMove;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Instanced)
 	TArray<UCombatFormation*> CombatFormations;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TArray<FFormationUnitOffset> FormationUnitOffsets;
 
+	class ACossacksGameMode* GameMode;
+
 	virtual void BeginPlay() override;
 
 	void CreateFormationsTimeout();
 	void CreateFormations(const TArray<class AEnemyUnitController*>& Controllers, int FormationsAmount, int Iterations);
+
+	float GetRotationToHQ(const FVector& Location);
 
 public:	
 

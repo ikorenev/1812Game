@@ -4,11 +4,13 @@
 #include "UnitTerrainModifiersComponent.h"
 #include "Damageable.h"
 
+
 #include "../../../DataAssets/CombatUnitDataAsset.h"
 #include "../Units/CombatUnit.h"
 #include "../Orders/UnitOrder.h"
 
 #include <Kismet/GameplayStatics.h>
+#include <Math/Quat.h>
 
 UUnitCombatComponent::UUnitCombatComponent()
 {
@@ -83,20 +85,26 @@ void UUnitCombatComponent::UpdateTempDefeat()
 		return;
 	}
 
+	UUnitMovementComponent* movementComponent = CombatUnitPawn->GetMovementComponent();
+
+	if (movementComponent->IsMoving())
+		return;
+
 	const FVector retreatDirection = FindRetreatDirection();
 
 	if (retreatDirection.IsNearlyZero())
 		return;
 
-	UUnitMovementComponent* movementComponent = CombatUnitPawn->GetMovementComponent();
-
-	const FVector moveToLocation = CombatUnitPawn->GetActorLocation() + retreatDirection * 100.f + FVector(0, 0, 100.f);
+	const FVector moveToLocation = CombatUnitPawn->GetActorLocation() + retreatDirection * 200.f + FVector(0, 0, 100.f);
 	movementComponent->MoveTo(moveToLocation);
 }
 
 void UUnitCombatComponent::UpdateOrderBehaviour()
 {
 	UCombatUnitOrder* order = GetCombatUnitOrder();
+
+	if (!order)
+		return;
 
 	if (order->UnitEnemyReaction == EUnitEnemyReaction::Attack)
 	{
@@ -140,6 +148,9 @@ void UUnitCombatComponent::UpdateTargetAttack()
 	//Stop when enemy is close
 	if (movementComponent->IsMoving())
 		movementComponent->StopMoving();
+
+	const FQuat quat = FQuat::FindBetween(FVector::XAxisVector, TargetedEnemy->GetLocation() - CombatUnitPawn->GetLocation());
+	movementComponent->RotateTo(FRotator(quat).Yaw);
 
 	//TF2 soldier: ATTACK!
 	TryAttack(TargetedEnemy.Get());
