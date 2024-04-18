@@ -43,6 +43,9 @@ protected:
 
 	virtual void BeginPlay() override;
 
+	UFUNCTION(BlueprintNativeEvent)
+	void OnReturnToHQ();
+
 public:
 
 	virtual void Tick(float DeltaTime) override;

@@ -58,6 +58,7 @@ void AAdjutantUnit::OnMovementComplete()
 		{
 			headQuarters->AddAdjutantUnit(this);
 			GiveReport();
+			OnReturnToHQ();
 			return;
 		}
 
@@ -118,6 +119,8 @@ FAssignedCombatUnitOrder AAdjutantUnit::FindClosestTarget()
 
 	return closestUnit;
 }
+
+void AAdjutantUnit::OnReturnToHQ_Implementation() {}
 
 bool AAdjutantUnit::IsOnDeathCooldown()
 {

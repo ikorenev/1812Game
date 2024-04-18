@@ -37,6 +37,7 @@ void AScoutUnit::OnMovementComplete()
 		fogOfWarActor->RevealChunks(ChunksToReveal.Array());
 		ChunksToReveal.Empty();
 
+		OnReturnToHQ();
 		return;
 	}
 
@@ -176,3 +177,5 @@ float AScoutUnit::GetRotationSpeed() const
 {
 	return RotationSpeed * GetTerrainModifiers().RotationSpeedModifier;
 }
+
+void AScoutUnit::OnReturnToHQ_Implementation() {}

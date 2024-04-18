@@ -2,7 +2,10 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "AssetUtils/Texture2DBuilder.h"
 #include "FogOfWar.generated.h"
+
+using namespace UE::Geometry;
 
 USTRUCT()
 struct GAME1812_API FFogTimer 
