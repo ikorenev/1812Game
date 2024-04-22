@@ -29,12 +29,12 @@ void AScoutUnit::OnMovementComplete()
 		if (OnMovementEnd.IsBound())
 			OnMovementEnd.Broadcast();
 
-		AFogOfWar* fogOfWarActor = AFogOfWar::GetSingleton();
+		AFogOfWar* fogOfWarActor = AFogOfWar::GetInstance();
 
 		if (!fogOfWarActor)
 			return;
 
-		fogOfWarActor->RevealChunks(ChunksToReveal.Array());
+		//fogOfWarActor->RevealChunks(ChunksToReveal.Array());
 		ChunksToReveal.Empty();
 
 		OnReturnToHQ();
@@ -52,7 +52,7 @@ void AScoutUnit::Tick(float DeltaTime)
 
 	if (MovementComponent->IsMoving())
 	{
-		AFogOfWar* fogOfWarActor = AFogOfWar::GetSingleton();
+		AFogOfWar* fogOfWarActor = AFogOfWar::GetInstance();
 
 		if (!fogOfWarActor)
 			return;
