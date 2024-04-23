@@ -4,8 +4,7 @@
 #include "../Actors/HeadQuarters.h"
 
 #include <Components/BoxComponent.h>
-#include <NiagaraComponent.h>
-#include <NiagaraFunctionLibrary.h>
+#include <Components/DecalComponent.h>
 #include <Kismet/GameplayStatics.h>
 
 FFogDiscoveredArea::FFogDiscoveredArea()
@@ -43,17 +42,17 @@ AFogOfWar::AFogOfWar()
 
 	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root Component"));
 
-	FogArea = CreateDefaultSubobject<UBoxComponent>(TEXT("Fog Area"));
+	FogArea = CreateDefaultSubobject<UBoxComponent>(TEXT("Fog Area Component"));
 	FogArea->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	FogArea->SetupAttachment(RootComponent);
 
-	NiagaraFogComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Niagara Fog"));
-	NiagaraFogComponent->SetupAttachment(RootComponent);
+	FogDecalComponent = CreateDefaultSubobject<UDecalComponent>(TEXT("Fog Decal Component"));
+	FogDecalComponent->SetupAttachment(RootComponent);
 
 	AffectActors = true;
 
-	HeadQuartersRange = 75.0f;
-	ScoutRange = 50.0f;
+	HeadQuartersRange = 8.0f;
+	ScoutRange = 5.0f;
 	ScoutRevealTime = 50.0f;
 }
 
@@ -62,7 +61,7 @@ void AFogOfWar::BeginPlay()
 	Super::BeginPlay();
 
 	Instance = this;
-	Resolution = FIntPoint(512, 512);
+	Resolution = FIntPoint(64, 64);
 
 	const FImageDimensions dimensions(Resolution.X, Resolution.Y);
 
@@ -72,22 +71,16 @@ void AFogOfWar::BeginPlay()
 	FogAlphaImageBuilder.SetDimensions(dimensions);
 	FogAlphaImageBuilder.Clear(FVector4f::Zero());
 
-	ConstantDiscoveredArea.SetPixel(FVector2i(2, 2), FVector4f::One());
-
 	FogDynamicMaterial = UMaterialInstanceDynamic::Create(FogMaterialAsset, this);
-	NiagaraFogComponent->SetVariableMaterial("User.CustomMaterial", FogDynamicMaterial);
+	FogDecalComponent->SetDecalMaterial(FogDynamicMaterial);
 
 	GetWorld()->GetTimerManager().SetTimerForNextTick(FTimerDelegate::CreateUObject(this, &AFogOfWar::AddConstantDiscoveredArea));
-
-	UpdateFogTexture();
 }
 
 void AFogOfWar::AddConstantDiscoveredArea()
 {
-	if (!AHeadQuarters::GetInstance())
-		return;
-
-	ApplyCircularBrushToImage(ConstantDiscoveredArea, LocationToIndex(AHeadQuarters::GetInstance()->GetActorLocation()), HeadQuartersRange, FVector4f::One());
+	if (AHeadQuarters::GetInstance())
+		ApplyCircularBrushToImage(ConstantDiscoveredArea, LocationToIndex(AHeadQuarters::GetInstance()->GetActorLocation()), HeadQuartersRange, FVector4f::One());
 
 	UpdateFogTexture();
 }

@@ -47,7 +47,7 @@ protected:
 	class UBoxComponent* FogArea;
 
 	UPROPERTY(VisibleAnywhere)
-	class UNiagaraComponent* NiagaraFogComponent;
+	class UDecalComponent* FogDecalComponent;
 	//
 
 	UPROPERTY(EditAnywhere)
