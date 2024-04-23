@@ -8,10 +8,7 @@
 
 using namespace UE::Geometry;
 
-void ApplyCircularBrushToImage(TImageBuilder<FVector4f>& Image, )
-{
-
-}
+void ApplyCircularBrushToImage(TImageBuilder<FVector4f>& Image, FIntPoint Position, float Radius, FVector4f Color);
 
 USTRUCT()
 struct GAME1812_API FFogDiscoveredArea
@@ -22,7 +19,7 @@ public:
 
 	FFogDiscoveredArea();
 	FFogDiscoveredArea(const FFogDiscoveredArea& Other);
-	FFogDiscoveredArea(FImageDimensions AreaDimensions, float Time);
+	FFogDiscoveredArea(const TImageBuilder<FVector4f>& AreaDimensions, float Time);
 
 	TImageBuilder<FVector4f> DiscoveredArea;
 
@@ -56,6 +53,15 @@ protected:
 	UPROPERTY(EditAnywhere)
 	bool AffectActors;
 
+	UPROPERTY(EditAnywhere)
+	float HeadQuartersRange;
+
+	UPROPERTY(EditAnywhere)
+	float ScoutRange;
+
+	UPROPERTY(EditAnywhere)
+	float ScoutRevealTime;
+
 	UPROPERTY(VisibleDefaultsOnly)
 	FIntPoint Resolution;
 
@@ -67,15 +73,22 @@ protected:
 
 	UPROPERTY(VisibleAnywhere)
 	UTexture2D* FogAlphaTexture;
+	
+	UPROPERTY(EditAnywhere)
+	UMaterialInterface* FogMaterialAsset;
+
+	UPROPERTY(EditAnywhere)
+	UMaterialInstanceDynamic* FogDynamicMaterial;
 
 	virtual void BeginPlay() override;
+
+	void AddConstantDiscoveredArea();
 
 	void UpdateFogTexture();
 
 	void UpdateDiscoveredAreas();
 
 	void CheckActorsInFog();
-	
 
 	static void AddTextureToTexture(TImageBuilder<FVector4f>& MainImage, const TImageBuilder<FVector4f>& Image);
 
@@ -86,7 +99,13 @@ public:
 
 	FVector GetChunkSize();
 
+	float GetScoutRange() const { return ScoutRange; }
+
+	FImageDimensions GetDimensions() const { return FImageDimensions(Resolution.X, Resolution.Y); }
+
 	FIntPoint LocationToIndex(FVector Location);
+
+	void AddDiscoveredArea(const TImageBuilder<FVector4f>& Area);
 
 	virtual void Tick(float DeltaTime) override;
 };

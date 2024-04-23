@@ -1,6 +1,7 @@
 #include "FogOfWar.h"
 
 #include "FogAffected.h"
+#include "../Actors/HeadQuarters.h"
 
 #include <Components/BoxComponent.h>
 #include <NiagaraComponent.h>
@@ -18,9 +19,9 @@ FFogDiscoveredArea::FFogDiscoveredArea(const FFogDiscoveredArea& Other)
 	DiscoverEndTime = Other.DiscoverEndTime;
 }
 
-FFogDiscoveredArea::FFogDiscoveredArea(FImageDimensions AreaDimensions, float Time)
+FFogDiscoveredArea::FFogDiscoveredArea(const TImageBuilder<FVector4f>& Area, float Time)
 {
-	DiscoveredArea.SetDimensions(AreaDimensions);
+	DiscoveredArea = TImageBuilder<FVector4f>(Area);
 	DiscoverEndTime = Time;
 }
 
@@ -50,6 +51,10 @@ AFogOfWar::AFogOfWar()
 	NiagaraFogComponent->SetupAttachment(RootComponent);
 
 	AffectActors = true;
+
+	HeadQuartersRange = 75.0f;
+	ScoutRange = 50.0f;
+	ScoutRevealTime = 50.0f;
 }
 
 void AFogOfWar::BeginPlay()
@@ -68,6 +73,21 @@ void AFogOfWar::BeginPlay()
 	FogAlphaImageBuilder.Clear(FVector4f::Zero());
 
 	ConstantDiscoveredArea.SetPixel(FVector2i(2, 2), FVector4f::One());
+
+	FogDynamicMaterial = UMaterialInstanceDynamic::Create(FogMaterialAsset, this);
+	NiagaraFogComponent->SetVariableMaterial("User.CustomMaterial", FogDynamicMaterial);
+
+	GetWorld()->GetTimerManager().SetTimerForNextTick(FTimerDelegate::CreateUObject(this, &AFogOfWar::AddConstantDiscoveredArea));
+
+	UpdateFogTexture();
+}
+
+void AFogOfWar::AddConstantDiscoveredArea()
+{
+	if (!AHeadQuarters::GetInstance())
+		return;
+
+	ApplyCircularBrushToImage(ConstantDiscoveredArea, LocationToIndex(AHeadQuarters::GetInstance()->GetActorLocation()), HeadQuartersRange, FVector4f::One());
 
 	UpdateFogTexture();
 }
@@ -88,6 +108,8 @@ void AFogOfWar::UpdateFogTexture()
 	fogAlphaTextureBuilder.Copy(FogAlphaImageBuilder);
 	fogAlphaTextureBuilder.Commit(false);
 	FogAlphaTexture = fogAlphaTextureBuilder.GetTexture2D();
+
+	FogDynamicMaterial->SetTextureParameterValue("AlphaTexture", FogAlphaTexture);
 }
 
 void AFogOfWar::Tick(float DeltaTime)
@@ -171,6 +193,13 @@ FIntPoint AFogOfWar::LocationToIndex(FVector Location)
 	return ret;
 }
 
+void AFogOfWar::AddDiscoveredArea(const TImageBuilder<FVector4f>& Area)
+{
+	TimedDiscoveredAreas.Add(FFogDiscoveredArea(Area, GetWorld()->GetTimeSeconds() + ScoutRevealTime));
+
+	UpdateFogTexture();
+}
+
 void AFogOfWar::AddTextureToTexture(TImageBuilder<FVector4f>& MainImage, const TImageBuilder<FVector4f>& Image)
 {
 	if (MainImage.GetDimensions() != Image.GetDimensions())
@@ -183,6 +212,29 @@ void AFogOfWar::AddTextureToTexture(TImageBuilder<FVector4f>& MainImage, const T
 			const FVector2i coords(x, y);
 			const FVector4f newColor = MainImage.GetPixel(coords) + Image.GetPixel(coords);
 			MainImage.SetPixel(coords, newColor);
+		}
+	}
+}
+
+void ApplyCircularBrushToImage(TImageBuilder<FVector4f>& Image, FIntPoint Position, float Radius, FVector4f Color)
+{
+	const int xStart = FMath::Max(Position.X - Radius, 0);
+	const int xEnd = FMath::Min(Image.GetDimensions().GetWidth() - 1, Position.X + Radius);
+	const int yStart = FMath::Max(Position.Y - Radius, 0);
+	const int yEnd = FMath::Min(Image.GetDimensions().GetHeight() - 1, Position.Y + Radius);
+
+	const float squaredRadius = Radius * Radius;
+
+	for (int x = xStart; x <= xEnd; x++)
+	{
+		for (int y = yStart; y <= yEnd; y++)
+		{
+			const float squaredDistance = FVector2D::DistSquared(Position, FVector2D(x, y));
+
+			if (squaredDistance < squaredRadius)
+			{
+				Image.SetPixel(FVector2i(x, y), Color);
+			}
 		}
 	}
 }
