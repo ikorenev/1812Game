@@ -40,6 +40,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class UPiecePredictedPathComponent* PredictedPathComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	class UPieceOutlineComponent* OutlineComponent;
 	//
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)

@@ -11,6 +11,7 @@
 #include "Components/PieceMapMarkerComponent.h"
 #include "Components/PieceOrderWidgetComponent.h"
 #include "Components/PiecePredictedPathComponent.h"
+#include "Components/PieceOutlineComponent.h"
 
 #include <Kismet/GameplayStatics.h>
 #include <Components/BoxComponent.h>
@@ -41,6 +42,8 @@ APiece::APiece()
 	MapMarkerComponent = CreateDefaultSubobject<UPieceMapMarkerComponent>(TEXT("Map Marker"));
 
 	PredictedPathComponent = CreateDefaultSubobject<UPiecePredictedPathComponent>(TEXT("Path Arrow"));
+
+	OutlineComponent = CreateDefaultSubobject<UPieceOutlineComponent>(TEXT("Outline"));
 
 	bCanSpawnUnit = true;
 	bWasDragged = false;
@@ -74,7 +77,7 @@ void APiece::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimi
 		return;
 
 	HitComponent->SetPhysicsLinearVelocity(FVector::ZeroVector);
-	HitComponent->SetPhysicsAngularVelocityInRadians(FVector::ZeroVector);
+	//HitComponent->SetPhysicsAngularVelocityInRadians(FVector::ZeroVector);
 
 	if (bIsDead)
 		return;
@@ -171,6 +174,10 @@ void APiece::StopDragging()
 
 	BoxCollisionComponent->SetSimulatePhysics(true);
 	SetActorEnableCollision(true);
+
+	FVector velocity = BoxCollisionComponent->GetPhysicsLinearVelocity();
+	velocity.Z = 0;
+	BoxCollisionComponent->SetPhysicsLinearVelocity(velocity);
 
 	bWasDragged = true;
 }
