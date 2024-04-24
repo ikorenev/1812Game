@@ -43,6 +43,8 @@ public:
 
 protected:
 
+	static APlayerPawn* Instance;
+
 	FPlayerInput PlayerInput;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Enhanced Input")
@@ -53,19 +55,19 @@ protected:
 
 	//Components
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class UCameraComponent* CameraComponent;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class UCameraArmComponent* CameraArmComponent;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class USceneComponent* CameraArmPoint;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class UPlayerMovementComponent* MovementComponent;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class UPlayerInteractionComponent* InteractionComponent;
 
 	virtual void BeginPlay() override;
@@ -83,9 +85,12 @@ protected:
 
 public:
 
+	static APlayerPawn* GetInstance() { return Instance; };
+
 	class UCameraComponent* GetCameraComponent() { return CameraComponent; }
 	class UCameraArmComponent* GetCameraArmComponent() { return CameraArmComponent; }
 	class UPlayerMovementComponent* GetMovementComponent() { return MovementComponent; }
+	class UPlayerInteractionComponent* GetInteractionComponent() { return InteractionComponent; }
 	USceneComponent* GetCameraArmPoint() { return CameraArmPoint; }
 
 	FPlayerInput* GetPlayerInput() { return &PlayerInput; }

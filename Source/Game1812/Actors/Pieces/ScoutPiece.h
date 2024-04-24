@@ -21,6 +21,8 @@ public:
 
 	virtual void AssignOrder(class UUnitOrder* UnitOrder) override;
 
+	bool CanBeGrouped() override { return false; }
+
 	UFUNCTION(BlueprintCallable)
 	void OnOrderPointAdded();
 

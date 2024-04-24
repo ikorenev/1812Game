@@ -46,6 +46,9 @@ void ACombatPiece::AssignOrder(UUnitOrder* UnitOrder)
 	if (!combatUnitOrder)
 		return;
 
+	combatUnitOrder->Location = GetActorLocation();
+	combatUnitOrder->YawRotation = GetActorRotation().Yaw;
+
 	if (AHeadQuarters::GetInstance() && Unit.IsValid())
 		AHeadQuarters::GetInstance()->AddOrderToAssign(combatUnitOrder, Unit.Get());
 }

@@ -17,14 +17,18 @@ protected:
 
 	class APiece* OwnerPiece;
 
-	bool bIsHovered;
+	bool bIsCursorHovered;
+	bool bIsGroupSelectionHovered;
 	bool bIsBeingDragged;
 	bool bIsSelected;
 
 	virtual void BeginPlay() override;
 
-	void OnHoverStart();
-	void OnHoverStop();
+	void OnCursorHoverStart();
+	void OnCursorHoverStop();
+
+	void OnGroupSelectionHoverStart();
+	void OnGroupSelectionHoverStop();
 
 	void OnDragStart();
 	void OnDragStop();
@@ -35,6 +39,8 @@ protected:
 	void UpdateOutlineState();
 
 	void SetOutlineEnabled(bool bIsEnabled);
+
+	int GetDepthStencilValue();
 
 public:	
 		

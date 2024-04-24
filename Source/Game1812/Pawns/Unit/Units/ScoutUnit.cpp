@@ -20,6 +20,7 @@ void AScoutUnit::BeginPlay()
 	Super::BeginPlay();
 
 	DiscoveredArea.SetDimensions(AFogOfWar::GetInstance()->GetDimensions());
+	DiscoveredArea.Clear(FVector4f::Zero());
 
 	MovementComponent->OnMovementEnd.AddDynamic(this, &AScoutUnit::OnMovementComplete);
 }
@@ -35,7 +36,7 @@ void AScoutUnit::OnMovementComplete()
 			return;
 
 		AFogOfWar::GetInstance()->AddDiscoveredArea(DiscoveredArea);
-		//DiscoveredArea.Clear(FVector4f::Zero());
+		DiscoveredArea.Clear(FVector4f::Zero());
 
 		OnReturnToHQ();
 		return;

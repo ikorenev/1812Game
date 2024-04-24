@@ -192,6 +192,16 @@ void APiece::StopCursorHover()
 	OnStopCursorHover.Broadcast();
 }
 
+void APiece::StartGroupSelectionHover()
+{
+	OnStartGroupSelectionHover.Broadcast();
+}
+
+void APiece::StopGroupSelectionHover()
+{
+	OnStopGroupSelectionHover.Broadcast();
+}
+
 void APiece::Selected()
 {
 	OnSelected.Broadcast();

@@ -6,8 +6,10 @@ UPieceOutlineComponent::UPieceOutlineComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
 
-	bIsHovered = false;
+	bIsCursorHovered = false;
+	bIsGroupSelectionHovered = false;
 	bIsBeingDragged = false;
+	bIsSelected = false;
 }
 
 void UPieceOutlineComponent::BeginPlay()
@@ -19,25 +21,41 @@ void UPieceOutlineComponent::BeginPlay()
 	if (!OwnerPiece)
 		return DestroyComponent();
 
-	OwnerPiece->AddOnStartCursorHoverHandler(FOnPieceChangeDelegate::FDelegate::CreateUObject(this, &UPieceOutlineComponent::OnHoverStart));
+	OwnerPiece->AddOnStartCursorHoverHandler(FOnPieceChangeDelegate::FDelegate::CreateUObject(this, &UPieceOutlineComponent::OnCursorHoverStart));
+	OwnerPiece->AddOnStartGroupSelectionHoverHandler(FOnPieceChangeDelegate::FDelegate::CreateUObject(this, &UPieceOutlineComponent::OnGroupSelectionHoverStart));
 	OwnerPiece->AddOnStartDraggingHandler(FOnPieceChangeDelegate::FDelegate::CreateUObject(this, &UPieceOutlineComponent::OnDragStart));
 	OwnerPiece->AddOnSelectedHandler(FOnPieceChangeDelegate::FDelegate::CreateUObject(this, &UPieceOutlineComponent::OnSelected));
 
-	OwnerPiece->AddOnStopCursorHoverHandler(FOnPieceChangeDelegate::FDelegate::CreateUObject(this, &UPieceOutlineComponent::OnHoverStop));
+	OwnerPiece->AddOnStopCursorHoverHandler(FOnPieceChangeDelegate::FDelegate::CreateUObject(this, &UPieceOutlineComponent::OnCursorHoverStop));
+	OwnerPiece->AddOnStopGroupSelectionHoverHandler(FOnPieceChangeDelegate::FDelegate::CreateUObject(this, &UPieceOutlineComponent::OnGroupSelectionHoverStop));
 	OwnerPiece->AddOnStopDraggingHandler(FOnPieceChangeDelegate::FDelegate::CreateUObject(this, &UPieceOutlineComponent::OnDragStop));
 	OwnerPiece->AddOnSelectionRemovedHandler(FOnPieceChangeDelegate::FDelegate::CreateUObject(this, &UPieceOutlineComponent::OnSelectionRemoved));
 }
 
-void UPieceOutlineComponent::OnHoverStart()
+void UPieceOutlineComponent::OnCursorHoverStart()
 {
-	bIsHovered = true;
+	bIsCursorHovered = true;
 
 	UpdateOutlineState();
 }
 
-void UPieceOutlineComponent::OnHoverStop()
+void UPieceOutlineComponent::OnCursorHoverStop()
 {
-	bIsHovered = false;
+	bIsCursorHovered = false;
+
+	UpdateOutlineState();
+}
+
+void UPieceOutlineComponent::OnGroupSelectionHoverStart()
+{
+	bIsGroupSelectionHovered = true;
+
+	UpdateOutlineState();
+}
+
+void UPieceOutlineComponent::OnGroupSelectionHoverStop()
+{
+	bIsGroupSelectionHovered = false;
 
 	UpdateOutlineState();
 }
@@ -72,7 +90,7 @@ void UPieceOutlineComponent::OnSelectionRemoved()
 
 void UPieceOutlineComponent::UpdateOutlineState()
 {
-	SetOutlineEnabled(bIsHovered || bIsBeingDragged || bIsSelected);
+	SetOutlineEnabled(bIsCursorHovered || bIsGroupSelectionHovered || bIsBeingDragged || bIsSelected);
 }
 
 void UPieceOutlineComponent::SetOutlineEnabled(bool bIsEnabled)
@@ -82,11 +100,13 @@ void UPieceOutlineComponent::SetOutlineEnabled(bool bIsEnabled)
 
 	if (bIsEnabled) 
 	{
+		const int depthStencilValue = GetDepthStencilValue();
+
 		meshComponent1->SetRenderCustomDepth(true);
-		meshComponent1->SetCustomDepthStencilValue(2);
+		meshComponent1->SetCustomDepthStencilValue(depthStencilValue);
 
 		meshComponent2->SetRenderCustomDepth(true);
-		meshComponent2->SetCustomDepthStencilValue(2);
+		meshComponent2->SetCustomDepthStencilValue(depthStencilValue);
 		return;
 	}
 
@@ -95,4 +115,12 @@ void UPieceOutlineComponent::SetOutlineEnabled(bool bIsEnabled)
 
 	meshComponent2->SetRenderCustomDepth(false);
 	meshComponent2->SetCustomDepthStencilValue(0);
+}
+
+int UPieceOutlineComponent::GetDepthStencilValue()
+{
+	if (bIsGroupSelectionHovered)
+		return 11;
+
+	return 10;
 }

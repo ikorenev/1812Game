@@ -1,5 +1,5 @@
 #include "BaseOrderWidget.h"
 
-#include "../Actors/Pieces/Piece.h"
+#include "../Actors/Pieces/Components/PieceOrderWidgetComponent.h"
 
-void UBaseOrderWidget::Init_Implementation(APiece* PieceOwner) {}
+void UBaseOrderWidget::Init_Implementation(UPieceOrderWidgetComponent* PieceOrderComponent) {}
