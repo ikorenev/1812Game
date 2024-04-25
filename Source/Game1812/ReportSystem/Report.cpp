@@ -47,6 +47,14 @@ void AReport::StopCursorHover()
 {
 }
 
+void AReport::StartGroupSelectionHover()
+{
+}
+
+void AReport::StopGroupSelectionHover()
+{
+}
+
 void AReport::Selected()
 {
 }

@@ -12,7 +12,7 @@ class GAME1812_API UBaseOrderWidget : public UUserWidget
 public: 
 
 	UFUNCTION(BlueprintNativeEvent)
-	void Init(class APiece* PieceOwner);
+	void Init(class UPieceOrderWidgetComponent* PieceOrderComponent);
 
 	
 };

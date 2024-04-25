@@ -4,6 +4,7 @@
 #include "PlayerMovementComponent.h"
 #include "Interactable.h"
 
+
 UPlayerInteractionComponent::UPlayerInteractionComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
@@ -12,8 +13,8 @@ UPlayerInteractionComponent::UPlayerInteractionComponent()
 	CurrentHovered = nullptr;
 
 	InteractionDistance = 500.f;
-	DraggingHeight = 100.f;
-	AltDraggingHeight = 100.f;
+	DraggingHeight = 150.f;
+	AltDraggingHeight = 50.f;
 	RotateSpeed = 100.f;
 }
 
@@ -34,12 +35,46 @@ void UPlayerInteractionComponent::TickComponent(float DeltaTime, ELevelTick Tick
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+#define MOVEMENT_INTERPOLATION_SPEED 20.0f
+
 	if (PlayerPawn->GetMovementComponent()->GetMapState() != EPlayerCameraState::LookingAtMap) 
 	{
-		if (CurrentDraggable)
-			SetCurrentDraggable(nullptr);
+		SetCurrentDraggable(nullptr);
+		SetCurrentSelected(nullptr);
+		SetCurrentHovered(nullptr);
 
 		return;
+	}
+
+	AActor* interactableActor = nullptr;
+	IInteractable* interactable = nullptr;
+
+	FindInteractableAtCursor(interactableActor, interactable);
+
+	if (PlayerPawn->GetPlayerInput()->MouseLeftClick || PlayerPawn->GetPlayerInput()->MouseRightClick)
+	{
+		if (!CurrentDraggable) 
+		{
+			if (!InteractableActorsSelectedGroup.Contains(interactableActor))
+			{
+				ClearSelectedGroup();
+			}
+		}
+	}
+
+	if ((interactable == nullptr) && PlayerPawn->GetPlayerInput()->MouseLeftClick)
+	{
+		PlayerPawn->GetPlayerInput()->MouseLeftClick = false;
+
+		bIsMultipleSelection = true;
+		OnMultipleSelectionStart.Broadcast();
+
+	}
+
+	if (bIsMultipleSelection && !PlayerPawn->GetPlayerInput()->MouseLeftHold)
+	{
+		bIsMultipleSelection = false;
+		OnMultipleSelectionEnd.Broadcast();
 	}
 
 	if (CurrentDraggable)
@@ -52,16 +87,58 @@ void UPlayerInteractionComponent::TickComponent(float DeltaTime, ELevelTick Tick
 			if (!draggableActor)
 				return;
 
-			const bool altDragging = PlayerPawn->GetPlayerInput()->MouseRightHold;
-			const FVector locationToMoveTo = altDragging ? (hit.Location + FVector(0, 0, AltDraggingHeight)) : (hit.Location + FVector(0, 0, DraggingHeight));
-			const FVector newLocation = FMath::VInterpTo(draggableActor->GetActorLocation(), locationToMoveTo, DeltaTime, 20);
+			FVector horizontalTargetLocation = hit.Location;
+			horizontalTargetLocation.Z = draggableActor->GetActorLocation().Z;
+			const FVector newHorizontalLocation = FMath::VInterpTo(draggableActor->GetActorLocation(), horizontalTargetLocation, DeltaTime, MOVEMENT_INTERPOLATION_SPEED);
+			const FVector deltaLocation = newHorizontalLocation - draggableActor->GetActorLocation();
+			
+			draggableActor->SetActorLocation(newHorizontalLocation);
 
-			draggableActor->SetActorLocation(newLocation);
+			for (AActor* el : InteractableActorsSelectedGroup)
+			{
+				if (el == draggableActor)
+					continue;
+
+				el->AddActorWorldOffset(deltaLocation);
+			}
+
+			const bool altDragging = PlayerPawn->GetPlayerInput()->MouseRightHold;
+			const float draggingHeight = altDragging ? (AltDraggingHeight) : (DraggingHeight);
+
+			{
+				const FVector hoverLocation = GetSurfaceUnderActor(draggableActor) + FVector(0.0f, 0.0f, draggingHeight);
+				const FVector newVerticalLocation = FMath::VInterpTo(draggableActor->GetActorLocation(), hoverLocation, DeltaTime, MOVEMENT_INTERPOLATION_SPEED);
+
+				draggableActor->SetActorLocation(newVerticalLocation);
+			}
+
+			for (AActor* el : InteractableActorsSelectedGroup)
+			{
+				if (el == draggableActor)
+					continue;
+
+				const FVector hoverLocation = GetSurfaceUnderActor(el) + FVector(0.0f, 0.0f, draggingHeight);
+				const FVector newVerticalLocation = FMath::VInterpTo(el->GetActorLocation(), hoverLocation, DeltaTime, MOVEMENT_INTERPOLATION_SPEED);
+
+				el->SetActorLocation(newVerticalLocation);
+			}
 
 			const float rotationDirection = (-(float)PlayerPawn->GetPlayerInput()->RotateLeft + (float)PlayerPawn->GetPlayerInput()->RotateRight);
 			const float rotationDelta = rotationDirection * RotateSpeed * DeltaTime;
 
-			draggableActor->AddActorWorldRotation(FRotator(0, rotationDelta, 0));
+			draggableActor->AddActorWorldRotation(FRotator(0.0f, rotationDelta, 0.0f));
+
+			for (AActor* el : InteractableActorsSelectedGroup)
+			{
+				if (el == draggableActor)
+					continue;
+
+				const FVector relativeLocation = el->GetActorLocation() - draggableActor->GetActorLocation();
+				const FVector rotatedRelativeLocation = relativeLocation.RotateAngleAxis(rotationDelta, FVector::UpVector);
+
+				el->SetActorLocation(draggableActor->GetActorLocation() + rotatedRelativeLocation);
+				el->AddActorWorldRotation(FRotator(0.0f, rotationDelta, 0.0f));
+			}
 		}
 		else 
 		{
@@ -74,41 +151,90 @@ void UPlayerInteractionComponent::TickComponent(float DeltaTime, ELevelTick Tick
 		{
 			PlayerPawn->GetPlayerInput()->MouseLeftClick = false;
 
-			IInteractable* newDraggable = FindDraggableAtCursor();
-
-			if (newDraggable) 
-				SetCurrentDraggable(newDraggable);
+			if (interactable)
+				SetCurrentDraggable(interactable);
 		}
 		else if (PlayerPawn->GetPlayerInput()->MouseRightClick)
 		{
 			PlayerPawn->GetPlayerInput()->MouseRightClick = false;
 
-			IInteractable* newSelected = FindDraggableAtCursor();
-
-			if (CurrentSelected == newSelected)
+			if (CurrentSelected == interactable)
 			{
 				SetCurrentSelected(nullptr);
 			}
 			else 
 			{
-				SetCurrentSelected(newSelected);
+				SetCurrentSelected(interactable);
 			}
 		}
 	}
 
-	IInteractable* newHovered = FindDraggableAtCursor();
+	if (interactable != CurrentHovered)
+		SetCurrentHovered(interactable);
+}
 
-	if (CurrentHovered != newHovered)
-		SetCurrentHovered(newHovered);
+void UPlayerInteractionComponent::ClearSelectedGroup()
+{
+	for (AActor* el : InteractableActorsSelectedGroup)
+	{
+		IInteractable* interactable = Cast<IInteractable>(el);
+
+		if (!interactable)
+			continue;
+
+		interactable->StopGroupSelectionHover();
+	}
+
+	InteractableActorsSelectedGroup.Reset();
+}
+
+void UPlayerInteractionComponent::SetSelectedGroup(const TArray<TScriptInterface<class IInteractable>>& NewGroup)
+{
+	ClearSelectedGroup();
+
+	for (const TScriptInterface<IInteractable>& el : NewGroup)
+	{
+		if (!el.GetInterface())
+			continue;
+
+		el.GetInterface()->StartGroupSelectionHover();
+
+		AActor* actor = Cast<AActor>(el.GetObject());
+
+		if (!actor)
+			continue;
+
+		InteractableActorsSelectedGroup.Add(actor);
+	}
 }
 
 void UPlayerInteractionComponent::SetCurrentDraggable(IInteractable* NewDraggable)
 {
 	if (CurrentDraggable) 
+	{
 		CurrentDraggable->StopDragging();
 
-	if (NewDraggable)
+		for (AActor* el : InteractableActorsSelectedGroup)
+		{
+			IInteractable* interactable = Cast<IInteractable>(el);
+
+			if (interactable)
+				interactable->StopDragging();
+		}
+	}
+
+	if (NewDraggable) 
+	{
 		NewDraggable->StartDragging();
+
+		for (AActor* el : InteractableActorsSelectedGroup)
+		{
+			IInteractable* interactable = Cast<IInteractable>(el);
+
+			if (interactable)
+				interactable->StartDragging();
+		}
+	}
 
 	CurrentDraggable = NewDraggable;
 }
@@ -155,20 +281,31 @@ FHitResult UPlayerInteractionComponent::SingleCursorTrace()
 	return hit;
 }
 
-IInteractable* UPlayerInteractionComponent::FindDraggableAtCursor()
+void UPlayerInteractionComponent::FindInteractableAtCursor(AActor*& Actor, class IInteractable*& Interactable)
 {
 	FHitResult hit = SingleCursorTrace();
 
 	if (!hit.bBlockingHit) 
-		return nullptr;
+		return;
 
 	if (!hit.GetActor()) 
-		return nullptr;
+		return;
 
-	IInteractable* draggable = Cast<IInteractable>(hit.GetActor());
+	Actor = hit.GetActor();
+	Interactable = Cast<IInteractable>(Actor);
+}
 
-	if (!draggable) 
-		return nullptr;
+FVector UPlayerInteractionComponent::GetSurfaceUnderActor(AActor* Actor)
+{
+	FCollisionQueryParams collisionParams;
+	collisionParams.AddIgnoredActor(Actor);
 
-	return draggable;
+	FHitResult hit;
+
+	const FVector location = Actor->GetActorLocation();
+
+	if (GetWorld()->LineTraceSingleByChannel(hit, location + FVector(0.0f, 0.0f, 50.0f), location - FVector(0.0f, 0.0f, 2000.0f), ECC_Visibility, collisionParams))
+		return hit.ImpactPoint;
+
+	return location;
 }

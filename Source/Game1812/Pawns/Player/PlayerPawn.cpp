@@ -13,7 +13,6 @@
 #include <EnhancedInputComponent.h>
 #include <EnhancedInputSubsystems.h>
 
-
 FPlayerInput::FPlayerInput()
 {
 	MouseScroll = 0.0f;
@@ -29,6 +28,8 @@ FPlayerInput::FPlayerInput()
 	RotateLeft = false;
 	RotateRight = false;
 }
+
+APlayerPawn* APlayerPawn::Instance = nullptr;
 
 APlayerPawn::APlayerPawn()
 {
@@ -64,6 +65,8 @@ void APlayerPawn::RotateRight(const FInputActionValue& Value) { PlayerInput.Rota
 void APlayerPawn::BeginPlay()
 {
 	Super::BeginPlay();
+
+	Instance = this;
 
 	if (GetLocalViewingPlayerController()) GetLocalViewingPlayerController()->SetShowMouseCursor(true);
 }

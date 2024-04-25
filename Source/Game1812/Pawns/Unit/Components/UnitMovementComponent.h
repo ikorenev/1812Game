@@ -25,6 +25,12 @@ protected:
 	FVector TargetLocation;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Unit Movement")
+	bool bMustRotateToTargetRotation;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Unit Movement")
+	float TargetRotation;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Unit Movement")
 	bool bIsMoving;
 
 	UPROPERTY()
@@ -66,6 +72,7 @@ public:
 	bool IsMoving();
 
 	void MoveTo(const FVector& MoveToLocation, bool bForceMove = false);
+	void RotateTo(float FinishRotation);
 	void StopMoving();
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;

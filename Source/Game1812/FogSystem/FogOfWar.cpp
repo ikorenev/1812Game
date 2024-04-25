@@ -1,97 +1,115 @@
 #include "FogOfWar.h"
 
 #include "FogAffected.h"
+#include "../Actors/HeadQuarters.h"
 
 #include <Components/BoxComponent.h>
-#include <NiagaraComponent.h>
-#include <NiagaraFunctionLibrary.h>
+#include <Components/DecalComponent.h>
 #include <Kismet/GameplayStatics.h>
 
-FFogTimer::FFogTimer()
+FFogDiscoveredArea::FFogDiscoveredArea()
 {
-	FogComponent = nullptr;
-	Timer = 0.f;
+	DiscoverEndTime = 0.f;
 }
 
-FFogTimer::FFogTimer(const FFogTimer& Other)
+FFogDiscoveredArea::FFogDiscoveredArea(const FFogDiscoveredArea& Other)
 {
-	FogComponent = Other.FogComponent;
-	Timer = Other.Timer;
+	DiscoveredArea = Other.DiscoveredArea;
+	DiscoverEndTime = Other.DiscoverEndTime;
 }
 
-FFogTimer::FFogTimer(UNiagaraComponent* FogComponent, float Timer)
+FFogDiscoveredArea::FFogDiscoveredArea(const TImageBuilder<FVector4f>& Area, float Time)
 {
-	this->FogComponent = FogComponent;
-	this->Timer = Timer;
+	DiscoveredArea = TImageBuilder<FVector4f>(Area);
+	DiscoverEndTime = Time;
 }
 
-bool operator==(const FFogTimer& First, const FFogTimer& Second)
-{
-	return First.FogComponent == Second.FogComponent;
-}
+//bool operator==(const FFogDiscoveredArea& First, const FFogDiscoveredArea& Second)
+//{
+//	return First.TextureBuilder == Second.TextureBuilder;
+//}
 
-AFogOfWar* AFogOfWar::Singleton = nullptr;
+AFogOfWar* AFogOfWar::Instance = nullptr;
 
-AFogOfWar* AFogOfWar::GetSingleton()
+AFogOfWar* AFogOfWar::GetInstance()
 {
-	return Singleton;
+	return Instance;
 }
 
 AFogOfWar::AFogOfWar()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	FogArea = CreateDefaultSubobject<UBoxComponent>(TEXT("Fog Area"));
+	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root Component"));
+
+	FogArea = CreateDefaultSubobject<UBoxComponent>(TEXT("Fog Area Component"));
 	FogArea->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	FogArea->SetupAttachment(RootComponent);
 
-	RootComponent = FogArea;
-
-	Resolution = FIntPoint(20, 20);
-	 
-	RevealTime = 15.f;
+	FogDecalComponent = CreateDefaultSubobject<UDecalComponent>(TEXT("Fog Decal Component"));
+	FogDecalComponent->SetupAttachment(RootComponent);
 
 	AffectActors = true;
+
+	HeadQuartersRange = 8.0f;
+	ScoutRange = 5.0f;
+	ScoutRevealTime = 50.0f;
 }
 
 void AFogOfWar::BeginPlay()
 {
 	Super::BeginPlay();
 
-	Singleton = this;
+	Instance = this;
+	Resolution = FIntPoint(64, 64);
 
-	if (!FogNiagaraSystem) 
-		return;
+	const FImageDimensions dimensions(Resolution.X, Resolution.Y);
 
-	FogComponentsTable.SetNum(Resolution.X, true);
+	ConstantDiscoveredArea.SetDimensions(dimensions);
+	ConstantDiscoveredArea.Clear(FVector4f::Zero());
 
-	for (int x = 0; x < Resolution.X; x++)
-	{
-		FogComponentsTable[x].SetNum(Resolution.Y, true);
-	}
-	
-	const FVector FogBoxExtent = FogArea->GetScaledBoxExtent() * 2;
-	const FVector SystemSize = GetChunkSize();
+	FogAlphaImageBuilder.SetDimensions(dimensions);
+	FogAlphaImageBuilder.Clear(FVector4f::Zero());
 
-	for (int x = 0; x < Resolution.X; x++)
-	{
-		for (int y = 0; y < Resolution.Y; y++)
-		{
-			UNiagaraComponent* component = UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), FogNiagaraSystem, RootComponent->GetComponentLocation() + FVector(x * FogBoxExtent.X / Resolution.X, y * FogBoxExtent.Y / Resolution.Y, 0) - FVector(FogArea->GetScaledBoxExtent().X, FogArea->GetScaledBoxExtent().Y, 0));
+	FogDynamicMaterial = UMaterialInstanceDynamic::Create(FogMaterialAsset, this);
+	FogDecalComponent->SetDecalMaterial(FogDynamicMaterial);
 
-			component->SetVectorParameter("Size", SystemSize);
-
-			FogComponents.Add(component);
-			FogComponentsTable[x][y] = component;
-		}
-	}
+	GetWorld()->GetTimerManager().SetTimerForNextTick(FTimerDelegate::CreateUObject(this, &AFogOfWar::AddConstantDiscoveredArea));
 }
 
+void AFogOfWar::AddConstantDiscoveredArea()
+{
+	if (AHeadQuarters::GetInstance())
+		ApplyCircularBrushToImage(ConstantDiscoveredArea, LocationToIndex(AHeadQuarters::GetInstance()->GetActorLocation()), HeadQuartersRange, FVector4f::One());
+
+	UpdateFogTexture();
+}
+
+void AFogOfWar::UpdateFogTexture()
+{
+	FogAlphaImageBuilder.Clear(FVector4f::Zero());
+
+	AddTextureToTexture(FogAlphaImageBuilder, ConstantDiscoveredArea);
+
+	for (FFogDiscoveredArea& area : TimedDiscoveredAreas)
+	{
+		AddTextureToTexture(FogAlphaImageBuilder, area.DiscoveredArea);
+	}
+
+	FTexture2DBuilder fogAlphaTextureBuilder;
+	fogAlphaTextureBuilder.Initialize(FTexture2DBuilder::ETextureType::ColorLinear, FImageDimensions(Resolution.X, Resolution.Y));
+	fogAlphaTextureBuilder.Copy(FogAlphaImageBuilder);
+	fogAlphaTextureBuilder.Commit(false);
+	FogAlphaTexture = fogAlphaTextureBuilder.GetTexture2D();
+
+	FogDynamicMaterial->SetTextureParameterValue("AlphaTexture", FogAlphaTexture);
+}
 
 void AFogOfWar::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	UpdateFogTimers(DeltaTime);
+	UpdateDiscoveredAreas();
 
 	CheckActorsInFog();
 }
@@ -113,7 +131,7 @@ void AFogOfWar::CheckActorsInFog()
 
 		FIntPoint index = LocationToIndex(actor->GetActorLocation());
 
-		const bool isFogDisabled = FogComponentsTable[index.X][index.Y]->ComponentTags.Contains("Hidden");
+		const bool isFogDisabled = FogAlphaImageBuilder.GetPixel(FVector2i(index.X, index.Y)).W > 0.75f;
 		const bool isActorInFog = fogAffected->IsCoveredInFog();
 
 		if (isFogDisabled && isActorInFog || !AffectActors)
@@ -127,44 +145,26 @@ void AFogOfWar::CheckActorsInFog()
 	}
 }
 
-void AFogOfWar::UpdateFogTimers(float DeltaTime)
+void AFogOfWar::UpdateDiscoveredAreas()
 {
-	for (int i = 0; i < FogTimers.Num();) 
-	{
-		FogTimers[i].Timer -= DeltaTime;
+	const float timeSeconds = GetWorld()->GetTimeSeconds();
+	bool shouldUpdateTexture = false;
 
-		if (FogTimers[i].Timer <= 0)
+	for (int i = 0; i < TimedDiscoveredAreas.Num();)
+	{
+		if (TimedDiscoveredAreas[i].DiscoverEndTime < timeSeconds) 
 		{
-			FogTimers[i].FogComponent->SetNiagaraVariableFloat("SpawnRate", 1.0f);
-			FogTimers[i].FogComponent->ComponentTags.Remove("Hidden");
-			FogTimers.RemoveAt(i);
+			TimedDiscoveredAreas.RemoveAt(i);
+			shouldUpdateTexture = true;
 		}
 		else 
 		{
 			i++;
 		}
 	}
-}
 
-void AFogOfWar::RevealChunks(TArray<FIntPoint> ChunksToReveal)
-{
-	for (FIntPoint chunk : ChunksToReveal) 
-	{
-		UNiagaraComponent* component = FogComponentsTable[chunk.X][chunk.Y];
-
-		FFogTimer* fogTimer = FogTimers.FindByPredicate([&](const FFogTimer& el) { return el.FogComponent == component; });
-
-		if (fogTimer)
-		{
-			fogTimer->Timer = RevealTime;
-		}
-		else 
-		{
-			FogTimers.Add(FFogTimer(component, RevealTime));
-			component->SetNiagaraVariableFloat("SpawnRate", 0.0f);
-			component->ComponentTags.Add("Hidden");
-		}
-	}
+	if (shouldUpdateTexture)
+		UpdateFogTexture();
 }
 
 FVector AFogOfWar::GetChunkSize()
@@ -186,4 +186,48 @@ FIntPoint AFogOfWar::LocationToIndex(FVector Location)
 	return ret;
 }
 
+void AFogOfWar::AddDiscoveredArea(const TImageBuilder<FVector4f>& Area)
+{
+	TimedDiscoveredAreas.Add(FFogDiscoveredArea(Area, GetWorld()->GetTimeSeconds() + ScoutRevealTime));
 
+	UpdateFogTexture();
+}
+
+void AFogOfWar::AddTextureToTexture(TImageBuilder<FVector4f>& MainImage, const TImageBuilder<FVector4f>& Image)
+{
+	if (MainImage.GetDimensions() != Image.GetDimensions())
+		return;
+
+	for (int x = 0; x < MainImage.GetDimensions().GetWidth(); x++)
+	{
+		for (int y = 0; y < MainImage.GetDimensions().GetHeight(); y++)
+		{
+			const FVector2i coords(x, y);
+			const FVector4f newColor = MainImage.GetPixel(coords) + Image.GetPixel(coords);
+			MainImage.SetPixel(coords, newColor);
+		}
+	}
+}
+
+void ApplyCircularBrushToImage(TImageBuilder<FVector4f>& Image, FIntPoint Position, float Radius, FVector4f Color)
+{
+	const int xStart = FMath::Max(Position.X - Radius, 0);
+	const int xEnd = FMath::Min(Image.GetDimensions().GetWidth() - 1, Position.X + Radius);
+	const int yStart = FMath::Max(Position.Y - Radius, 0);
+	const int yEnd = FMath::Min(Image.GetDimensions().GetHeight() - 1, Position.Y + Radius);
+
+	const float squaredRadius = Radius * Radius;
+
+	for (int x = xStart; x <= xEnd; x++)
+	{
+		for (int y = yStart; y <= yEnd; y++)
+		{
+			const float squaredDistance = FVector2D::DistSquared(Position, FVector2D(x, y));
+
+			if (squaredDistance < squaredRadius)
+			{
+				Image.SetPixel(FVector2i(x, y), Color);
+			}
+		}
+	}
+}

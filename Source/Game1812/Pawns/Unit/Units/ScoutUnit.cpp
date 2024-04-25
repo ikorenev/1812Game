@@ -19,6 +19,9 @@ void AScoutUnit::BeginPlay()
 {
 	Super::BeginPlay();
 
+	DiscoveredArea.SetDimensions(AFogOfWar::GetInstance()->GetDimensions());
+	DiscoveredArea.Clear(FVector4f::Zero());
+
 	MovementComponent->OnMovementEnd.AddDynamic(this, &AScoutUnit::OnMovementComplete);
 }
 
@@ -29,14 +32,13 @@ void AScoutUnit::OnMovementComplete()
 		if (OnMovementEnd.IsBound())
 			OnMovementEnd.Broadcast();
 
-		AFogOfWar* fogOfWarActor = AFogOfWar::GetSingleton();
-
-		if (!fogOfWarActor)
+		if (!AFogOfWar::GetInstance())
 			return;
 
-		fogOfWarActor->RevealChunks(ChunksToReveal.Array());
-		ChunksToReveal.Empty();
+		AFogOfWar::GetInstance()->AddDiscoveredArea(DiscoveredArea);
+		DiscoveredArea.Clear(FVector4f::Zero());
 
+		OnReturnToHQ();
 		return;
 	}
 
@@ -51,21 +53,10 @@ void AScoutUnit::Tick(float DeltaTime)
 
 	if (MovementComponent->IsMoving())
 	{
-		AFogOfWar* fogOfWarActor = AFogOfWar::GetSingleton();
-
-		if (!fogOfWarActor)
+		if (!AFogOfWar::GetInstance())
 			return;
 
-		const int ChuckRevealRange = 2;
-		const FVector ChunkSize = fogOfWarActor->GetChunkSize();
-
-		for (int x = -ChuckRevealRange + 1; x < ChuckRevealRange; x++) 
-		{
-			for (int y = -ChuckRevealRange + 1; y < ChuckRevealRange; y++)
-			{
-				ChunksToReveal.Add(fogOfWarActor->LocationToIndex(GetActorLocation() + ChunkSize * FVector(x, y, 0)));
-			}
-		}
+		ApplyCircularBrushToImage(DiscoveredArea, AFogOfWar::GetInstance()->LocationToIndex(GetActorLocation()), AFogOfWar::GetInstance()->GetScoutRange(), FVector4f::One());
 	}
 }
 
@@ -176,3 +167,5 @@ float AScoutUnit::GetRotationSpeed() const
 {
 	return RotationSpeed * GetTerrainModifiers().RotationSpeedModifier;
 }
+
+void AScoutUnit::OnReturnToHQ_Implementation() {}

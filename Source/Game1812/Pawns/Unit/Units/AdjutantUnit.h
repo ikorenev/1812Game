@@ -54,6 +54,9 @@ protected:
 
 	struct FAssignedCombatUnitOrder FindClosestTarget();
 
+	UFUNCTION(BlueprintNativeEvent)
+	void OnReturnToHQ();
+
 public:
 
 	bool IsOnDeathCooldown();

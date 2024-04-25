@@ -40,6 +40,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class UPiecePredictedPathComponent* PredictedPathComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	class UPieceOutlineComponent* OutlineComponent;
 	//
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
@@ -69,6 +72,8 @@ protected:
 	FOnPieceChangeDelegate OnStopDragging;
 	FOnPieceChangeDelegate OnStartCursorHover;
 	FOnPieceChangeDelegate OnStopCursorHover;
+	FOnPieceChangeDelegate OnStartGroupSelectionHover;
+	FOnPieceChangeDelegate OnStopGroupSelectionHover;
 	FOnPieceChangeDelegate OnSelected;
 	FOnPieceChangeDelegate OnSelectionRemoved;
 
@@ -81,6 +86,17 @@ protected:
 
 	virtual void OnSpawnUnit();
 
+	UFUNCTION(BlueprintNativeEvent)
+	void PlaySoundStartDragging();
+
+	UFUNCTION(BlueprintNativeEvent)
+	void PlaySoundSelected();
+
+	UFUNCTION(BlueprintNativeEvent)
+	void PlaySoundHit(float Force);
+
+	UFUNCTION(BlueprintNativeEvent)
+	void PlaySoundDeath();
 
 public:
 
@@ -111,10 +127,15 @@ public:
 	virtual void StartCursorHover() override;
 	virtual void StopCursorHover() override;
 
+	virtual void StartGroupSelectionHover() override;
+	virtual void StopGroupSelectionHover() override;
+
 	virtual void Selected() override;
 	virtual void SelectionRemoved() override;
 
 	FVector GetDragOffset() override;
+
+	virtual bool CanBeGrouped() override { return true; }
 	//
 
 	void AddOnUnitSpawnHandler(const FOnPieceChangeDelegate::FDelegate& Handler) { OnUnitSpawn.Add(Handler); };
@@ -129,6 +150,8 @@ public:
 	void AddOnStopDraggingHandler(const FOnPieceChangeDelegate::FDelegate& Handler) { OnStopDragging.Add(Handler); };
 	void AddOnStartCursorHoverHandler(const FOnPieceChangeDelegate::FDelegate& Handler) { OnStartCursorHover.Add(Handler); };
 	void AddOnStopCursorHoverHandler(const FOnPieceChangeDelegate::FDelegate& Handler) { OnStopCursorHover.Add(Handler); };
+	void AddOnStartGroupSelectionHoverHandler(const FOnPieceChangeDelegate::FDelegate& Handler) { OnStartGroupSelectionHover.Add(Handler); };
+	void AddOnStopGroupSelectionHoverHandler(const FOnPieceChangeDelegate::FDelegate& Handler) { OnStopGroupSelectionHover.Add(Handler); };
 	void AddOnSelectedHandler(const FOnPieceChangeDelegate::FDelegate& Handler) { OnSelected.Add(Handler); };
 	void AddOnSelectionRemovedHandler(const FOnPieceChangeDelegate::FDelegate& Handler) { OnSelectionRemoved.Add(Handler); };
 };

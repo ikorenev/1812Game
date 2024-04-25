@@ -15,12 +15,18 @@ public:
 
 protected:
 
+	UPROPERTY(BlueprintReadOnly)
 	class APiece* OwnerPiece;
 
 	virtual void BeginPlay() override;
-	
-public:
 
 	void OnEnable();
 	void OnDisable();
+
+	UFUNCTION(BlueprintCallable)
+	void AssignOrder(class UUnitOrder* UnitOrder);
+
+public:
+
+	
 };
