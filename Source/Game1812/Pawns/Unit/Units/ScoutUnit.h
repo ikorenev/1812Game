@@ -3,9 +3,12 @@
 #include "CoreMinimal.h"
 #include "../BaseUnit.h"
 #include "../Components/Damageable.h"
+#include "Image/ImageBuilder.h"
 #include "ScoutUnit.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FScoutMovementStateDelegate);
+
+using namespace UE::Geometry;
 
 UCLASS()
 class GAME1812_API AScoutUnit : public ABaseUnit, public IDamageable
@@ -32,8 +35,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float RotationSpeed;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	TSet<FIntPoint> ChunksToReveal;
+	TImageBuilder<FVector4f> DiscoveredArea;
 
 	UPROPERTY(BlueprintAssignable)
 	FScoutMovementStateDelegate OnMovementStart;
@@ -42,6 +44,9 @@ protected:
 	FScoutMovementStateDelegate OnMovementEnd;
 
 	virtual void BeginPlay() override;
+
+	UFUNCTION(BlueprintNativeEvent)
+	void OnReturnToHQ();
 
 public:
 

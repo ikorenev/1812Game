@@ -20,14 +20,21 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Interaction")
 	float InteractionDistance;
 
-	UPROPERTY(EditAnywhere, Category = "Drag and Drop")
+	UPROPERTY(EditAnywhere, Category = "Dragging")
 	float DraggingHeight;
 
-	UPROPERTY(EditAnywhere, Category = "Drag and Drop")
+	UPROPERTY(EditAnywhere, Category = "Dragging")
 	float AltDraggingHeight;
 
-	UPROPERTY(EditAnywhere, Category = "Drag and Drop")
+	UPROPERTY(EditAnywhere, Category = "Dragging")
 	float RotateSpeed;
+
+	UPROPERTY(EditAnywhere, Category = "Selection")
+	bool bIsMultiplySelecting;
+
+	UPROPERTY(EditAnywhere, Category = "Selection")
+	FVector MultipleSelectionStartPoint;
+
 
 	class IInteractable* CurrentDraggable;
 	class IInteractable* CurrentHovered;
@@ -40,7 +47,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	FHitResult SingleCursorTrace();
-	class IInteractable* FindDraggableAtCursor();
+	class IInteractable* FindInteractableAtCursor();
 
 public:	
 

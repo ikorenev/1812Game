@@ -40,6 +40,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class UPiecePredictedPathComponent* PredictedPathComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	class UPieceOutlineComponent* OutlineComponent;
 	//
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
@@ -81,6 +84,17 @@ protected:
 
 	virtual void OnSpawnUnit();
 
+	UFUNCTION(BlueprintNativeEvent)
+	void PlaySoundStartDragging();
+
+	UFUNCTION(BlueprintNativeEvent)
+	void PlaySoundSelected();
+
+	UFUNCTION(BlueprintNativeEvent)
+	void PlaySoundHit(float Force);
+
+	UFUNCTION(BlueprintNativeEvent)
+	void PlaySoundDeath();
 
 public:
 

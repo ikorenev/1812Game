@@ -13,7 +13,7 @@ UPlayerInteractionComponent::UPlayerInteractionComponent()
 
 	InteractionDistance = 500.f;
 	DraggingHeight = 100.f;
-	AltDraggingHeight = 100.f;
+	AltDraggingHeight = 10.f;
 	RotateSpeed = 100.f;
 }
 
@@ -36,11 +36,33 @@ void UPlayerInteractionComponent::TickComponent(float DeltaTime, ELevelTick Tick
 
 	if (PlayerPawn->GetMovementComponent()->GetMapState() != EPlayerCameraState::LookingAtMap) 
 	{
-		if (CurrentDraggable)
-			SetCurrentDraggable(nullptr);
+		SetCurrentDraggable(nullptr);
+		SetCurrentSelected(nullptr);
+		SetCurrentHovered(nullptr);
 
 		return;
 	}
+
+	IInteractable* interactable = FindInteractableAtCursor();
+
+	if ((interactable == nullptr) && PlayerPawn->GetPlayerInput()->MouseLeftClick)
+	{
+		PlayerPawn->GetPlayerInput()->MouseLeftClick = false;
+
+		bIsMultiplySelecting = true;
+	}
+
+	if (bIsMultiplySelecting) 
+	{
+		if (!PlayerPawn->GetPlayerInput()->MouseLeftHold) 
+		{
+			bIsMultiplySelecting = false;
+
+			FVector cursorStartLocation;
+			PlayerPawn->GetLocalViewingPlayerController()->DeprojectMousePositionToWorld(MultipleSelectionStartPoint, cursorStartLocation);
+		}
+	}
+
 
 	if (CurrentDraggable)
 	{
@@ -74,32 +96,26 @@ void UPlayerInteractionComponent::TickComponent(float DeltaTime, ELevelTick Tick
 		{
 			PlayerPawn->GetPlayerInput()->MouseLeftClick = false;
 
-			IInteractable* newDraggable = FindDraggableAtCursor();
-
-			if (newDraggable) 
-				SetCurrentDraggable(newDraggable);
+			if (interactable)
+				SetCurrentDraggable(interactable);
 		}
 		else if (PlayerPawn->GetPlayerInput()->MouseRightClick)
 		{
 			PlayerPawn->GetPlayerInput()->MouseRightClick = false;
 
-			IInteractable* newSelected = FindDraggableAtCursor();
-
-			if (CurrentSelected == newSelected)
+			if (CurrentSelected == interactable)
 			{
 				SetCurrentSelected(nullptr);
 			}
 			else 
 			{
-				SetCurrentSelected(newSelected);
+				SetCurrentSelected(interactable);
 			}
 		}
 	}
 
-	IInteractable* newHovered = FindDraggableAtCursor();
-
-	if (CurrentHovered != newHovered)
-		SetCurrentHovered(newHovered);
+	if (CurrentHovered != interactable)
+		SetCurrentHovered(interactable);
 }
 
 void UPlayerInteractionComponent::SetCurrentDraggable(IInteractable* NewDraggable)
@@ -155,7 +171,7 @@ FHitResult UPlayerInteractionComponent::SingleCursorTrace()
 	return hit;
 }
 
-IInteractable* UPlayerInteractionComponent::FindDraggableAtCursor()
+IInteractable* UPlayerInteractionComponent::FindInteractableAtCursor()
 {
 	FHitResult hit = SingleCursorTrace();
 

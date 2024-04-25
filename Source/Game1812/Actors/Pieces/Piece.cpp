@@ -11,6 +11,7 @@
 #include "Components/PieceMapMarkerComponent.h"
 #include "Components/PieceOrderWidgetComponent.h"
 #include "Components/PiecePredictedPathComponent.h"
+#include "Components/PieceOutlineComponent.h"
 
 #include <Kismet/GameplayStatics.h>
 #include <Components/BoxComponent.h>
@@ -42,6 +43,8 @@ APiece::APiece()
 
 	PredictedPathComponent = CreateDefaultSubobject<UPiecePredictedPathComponent>(TEXT("Path Arrow"));
 
+	OutlineComponent = CreateDefaultSubobject<UPieceOutlineComponent>(TEXT("Outline"));
+
 	bCanSpawnUnit = true;
 	bWasDragged = false;
 	bIsDead = false;
@@ -66,13 +69,15 @@ void APiece::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimi
 	if (!OtherActor) 
 		return;
 
+	PlaySoundHit(NormalImpulse.SizeSquared());
+
 	APaperMap* map = Cast<APaperMap>(OtherActor);
 
 	if (!map) 
 		return;
 
 	HitComponent->SetPhysicsLinearVelocity(FVector::ZeroVector);
-	HitComponent->SetPhysicsAngularVelocityInRadians(FVector::ZeroVector);
+	//HitComponent->SetPhysicsAngularVelocityInRadians(FVector::ZeroVector);
 
 	if (bIsDead)
 		return;
@@ -105,10 +110,15 @@ void APiece::SpawnUnit()
 	OnUnitSpawn.Broadcast();
 }
 
-void APiece::OnSpawnUnit()
-{
+void APiece::OnSpawnUnit() { }
 
-}
+void APiece::PlaySoundStartDragging_Implementation() { }
+
+void APiece::PlaySoundSelected_Implementation() { }
+
+void APiece::PlaySoundHit_Implementation(float Force) { }
+
+void APiece::PlaySoundDeath_Implementation() { }
 
 
 void APiece::AssignOrder(UUnitOrder* UnitOrder)
@@ -133,6 +143,8 @@ void APiece::OnDeathUnit()
 {
 	bIsDead = true;
 
+	PlaySoundDeath();
+
 	UCossacksGameInstance* gameInstance = GetWorld()->GetGameInstance<UCossacksGameInstance>();
 
 	if (!gameInstance)
@@ -148,6 +160,8 @@ void APiece::StartDragging()
 {
 	OnStartDragging.Broadcast();
 
+	PlaySoundStartDragging();
+
 	BoxCollisionComponent->SetSimulatePhysics(false);
 	SetActorEnableCollision(false);
 
@@ -160,6 +174,10 @@ void APiece::StopDragging()
 
 	BoxCollisionComponent->SetSimulatePhysics(true);
 	SetActorEnableCollision(true);
+
+	FVector velocity = BoxCollisionComponent->GetPhysicsLinearVelocity();
+	velocity.Z = 0;
+	BoxCollisionComponent->SetPhysicsLinearVelocity(velocity);
 
 	bWasDragged = true;
 }
@@ -177,6 +195,8 @@ void APiece::StopCursorHover()
 void APiece::Selected()
 {
 	OnSelected.Broadcast();
+
+	PlaySoundSelected();
 }
 
 void APiece::SelectionRemoved()

@@ -47,6 +47,7 @@ void AUnitPathArrow::BuildArrow()
 	for (int i = 0; i < amountOfSegments + 1; i++) 
 	{
 		USplineMeshComponent* splineMeshComponent = NewObject<USplineMeshComponent>(this);
+		splineMeshComponent->SetCastShadow(false);
 
 		float segmentLength = SegmentLength;
 

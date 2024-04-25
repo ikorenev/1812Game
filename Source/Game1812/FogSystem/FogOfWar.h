@@ -2,25 +2,31 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "AssetUtils/Texture2DBuilder.h"
+#include "Image/ImageBuilder.h"
 #include "FogOfWar.generated.h"
 
+using namespace UE::Geometry;
+
+void ApplyCircularBrushToImage(TImageBuilder<FVector4f>& Image, FIntPoint Position, float Radius, FVector4f Color);
+
 USTRUCT()
-struct GAME1812_API FFogTimer 
+struct GAME1812_API FFogDiscoveredArea
 {
 	GENERATED_BODY()
 
 public:
 
-	FFogTimer();
-	FFogTimer(const FFogTimer& Other);
-	FFogTimer(class UNiagaraComponent* FogComponent, float Timer);
+	FFogDiscoveredArea();
+	FFogDiscoveredArea(const FFogDiscoveredArea& Other);
+	FFogDiscoveredArea(const TImageBuilder<FVector4f>& AreaDimensions, float Time);
 
-	class UNiagaraComponent* FogComponent;
+	TImageBuilder<FVector4f> DiscoveredArea;
 
 	UPROPERTY(VisibleAnywhere)
-	float Timer;
+	float DiscoverEndTime;
 
-	friend bool operator==(const FFogTimer & First, const FFogTimer & Second);
+	//friend bool operator==(const FFogDiscoveredArea& First, const FFogDiscoveredArea& Second);
 };
 
 UCLASS()
@@ -34,46 +40,72 @@ public:
 
 protected:
 
-	static AFogOfWar* Singleton;
+	static AFogOfWar* Instance;
 
+	//Scene components
 	UPROPERTY(VisibleDefaultsOnly)
 	class UBoxComponent* FogArea;
 
-	UPROPERTY(EditAnywhere)
-	float RevealTime;
+	UPROPERTY(VisibleAnywhere)
+	class UDecalComponent* FogDecalComponent;
+	//
 
 	UPROPERTY(EditAnywhere)
 	bool AffectActors;
 
 	UPROPERTY(EditAnywhere)
-	TArray<class UNiagaraComponent*> FogComponents;
+	float HeadQuartersRange;
 
-	TArray<TArray<class UNiagaraComponent*>> FogComponentsTable;
+	UPROPERTY(EditAnywhere)
+	float ScoutRange;
+
+	UPROPERTY(EditAnywhere)
+	float ScoutRevealTime;
+
+	UPROPERTY(VisibleDefaultsOnly)
+	FIntPoint Resolution;
 
 	UPROPERTY(VisibleAnywhere)
-	TArray<FFogTimer> FogTimers;
+	TArray<FFogDiscoveredArea> TimedDiscoveredAreas;
+
+	TImageBuilder<FVector4f> ConstantDiscoveredArea;
+	TImageBuilder<FVector4f> FogAlphaImageBuilder;
+
+	UPROPERTY(VisibleAnywhere)
+	UTexture2D* FogAlphaTexture;
+	
+	UPROPERTY(EditAnywhere)
+	UMaterialInterface* FogMaterialAsset;
 
 	UPROPERTY(EditAnywhere)
-	class UNiagaraSystem* FogNiagaraSystem;
-
-	UPROPERTY(EditAnywhere)
-	FIntPoint Resolution;
+	UMaterialInstanceDynamic* FogDynamicMaterial;
 
 	virtual void BeginPlay() override;
 
+	void AddConstantDiscoveredArea();
+
+	void UpdateFogTexture();
+
+	void UpdateDiscoveredAreas();
+
 	void CheckActorsInFog();
-	void UpdateFogTimers(float DeltaTime);
+
+	static void AddTextureToTexture(TImageBuilder<FVector4f>& MainImage, const TImageBuilder<FVector4f>& Image);
 
 public:	
 
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	static AFogOfWar* GetInstance();
+
 	FVector GetChunkSize();
 
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-	static AFogOfWar* GetSingleton();
+	float GetScoutRange() const { return ScoutRange; }
+
+	FImageDimensions GetDimensions() const { return FImageDimensions(Resolution.X, Resolution.Y); }
 
 	FIntPoint LocationToIndex(FVector Location);
 
-	virtual void Tick(float DeltaTime) override;
+	void AddDiscoveredArea(const TImageBuilder<FVector4f>& Area);
 
-	void RevealChunks(TArray<FIntPoint> ChunksToReveal);
+	virtual void Tick(float DeltaTime) override;
 };
