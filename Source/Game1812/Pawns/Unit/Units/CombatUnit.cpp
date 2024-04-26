@@ -110,6 +110,8 @@ void ACombatUnit::SetCombatUnitData(UCombatUnitDataAsset* NewCombatUnitData)
 		return;
 
 	CombatComponent->Init(CombatUnitData->GetCombatUnitStats());
+
+	OnCombatUnitDataChange();
 }
 
 FCombatUnitStats* ACombatUnit::GetCombatUnitStats() const
