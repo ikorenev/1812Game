@@ -54,6 +54,9 @@ public:
 
 	void SetCombatUnitData(class UCombatUnitDataAsset* NewCombatUnitData);
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnCombatUnitDataChange();
+
 
 	//ABaseUnit class override
 	class UUnitMovementComponent* GetMovementComponent() override;
