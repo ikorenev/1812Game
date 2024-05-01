@@ -112,15 +112,6 @@ void APiece::SpawnUnit()
 
 void APiece::OnSpawnUnit() { }
 
-void APiece::PlaySoundStartDragging_Implementation() { }
-
-void APiece::PlaySoundSelected_Implementation() { }
-
-void APiece::PlaySoundHit_Implementation(float Force) { }
-
-void APiece::PlaySoundDeath_Implementation() { }
-
-
 void APiece::AssignOrder(UUnitOrder* UnitOrder)
 {
 	OnOrderAssign.Broadcast();

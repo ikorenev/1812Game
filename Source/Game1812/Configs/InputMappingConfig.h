@@ -34,6 +34,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	class UInputAction* LookAtMap;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	class UInputAction* LeftShift;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	class UInputAction* RotateLeft;

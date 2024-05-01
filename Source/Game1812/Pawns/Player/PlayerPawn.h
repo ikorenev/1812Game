@@ -22,6 +22,8 @@ public:
 
 	bool LookAtMap;
 
+	bool LeftShift;
+
 	bool MouseLeftClick;
 	bool MouseLeftHold;
 
@@ -80,6 +82,7 @@ protected:
 	void MoveLeft(const struct FInputActionValue& Value);
 	void MoveRight(const struct FInputActionValue& Value);
 	void LookAtMap(const struct FInputActionValue& Value);
+	void LeftShift(const struct FInputActionValue& Value);
 	void RotateLeft(const struct FInputActionValue& Value);
 	void RotateRight(const struct FInputActionValue& Value);
 

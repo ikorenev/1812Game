@@ -55,7 +55,22 @@ void UPlayerInteractionComponent::TickComponent(float DeltaTime, ELevelTick Tick
 	{
 		if (!CurrentDraggable) 
 		{
-			if (!InteractableActorsSelectedGroup.Contains(interactableActor))
+			if (PlayerPawn->GetPlayerInput()->LeftShift) 
+			{
+				PlayerPawn->GetPlayerInput()->MouseLeftClick = false;
+
+				if (InteractableActorsSelectedGroup.Contains(interactableActor))
+				{
+					InteractableActorsSelectedGroup.Remove(interactableActor);
+					interactable->StopGroupSelectionHover();
+				}
+				else 
+				{
+					InteractableActorsSelectedGroup.Add(interactableActor);
+					interactable->StartGroupSelectionHover();
+				}
+			}
+			else if (!InteractableActorsSelectedGroup.Contains(interactableActor))
 			{
 				ClearSelectedGroup();
 			}

@@ -86,16 +86,16 @@ protected:
 
 	virtual void OnSpawnUnit();
 
-	UFUNCTION(BlueprintNativeEvent)
+	UFUNCTION(BlueprintImplementableEvent)
 	void PlaySoundStartDragging();
 
-	UFUNCTION(BlueprintNativeEvent)
+	UFUNCTION(BlueprintImplementableEvent)
 	void PlaySoundSelected();
 
-	UFUNCTION(BlueprintNativeEvent)
+	UFUNCTION(BlueprintImplementableEvent)
 	void PlaySoundHit(float Force);
 
-	UFUNCTION(BlueprintNativeEvent)
+	UFUNCTION(BlueprintImplementableEvent)
 	void PlaySoundDeath();
 
 public:
