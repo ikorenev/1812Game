@@ -24,6 +24,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	TSubclassOf<class AUnitPathArrow> UnitPathArrowClass;
 
+<<<<<<< Updated upstream
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	TSubclassOf<class AGhostPiece> GhostPieceClass;
 
@@ -50,4 +51,7 @@ public:
 	UMaterialInterface* GetDeadPieceMaterial() const { return DeadPieceMaterial; };
 	UMaterialInterface* GetCombatStatsPieceMaterial() const { return CombatStatsPieceMaterial; };
 	
+=======
+	class UCombatUnitsTable* GetTeamUnitsTable(ETeam Team);
+>>>>>>> Stashed changes
 };
