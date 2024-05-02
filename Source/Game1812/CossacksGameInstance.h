@@ -2,21 +2,20 @@
 
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
-#include "Pawns/Unit/TeamEnum.h"
 #include "CossacksGameInstance.generated.h"
 
 UCLASS(BlueprintType)
 class GAME1812_API UCossacksGameInstance : public UGameInstance
 {
 	GENERATED_BODY()
-
-protected:
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	TSubclassOf<class ACombatPiece> CombatUnitPieceClass;
+	
+public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	TSubclassOf<class AScoutPiece> ScoutUnitPieceClass;
+	TSubclassOf<class APiece> CombatUnitPieceClass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	TSubclassOf<class APiece> ScoutUnitPieceClass;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	TSubclassOf<class AAdjutantUnit> AdjutantUnitClass;
@@ -26,6 +25,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	TSubclassOf<class AGhostPiece> GhostPieceClass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	TSubclassOf<class AEnemyPiece> EnemyPieceClass;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	UMaterialInterface* PieceMapMarkerMaterial;
@@ -45,9 +47,10 @@ public:
 
 	UClass* GetUnitPathArrowClass() const;
 	UClass* GetGhostPieceClass() const;
+	UClass* GetEnemyPieceClass() const;
 
 	UMaterialInterface* GetPieceMapMarkerMaterial() const { return PieceMapMarkerMaterial; }
 	UMaterialInterface* GetDeadPieceMaterial() const { return DeadPieceMaterial; };
 	UMaterialInterface* GetCombatStatsPieceMaterial() const { return CombatStatsPieceMaterial; };
-	
+
 };

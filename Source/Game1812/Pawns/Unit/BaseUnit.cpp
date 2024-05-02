@@ -46,11 +46,15 @@ void ABaseUnit::OnUnitDeath()
 void ABaseUnit::OnBeingCoveredInFog()
 {
 	SetActorHiddenInGame(true);
+
+	OnUnitFogChange.Broadcast(true);
 }
 
 void ABaseUnit::OnBeingRevealedFromFog()
 {
 	SetActorHiddenInGame(false);
+
+	OnUnitFogChange.Broadcast(false);
 }
 
 bool ABaseUnit::IsCoveredInFog()

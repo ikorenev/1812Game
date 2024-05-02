@@ -6,6 +6,7 @@
 #include "../Components/UnitCombatComponent.h"
 #include "../Components/UnitReportComponent.h"
 #include "../Components/UnitTerrainModifiersComponent.h"
+#include "../Components/UnitPieceProjectionComponent.h"
 #include "../Controllers/EnemyUnitController.h"
 #include "../../../DataAssets/CombatUnitDataAsset.h"
 
@@ -47,11 +48,21 @@ void ACombatUnit::OnConstruction(const FTransform& Transform)
 	{
 		ReportComponent = NewObject<UUnitReportComponent>(this, TEXT("Report Component"));
 		ReportComponent->RegisterComponent();
+
+		if (PieceProjectionComponent)
+			PieceProjectionComponent->DestroyComponent();
+
+		PieceProjectionComponent = nullptr;
 	}
 	else 
 	{
+		PieceProjectionComponent = NewObject<UUnitPieceProjectionComponent>(this, TEXT("Piece Projection Component"));
+		PieceProjectionComponent->RegisterComponent();
+
 		if (ReportComponent)
 			ReportComponent->DestroyComponent();
+
+		ReportComponent = nullptr;
 	}
 
 	if (!CurrentOrder) 

@@ -24,6 +24,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class UUnitReportComponent* ReportComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	class UUnitPieceProjectionComponent* PieceProjectionComponent;
 	//
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
@@ -53,6 +56,7 @@ public:
 	struct FCombatUnitStats* GetCombatUnitStats() const;
 
 	void SetCombatUnitData(class UCombatUnitDataAsset* NewCombatUnitData);
+	const UCombatUnitDataAsset* GetCombatUnitData() const { return CombatUnitData; };
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnCombatUnitDataChange();
