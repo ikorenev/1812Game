@@ -112,15 +112,6 @@ void APiece::SpawnUnit()
 
 void APiece::OnSpawnUnit() { }
 
-void APiece::PlaySoundStartDragging_Implementation() { }
-
-void APiece::PlaySoundSelected_Implementation() { }
-
-void APiece::PlaySoundHit_Implementation(float Force) { }
-
-void APiece::PlaySoundDeath_Implementation() { }
-
-
 void APiece::AssignOrder(UUnitOrder* UnitOrder)
 {
 	OnOrderAssign.Broadcast();
@@ -190,6 +181,16 @@ void APiece::StartCursorHover()
 void APiece::StopCursorHover()
 {
 	OnStopCursorHover.Broadcast();
+}
+
+void APiece::StartGroupSelectionHover()
+{
+	OnStartGroupSelectionHover.Broadcast();
+}
+
+void APiece::StopGroupSelectionHover()
+{
+	OnStopGroupSelectionHover.Broadcast();
 }
 
 void APiece::Selected()

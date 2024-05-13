@@ -96,6 +96,12 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	UStaticMesh* PieceFoundationMesh;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UStaticMesh* UnitMesh;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FTransform UnitMeshTransform;
+
 public:
 
 	FName GetName() const;

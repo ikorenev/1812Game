@@ -4,6 +4,8 @@
 #include "Components/ActorComponent.h"
 #include "PlayerInteractionComponent.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FMultipleSelectionDelegate);
+
 UCLASS()
 class GAME1812_API UPlayerInteractionComponent : public UActorComponent
 {
@@ -30,15 +32,20 @@ protected:
 	float RotateSpeed;
 
 	UPROPERTY(EditAnywhere, Category = "Selection")
-	bool bIsMultiplySelecting;
+	bool bIsMultipleSelection;
 
-	UPROPERTY(EditAnywhere, Category = "Selection")
-	FVector MultipleSelectionStartPoint;
-
+	UPROPERTY(VisibleAnywhere, Category = "Selection")
+	TArray<AActor*> InteractableActorsSelectedGroup;
 
 	class IInteractable* CurrentDraggable;
 	class IInteractable* CurrentHovered;
 	class IInteractable* CurrentSelected;
+
+	UPROPERTY(BlueprintAssignable)
+	FMultipleSelectionDelegate OnMultipleSelectionStart;
+	
+	UPROPERTY(BlueprintAssignable)
+	FMultipleSelectionDelegate OnMultipleSelectionEnd;
 
 	void SetCurrentDraggable(class IInteractable* NewDraggable);
 	void SetCurrentHovered(class IInteractable* NewHovered);
@@ -47,9 +54,18 @@ protected:
 	virtual void BeginPlay() override;
 
 	FHitResult SingleCursorTrace();
-	class IInteractable* FindInteractableAtCursor();
+	void FindInteractableAtCursor(AActor*& Actor, class IInteractable*& Interactable);
+
+	FVector GetSurfaceUnderActor(AActor* Actor);
 
 public:	
+
+	void ClearSelectedGroup();
+
+	UFUNCTION(BlueprintCallable)
+	void SetSelectedGroup(UPARAM(Ref) const TArray<TScriptInterface<class IInteractable>>& NewGroup);
+
+	const TArray<AActor*>& GetSelectedGroup() const { return InteractableActorsSelectedGroup; }
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 };

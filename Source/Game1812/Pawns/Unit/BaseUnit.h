@@ -7,6 +7,8 @@
 #include "UnitTypeEnum.h"
 #include "BaseUnit.generated.h"
 
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnUnitFogChangeDelegate, bool);
+
 UCLASS(Abstract, Blueprintable)
 class GAME1812_API ABaseUnit : public APawn, public IFogAffected
 {
@@ -38,6 +40,8 @@ protected:
 	virtual void BeginPlay() override;
 
 public:	
+
+	FOnUnitFogChangeDelegate OnUnitFogChange;
 
 	virtual void OnUnitDeath();
 

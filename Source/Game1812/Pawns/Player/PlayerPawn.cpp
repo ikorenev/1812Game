@@ -13,7 +13,6 @@
 #include <EnhancedInputComponent.h>
 #include <EnhancedInputSubsystems.h>
 
-
 FPlayerInput::FPlayerInput()
 {
 	MouseScroll = 0.0f;
@@ -29,6 +28,8 @@ FPlayerInput::FPlayerInput()
 	RotateLeft = false;
 	RotateRight = false;
 }
+
+APlayerPawn* APlayerPawn::Instance = nullptr;
 
 APlayerPawn::APlayerPawn()
 {
@@ -58,12 +59,15 @@ void APlayerPawn::MoveBack(const FInputActionValue& Value) { PlayerInput.MoveBac
 void APlayerPawn::MoveLeft(const FInputActionValue& Value) { PlayerInput.MoveLeft = Value.Get<bool>(); };
 void APlayerPawn::MoveRight(const FInputActionValue& Value) { PlayerInput.MoveRight = Value.Get<bool>(); };
 void APlayerPawn::LookAtMap(const FInputActionValue& Value) { PlayerInput.LookAtMap = Value.Get<bool>(); };
+void APlayerPawn::LeftShift(const FInputActionValue& Value) { PlayerInput.LeftShift = Value.Get<bool>(); };
 void APlayerPawn::RotateLeft(const FInputActionValue& Value) { PlayerInput.RotateLeft = Value.Get<bool>(); };
 void APlayerPawn::RotateRight(const FInputActionValue& Value) { PlayerInput.RotateRight = Value.Get<bool>(); };
 
 void APlayerPawn::BeginPlay()
 {
 	Super::BeginPlay();
+
+	Instance = this;
 
 	if (GetLocalViewingPlayerController()) GetLocalViewingPlayerController()->SetShowMouseCursor(true);
 }
@@ -106,6 +110,8 @@ void APlayerPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerEnhancedInputComponent->BindAction(InputConfig->MoveRight, ETriggerEvent::Triggered, this, &APlayerPawn::MoveRight);
 
 	PlayerEnhancedInputComponent->BindAction(InputConfig->LookAtMap, ETriggerEvent::Triggered, this, &APlayerPawn::LookAtMap);
+
+	PlayerEnhancedInputComponent->BindAction(InputConfig->LeftShift, ETriggerEvent::Triggered, this, &APlayerPawn::LeftShift);
 
 	PlayerEnhancedInputComponent->BindAction(InputConfig->RotateLeft, ETriggerEvent::Triggered, this, &APlayerPawn::RotateLeft);
 	PlayerEnhancedInputComponent->BindAction(InputConfig->RotateRight, ETriggerEvent::Triggered, this, &APlayerPawn::RotateRight);

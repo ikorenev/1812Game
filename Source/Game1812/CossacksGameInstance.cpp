@@ -1,11 +1,12 @@
 #include "CossacksGameInstance.h"
 
 #include "Pawns/Unit/Units/AdjutantUnit.h"
-
 #include "Actors/Pieces/ScoutPiece.h"
 #include "Actors/Pieces/CombatPiece.h"
 #include "Actors/UnitPathArrow.h"
 #include "Actors/GhostPiece.h"
+#include "Actors/EnemyPiece.h"
+
 
 UClass* UCossacksGameInstance::GetCombatUnitPieceClass() const
 {
@@ -30,4 +31,9 @@ UClass* UCossacksGameInstance::GetUnitPathArrowClass() const
 UClass* UCossacksGameInstance::GetGhostPieceClass() const
 {
 	return GhostPieceClass.Get();
+}
+
+UClass* UCossacksGameInstance::GetEnemyPieceClass() const
+{
+	return EnemyPieceClass.Get();
 }

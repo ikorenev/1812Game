@@ -38,9 +38,14 @@ public:
 	void StartCursorHover() override;
 	void StopCursorHover() override;
 
+	virtual void StartGroupSelectionHover() override;
+	virtual void StopGroupSelectionHover() override;
+
 	void Selected() override;
 	void SelectionRemoved() override;
 
 	FVector GetDragOffset() override;
+
+	bool CanBeGrouped() override { return false; }
 	//
 };
