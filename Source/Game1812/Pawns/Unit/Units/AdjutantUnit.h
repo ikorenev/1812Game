@@ -54,8 +54,11 @@ protected:
 
 	struct FAssignedCombatUnitOrder FindClosestTarget();
 
-	UFUNCTION(BlueprintNativeEvent)
+	UFUNCTION(BlueprintImplementableEvent)
 	void OnReturnToHQ();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnOrderAssign();
 
 public:
 

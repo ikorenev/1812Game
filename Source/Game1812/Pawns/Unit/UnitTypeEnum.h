@@ -3,7 +3,7 @@
 #include "CoreMinimal.h"
 #include "UnitTypeEnum.generated.h"
 
-UENUM()
+UENUM(BlueprintType)
 enum class ECombatUnitType : uint8
 {
 	None		UMETA(DisplayName = "None"),

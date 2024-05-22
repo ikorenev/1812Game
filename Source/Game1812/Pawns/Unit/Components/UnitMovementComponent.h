@@ -4,8 +4,12 @@
 #include "Components/ActorComponent.h"
 #include "UnitMovementComponent.generated.h"
 
+UDELEGATE(BlueprintAuthorityOnly)
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnMovementStartDelegate);
+
+UDELEGATE(BlueprintAuthorityOnly)
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnMovementEndDelegate);
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMoveDelegate, float, Distance);
 
 UCLASS(Blueprintable, BlueprintType)
@@ -62,7 +66,10 @@ protected:
 
 public:	
 
+	UPROPERTY(BlueprintAssignable)
 	FOnMovementStartDelegate OnMovementStart;
+
+	UPROPERTY(BlueprintAssignable)
 	FOnMovementEndDelegate OnMovementEnd;
 
 	FOnMoveDelegate OnMove;
