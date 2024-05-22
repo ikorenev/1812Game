@@ -71,6 +71,7 @@ void AAdjutantUnit::OnMovementComplete()
 	if (IsInReachToInteractWithActor(closestTarget.Unit.Get()))
 	{
 		closestTarget.Unit->AssignOrder(closestTarget.UnitOrder);
+		OnOrderAssign();
 		Orders.Remove(closestTarget);
 
 		ACombatUnit* combatUnit = Cast<ACombatUnit>(closestTarget.Unit);
@@ -119,8 +120,6 @@ FAssignedCombatUnitOrder AAdjutantUnit::FindClosestTarget()
 
 	return closestUnit;
 }
-
-void AAdjutantUnit::OnReturnToHQ_Implementation() {}
 
 bool AAdjutantUnit::IsOnDeathCooldown()
 {
