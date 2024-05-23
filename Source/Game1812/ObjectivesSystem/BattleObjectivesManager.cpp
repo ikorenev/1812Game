@@ -55,13 +55,13 @@ void ABattleObjectivesManager::Tick(float DeltaTime)
 
 	if (LoseCondition && LoseCondition->GetState())
 	{
-		GEngine->AddOnScreenDebugMessage(100, 15.f, FColor::Red, "Lose");
+		//GEngine->AddOnScreenDebugMessage(100, 15.f, FColor::Red, "Lose");
 		OnBattleLost.Broadcast();
 		BattleState = EBattleState::Lose;
 	}
 	else if (WinCondition && WinCondition->GetState())
 	{
-		GEngine->AddOnScreenDebugMessage(100, 15.f, FColor::Red, "Win");
+		//GEngine->AddOnScreenDebugMessage(100, 15.f, FColor::Red, "Win");
 		OnBattleWin.Broadcast();
 		BattleState = EBattleState::Win;
 	}
@@ -151,10 +151,10 @@ float ABattleObjectivesManager::GetTakenCasualties() const
 
 float ABattleObjectivesManager::GetEnemyStartHP() const
 {
-	return StartHP;
+	return EnemyStartHP;
 }
 
 float ABattleObjectivesManager::GetEnemyTakenCasualties() const
 {
-	return TakenCasualties;
+	return EnemyTakenCasualties;
 }
