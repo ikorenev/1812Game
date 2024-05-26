@@ -60,27 +60,36 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	bool bIsDead;
 
-	FOnPieceChangeDelegate OnUnitSpawn;
-	FOnPieceChangeDelegate OnUnitDeath;
+#define ADD_PIECE_CHANGE_DELEGATE(name) \
+	protected: FOnPieceChangeDelegate On##name; \
+	public: void AddOn##name##Handler(const FOnPieceChangeDelegate::FDelegate& Handler) { On##name##.Add(Handler); }; \
+	protected:
 
-	FOnPieceChangeDelegate OnOrderAssign;
+	ADD_PIECE_CHANGE_DELEGATE(UnitSpawn)
+	ADD_PIECE_CHANGE_DELEGATE(UnitDeath)
 
-	FOnPieceChangeDelegate OnMapHit;
-	FOnPieceChangeDelegate OnMapHitWasDragged;
+	ADD_PIECE_CHANGE_DELEGATE(OrderAssign)
 
-	FOnPieceChangeDelegate OnStartDragging;
-	FOnPieceChangeDelegate OnStopDragging;
-	FOnPieceChangeDelegate OnStartCursorHover;
-	FOnPieceChangeDelegate OnStopCursorHover;
-	FOnPieceChangeDelegate OnStartGroupSelectionHover;
-	FOnPieceChangeDelegate OnStopGroupSelectionHover;
-	FOnPieceChangeDelegate OnSelected;
-	FOnPieceChangeDelegate OnSelectionRemoved;
+	ADD_PIECE_CHANGE_DELEGATE(MapHit)
+	ADD_PIECE_CHANGE_DELEGATE(MapHitWasDragged)
+	ADD_PIECE_CHANGE_DELEGATE(RemovedFromMap)
+
+	ADD_PIECE_CHANGE_DELEGATE(StartDragging)
+	ADD_PIECE_CHANGE_DELEGATE(StopDragging)
+	ADD_PIECE_CHANGE_DELEGATE(StartCursorHover)
+	ADD_PIECE_CHANGE_DELEGATE(StopCursorHover)
+	ADD_PIECE_CHANGE_DELEGATE(StartGroupSelectionHover)
+	ADD_PIECE_CHANGE_DELEGATE(StopGroupSelectionHover)
+	ADD_PIECE_CHANGE_DELEGATE(Selected)
+	ADD_PIECE_CHANGE_DELEGATE(SelectionRemoved)
 
 	virtual void BeginPlay() override;
 
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+
+	UFUNCTION()
+	void OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 	void SpawnUnit();
 
@@ -136,22 +145,4 @@ public:
 	FVector GetDragOffset() override;
 
 	virtual bool CanBeGrouped() override { return true; }
-	//
-
-	void AddOnUnitSpawnHandler(const FOnPieceChangeDelegate::FDelegate& Handler) { OnUnitSpawn.Add(Handler); };
-	void AddOnUnitDeathHandler(const FOnPieceChangeDelegate::FDelegate& Handler) { OnUnitDeath.Add(Handler); };
-
-	void AddOnOrderAssignHandler(const FOnPieceChangeDelegate::FDelegate& Handler) { OnOrderAssign.Add(Handler); };
-
-	void AddOnMapHitHandler(const FOnPieceChangeDelegate::FDelegate& Handler) { OnMapHit.Add(Handler); };
-	void AddOnMapHitWasDraggedHandler(const FOnPieceChangeDelegate::FDelegate& Handler) { OnMapHitWasDragged.Add(Handler); };
-
-	void AddOnStartDraggingHandler(const FOnPieceChangeDelegate::FDelegate& Handler) { OnStartDragging.Add(Handler); };
-	void AddOnStopDraggingHandler(const FOnPieceChangeDelegate::FDelegate& Handler) { OnStopDragging.Add(Handler); };
-	void AddOnStartCursorHoverHandler(const FOnPieceChangeDelegate::FDelegate& Handler) { OnStartCursorHover.Add(Handler); };
-	void AddOnStopCursorHoverHandler(const FOnPieceChangeDelegate::FDelegate& Handler) { OnStopCursorHover.Add(Handler); };
-	void AddOnStartGroupSelectionHoverHandler(const FOnPieceChangeDelegate::FDelegate& Handler) { OnStartGroupSelectionHover.Add(Handler); };
-	void AddOnStopGroupSelectionHoverHandler(const FOnPieceChangeDelegate::FDelegate& Handler) { OnStopGroupSelectionHover.Add(Handler); };
-	void AddOnSelectedHandler(const FOnPieceChangeDelegate::FDelegate& Handler) { OnSelected.Add(Handler); };
-	void AddOnSelectionRemovedHandler(const FOnPieceChangeDelegate::FDelegate& Handler) { OnSelectionRemoved.Add(Handler); };
 };

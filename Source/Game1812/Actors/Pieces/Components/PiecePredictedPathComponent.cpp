@@ -26,8 +26,9 @@ void UPiecePredictedPathComponent::BeginPlay()
 	OwnerPiece->AddOnStartDraggingHandler(FOnPieceChangeDelegate::FDelegate::CreateUObject(this, &UPiecePredictedPathComponent::SpawnArrow));
 
 	OwnerPiece->AddOnMapHitWasDraggedHandler(FOnPieceChangeDelegate::FDelegate::CreateUObject(this, &UPiecePredictedPathComponent::BuildArrow));
+	OwnerPiece->AddOnRemovedFromMapHandler(FOnPieceChangeDelegate::FDelegate::CreateUObject(this, &UPiecePredictedPathComponent::DestroyArrow));
 	
-	OwnerPiece->AddOnOrderAssignHandler(FOnPieceChangeDelegate::FDelegate::CreateUObject(this, &UPiecePredictedPathComponent::DestroyArrow));
+	OwnerPiece->AddOnOrderAssignHandler(FOnPieceChangeDelegate::FDelegate::CreateUObject(this, &UPiecePredictedPathComponent::ApplyArrow));
 	OwnerPiece->AddOnUnitDeathHandler(FOnPieceChangeDelegate::FDelegate::CreateUObject(this, &UPiecePredictedPathComponent::DestroyArrow));
 
 	GetWorld()->GetTimerManager().SetTimerForNextTick(FTimerDelegate::CreateUObject(this, &UPiecePredictedPathComponent::InitStartPoint));
@@ -73,6 +74,9 @@ void UPiecePredictedPathComponent::SpawnGhostPiece(const FVector& Location)
 void UPiecePredictedPathComponent::BuildArrow()
 {
 	if (!UnitPathArrow.IsValid())
+		SpawnArrow();
+
+	if (!UnitPathArrow.IsValid())
 		return;
 
 	if (GhostPieces.IsEmpty()) 
@@ -114,6 +118,11 @@ void UPiecePredictedPathComponent::DestroyArrow()
 		piece->Destroy();
 	}
 	GhostPieces.Empty();
+}
+
+void UPiecePredictedPathComponent::ApplyArrow()
+{
+	DestroyArrow();
 
 	if (!bIsScout)
 		PathStartPoint = OwnerPiece->GetActorLocation();

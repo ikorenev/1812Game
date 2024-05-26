@@ -55,6 +55,7 @@ void APiece::BeginPlay()
 	Super::BeginPlay();
 
 	BoxCollisionComponent->OnComponentHit.AddDynamic(this, &APiece::OnHit);
+	BoxCollisionComponent->OnComponentEndOverlap.AddDynamic(this, &APiece::OnEndOverlap);
 
 }
 
@@ -95,6 +96,14 @@ void APiece::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimi
 	
 	SpawnUnit();
 	bCanSpawnUnit = false;
+}
+
+void APiece::OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	if (!OtherComp->ComponentTags.Contains("MapBorder"))
+		return;
+
+	OnRemovedFromMap.Broadcast();
 }
 
 void APiece::SpawnUnit()
@@ -154,7 +163,8 @@ void APiece::StartDragging()
 	PlaySoundStartDragging();
 
 	BoxCollisionComponent->SetSimulatePhysics(false);
-	SetActorEnableCollision(false);
+	BoxCollisionComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	//SetActorEnableCollision(false);
 
 	ResetRotation();
 }
@@ -164,7 +174,8 @@ void APiece::StopDragging()
 	OnStopDragging.Broadcast();
 
 	BoxCollisionComponent->SetSimulatePhysics(true);
-	SetActorEnableCollision(true);
+	BoxCollisionComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	//SetActorEnableCollision(true);
 
 	FVector velocity = BoxCollisionComponent->GetPhysicsLinearVelocity();
 	velocity.Z = 0;

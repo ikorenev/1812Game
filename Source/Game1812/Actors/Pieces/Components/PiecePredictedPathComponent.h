@@ -37,6 +37,7 @@ protected:
 	void ScoutBuildArrow();
 	
 	void DestroyArrow();
+	void ApplyArrow();
 
 	void InitStartPoint();
 public:	

@@ -19,7 +19,7 @@ protected:
 	class UStaticMeshComponent* PaperMeshComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	float BordersHeight;
+	class UBoxComponent* BordersComponent;
 
 	virtual void BeginPlay() override;
 

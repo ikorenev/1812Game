@@ -10,15 +10,15 @@ APaperMap::APaperMap()
 	PaperMeshComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Block);
 	RootComponent = PaperMeshComponent;
 
-	BordersHeight = 250.f;
+	BordersComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("Borders Box"));
+	BordersComponent->SetupAttachment(RootComponent);
+	BordersComponent->SetCollisionResponseToChannels(ECollisionResponse::ECR_Overlap);
+	BordersComponent->ComponentTags.Add("MapBorder");
 }
 
 void APaperMap::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	//FVector mapBordersExtent = PaperMeshComponent->CalcBounds(PaperMeshComponent->GetComponentTransform()).BoxExtent;
-	//mapBordersExtent /= GetActorScale3D();
-	//mapBordersExtent.Z = BordersHeight;
-	//MapBordersComponent->InitBoxExtent(mapBordersExtent);
+	
 }
